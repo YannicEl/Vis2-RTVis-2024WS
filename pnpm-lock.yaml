@@ -21,6 +21,9 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: 4.0.0-next.8
         version: 4.0.0-next.8(svelte@5.0.0-next.264)(vite@5.4.8(@types/node@22.7.5))
+      '@webgpu/types':
+        specifier: 0.1.48
+        version: 0.1.48
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -780,6 +783,9 @@ packages:
     resolution: {integrity: sha512-YK0L177GD8Kx+JtfiCJy4YyBYckAXo4ogC8LZ+pYVNXDMN+F+XItpGI/ofLRaGIaewNg+MJgGY+CQZceABEAfg==}
     peerDependencies:
       vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0-0
+
+  '@webgpu/types@0.1.48':
+    resolution: {integrity: sha512-e3zmDEPih4Rle+JrP5cT8nCCtDizoUpEaN72OuD1clbhXGERtn0wwuMdxOrBymu3kMLWKDd8hd+ERhSheLuLTg==}
 
   acorn-typescript@1.4.13:
     resolution: {integrity: sha512-xsc9Xv0xlVfwp2o7sQ+GCQ1PgbkdcpWdTzrwXxO3xDMTAywVS3oXVOcOHuRjAPkS4P9b+yc/qNF15460v+jp4Q==}
@@ -1985,6 +1991,8 @@ snapshots:
     transitivePeerDependencies:
       - rollup
       - supports-color
+
+  '@webgpu/types@0.1.48': {}
 
   acorn-typescript@1.4.13(acorn@8.12.1):
     dependencies:
