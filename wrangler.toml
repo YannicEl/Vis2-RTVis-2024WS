@@ -1,0 +1,7 @@
+name = "vis2-rtvis-2024ws"
+compatibility_date = "2024-10-11"
+
+main = "./.cloudflare/worker.js"
+site.bucket = "./.cloudflare/public"
+
+observability.enabled = true
