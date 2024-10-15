@@ -11,22 +11,14 @@ export class Camera {
 	public yaw = degToRad(-90);
 	public pitch = degToRad(0);
 
-	public viewMatrix: mat4;
-	public projectionMatrix: mat4;
-
 	constructor(
 		private fov = 60,
 		private aspect = 1,
 		private near = 1,
 		private far = 2000
-	) {
-		this.projectionMatrix = mat4.create();
-		this.viewMatrix = mat4.create();
-		this.updateViewMatrix();
-		this.updateProjectionMatrix();
-	}
+	) {}
 
-	updateViewMatrix(): void {
+	get viewMatrix(): mat4 {
 		vec3.normalize(
 			this.front,
 			vec3.fromValues(
@@ -39,21 +31,19 @@ export class Camera {
 		vec3.normalize(this.right, vec3.cross(vec3.create(), this.front, this.worldUp));
 		vec3.normalize(this.up, vec3.cross(vec3.create(), this.right, this.front));
 
-		this.viewMatrix = mat4.lookAt(
-			this.viewMatrix,
+		return mat4.lookAt(
+			mat4.create(),
 			this.position,
 			vec3.add(vec3.create(), this.position, this.front),
 			this.up
 		);
 	}
 
-	updateProjectionMatrix(): void {
-		this.projectionMatrix = mat4.perspective(
-			this.projectionMatrix,
-			degToRad(this.fov),
-			this.aspect,
-			this.near,
-			this.far
-		);
+	get projectionMatrix(): mat4 {
+		return mat4.perspective(mat4.create(), degToRad(this.fov), this.aspect, this.near, this.far);
+	}
+
+	get viewProjectionMatrix(): mat4 {
+		return mat4.multiply(mat4.create(), this.projectionMatrix, this.viewMatrix);
 	}
 }

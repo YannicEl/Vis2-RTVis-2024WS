@@ -17,7 +17,7 @@
 				const webGPU = await initWebGPU();
 
 				const geometry = new TriangleGeometry();
-				const material = new ColorMaterial('');
+				const material = new ColorMaterial([0, 0, 1, 1]);
 				const triangle = new SceneObject(geometry, material);
 
 				const scene = new Scene();

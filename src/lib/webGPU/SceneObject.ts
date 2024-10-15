@@ -11,8 +11,8 @@ export class SceneObject {
 	#pipeline: GPURenderPipeline | null = null;
 
 	#uniformBindGroup: GPUBindGroup | null = null;
-	#projectionMatrixBuffer: GPUBuffer | null = null;
-	#viewMatrixBuffer: GPUBuffer | null = null;
+	#viewProjectionMatrixBuffer: GPUBuffer | null = null;
+	#materialBuffer: GPUBuffer | null = null;
 
 	constructor(geometry: Geometry, material: Material) {
 		this.#geometry = geometry;
@@ -20,12 +20,13 @@ export class SceneObject {
 	}
 
 	load(device: GPUDevice): void {
-		const { vertexShaderModule, fragmentShaderModule } = this.#material.loadShader(device);
-		const { vertexBuffer, viewMatrixBuffer, projectionMatrixBuffer } = this.#geometry.load(device);
+		const { vertexShaderModule, fragmentShaderModule, materialBuffer } =
+			this.#material.load(device);
+		const { vertexBuffer, viewProjectionMatrixBuffer } = this.#geometry.load(device);
 
 		this.#vertexBuffer = vertexBuffer;
-		this.#viewMatrixBuffer = viewMatrixBuffer;
-		this.#projectionMatrixBuffer = projectionMatrixBuffer;
+		this.#viewProjectionMatrixBuffer = viewProjectionMatrixBuffer;
+		this.#materialBuffer = materialBuffer;
 
 		this.#pipeline = device.createRenderPipeline({
 			layout: 'auto',
@@ -70,13 +71,13 @@ export class SceneObject {
 				{
 					binding: 0,
 					resource: {
-						buffer: this.#viewMatrixBuffer,
+						buffer: this.#viewProjectionMatrixBuffer,
 					},
 				},
 				{
 					binding: 1,
 					resource: {
-						buffer: this.#projectionMatrixBuffer,
+						buffer: this.#materialBuffer,
 					},
 				},
 			],
@@ -87,24 +88,22 @@ export class SceneObject {
 		throw new Error('Method not implemented.');
 	}
 
-	render(
-		device: GPUDevice,
-		encoder: GPURenderPassEncoder,
-		projectionMatrix: mat4,
-		viewMatrix: mat4
-	): void {
+	render(device: GPUDevice, encoder: GPURenderPassEncoder, viewProjectionMatrix: mat4): void {
 		if (
 			!this.#pipeline ||
 			!this.#uniformBindGroup ||
 			!this.#vertexBuffer ||
-			!this.#viewMatrixBuffer ||
-			!this.#projectionMatrixBuffer
+			!this.#viewProjectionMatrixBuffer ||
+			!this.#materialBuffer
 		) {
 			throw new Error('SceneObject not loaded');
 		}
 
-		queueBufferWrite(device, this.#viewMatrixBuffer, viewMatrix as Float32Array);
-		queueBufferWrite(device, this.#projectionMatrixBuffer, projectionMatrix as Float32Array);
+		queueBufferWrite(
+			device,
+			this.#viewProjectionMatrixBuffer,
+			viewProjectionMatrix as Float32Array
+		);
 
 		encoder.setPipeline(this.#pipeline);
 		encoder.setBindGroup(0, this.#uniformBindGroup);

@@ -22,20 +22,14 @@ export class TriangleGeometry extends Geometry {
 		new Float32Array(vertexBuffer.getMappedRange()).set(triangleVertices);
 		vertexBuffer.unmap();
 
-		const viewMatrixBuffer = device.createBuffer({
-			size: 4 * 16, // 4x4 matrix
-			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-		});
-
-		const projectionMatrixBuffer = device.createBuffer({
+		const viewProjectionMatrixBuffer = device.createBuffer({
 			size: 4 * 16, // 4x4 matrix
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
 
 		return {
 			vertexBuffer,
-			viewMatrixBuffer,
-			projectionMatrixBuffer,
+			viewProjectionMatrixBuffer,
 		};
 	}
 }

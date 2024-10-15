@@ -51,6 +51,7 @@ export class Renderer {
 
 		passEncoder.end();
 
-		this.#device.queue.submit([commandEncoder.finish()]);
+		const commandBuffer = commandEncoder.finish();
+		this.#device.queue.submit([commandBuffer]);
 	}
 }

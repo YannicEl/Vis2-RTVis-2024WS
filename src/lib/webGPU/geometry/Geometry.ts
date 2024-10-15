@@ -1,11 +1,10 @@
 export abstract class Geometry {
-	#vertexBuffer: GPUBuffer | null = null;
+	protected vertexBuffer: GPUBuffer | null = null;
 
 	constructor() {}
 
 	abstract load(device: GPUDevice): {
 		vertexBuffer: GPUBuffer;
-		viewMatrixBuffer: GPUBuffer;
-		projectionMatrixBuffer: GPUBuffer;
+		viewProjectionMatrixBuffer: GPUBuffer;
 	};
 }

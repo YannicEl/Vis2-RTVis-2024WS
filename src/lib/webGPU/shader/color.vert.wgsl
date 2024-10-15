@@ -1,18 +1,17 @@
-@binding(0) @group(0) var<uniform> viewMatrix : mat4x4 < f32>;
-@binding(1) @group(0) var<uniform> projectionMatrix : mat4x4 < f32>;
+@group(0) @binding(0) var<uniform> viewProjectionMatrix : mat4x4f;
 
 struct VertexOutput {
-  @builtin(position) Position : vec4 < f32>,
-  @location(0) color : vec4 < f32>,
+  @builtin(position) position : vec4f,
+  @location(0) color : vec4f,
 }
 
 @vertex
 fn main(
-@location(0) position : vec4 < f32>,
-@location(1) color : vec4 < f32>
+@location(0) position : vec4f,
+@location(1) color : vec4f
 ) -> VertexOutput {
   var output : VertexOutput;
-  output.Position = projectionMatrix * viewMatrix * position;
+  output.position = viewProjectionMatrix * position;
   output.color = color;
   return output;
 }
