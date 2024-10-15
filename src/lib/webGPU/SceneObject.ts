@@ -34,19 +34,13 @@ export class SceneObject {
 				module: vertexShaderModule,
 				buffers: [
 					{
-						arrayStride: 4 * 7,
+						arrayStride: 4 * 3,
 						attributes: [
 							{
 								// position
 								shaderLocation: 0,
 								offset: 0,
 								format: 'float32x3',
-							},
-							{
-								// color
-								shaderLocation: 1,
-								offset: 4 * 3,
-								format: 'float32x4',
 							},
 						],
 					},

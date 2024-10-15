@@ -8,10 +8,10 @@ export class TriangleGeometry extends Geometry {
 	load(device: GPUDevice) {
 		// prettier-ignore
 		const triangleVertices = new Float32Array([
-        // position   color
-        0,  1,  0,    0,  1,  1,  1,
-        1,  -1, 0,    1,  0,  1,  1,
-        -1, -1, 0,    1,  1,  0,  1,
+        // position
+        0,  1,  0, 
+        1,  -1, 0, 
+        -1, -1, 0, 
       ])
 
 		const vertexBuffer = device.createBuffer({
