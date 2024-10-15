@@ -1,24 +1,18 @@
 type InitWebGPUParmas = {
-	canvas: HTMLCanvasElement;
 	adapterOptions?: GPURequestAdapterOptions;
 	deviceOptions?: GPUDeviceDescriptor;
 };
 
 type WebGPU = {
-	ctx: GPUCanvasContext;
 	adapter: GPUAdapter;
 	device: GPUDevice;
 };
 
 export async function initWebGPU({
-	canvas,
 	adapterOptions,
 	deviceOptions,
-}: InitWebGPUParmas): Promise<WebGPU> {
+}: InitWebGPUParmas = {}): Promise<WebGPU> {
 	if (!navigator.gpu) throw new Error('WebGPU not supported');
-
-	const ctx = canvas.getContext('webgpu');
-	if (!ctx) throw new Error('Error requesting WebPU context');
 
 	const adapter = await navigator.gpu.requestAdapter(adapterOptions);
 	if (!adapter) throw new Error('Error requesting WebGPU adapter');
@@ -28,26 +22,7 @@ export async function initWebGPU({
 		console.error(`WebGPU device was lost: ${info.message}`);
 	});
 
-	const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-	ctx.configure({
-		device,
-		format: presentationFormat,
-		alphaMode: 'opaque',
-	});
-
-	const resizeObserver = new ResizeObserver((entries) => {
-		for (const entry of entries) {
-			if (entry.target instanceof HTMLCanvasElement) {
-				const width = entry.contentBoxSize[0].inlineSize;
-				const height = entry.contentBoxSize[0].blockSize;
-				canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-				canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
-			}
-		}
-	});
-	resizeObserver.observe(canvas);
-
-	return { ctx, adapter, device };
+	return { adapter, device };
 }
 
 export function draw(callback: (deltaTime: number) => void): void {
@@ -63,3 +38,28 @@ export function draw(callback: (deltaTime: number) => void): void {
 
 	window.requestAnimationFrame((now) => onFrame(0, now));
 }
+
+export const createAndMapBuffer = (
+	device: GPUDevice,
+	size: number,
+	usage: GPUBufferUsageFlags,
+	array: number[] | Float32Array | Float64Array
+) => {
+	const buffer = device.createBuffer({
+		size,
+		usage,
+		mappedAtCreation: true,
+	});
+	new Float32Array(buffer.getMappedRange()).set(array);
+	buffer.unmap();
+
+	return buffer;
+};
+
+export const queueBufferWrite = (
+	device: GPUDevice,
+	buffer: GPUBuffer,
+	data: Float32Array
+): void => {
+	device.queue.writeBuffer(buffer, 0, data.buffer, data.byteOffset, data.byteLength);
+};

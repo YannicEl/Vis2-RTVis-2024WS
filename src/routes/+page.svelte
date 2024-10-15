@@ -1,19 +1,41 @@
 <script lang="ts">
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
-	import { initWebGPU, draw } from '$lib/webgpu';
+	import { Camera } from '$lib/webGPU/Camera';
+	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
+	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
+	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
+	import { Renderer } from '$lib/webGPU/Renderer';
+	import { Scene } from '$lib/webGPU/Scene';
+	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { onMount } from 'svelte';
 
 	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
 	onMount(async () => {
 		if (canvas) {
-			const webGPU = await initWebGPU({ canvas });
-			console.log(webGPU);
-		}
+			try {
+				const webGPU = await initWebGPU();
 
-		draw((deltaTime) => {
-			fps = 1000 / deltaTime;
-		});
+				const geometry = new TriangleGeometry();
+				const material = new ColorMaterial('');
+				const triangle = new SceneObject(geometry, material);
+
+				const scene = new Scene();
+				scene.add(triangle);
+				scene.load(webGPU.device);
+
+				const renderer = new Renderer(canvas, webGPU.device);
+				const camera = new Camera();
+
+				draw((deltaTime) => {
+					fps = 1000 / deltaTime;
+
+					renderer.render(scene, camera);
+				});
+			} catch (error) {
+				alert(error);
+			}
+		}
 	});
 </script>
 

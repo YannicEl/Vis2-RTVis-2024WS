@@ -11,6 +11,12 @@ importers:
       '@unocss/reset':
         specifier: 0.63.4
         version: 0.63.4
+      gl-matrix:
+        specifier: ^3.4.3
+        version: 3.4.3
+      wgpu-matrix:
+        specifier: ^3.2.0
+        version: 3.2.0
     devDependencies:
       '@sveltejs/adapter-cloudflare-workers':
         specifier: 2.5.4
@@ -959,6 +965,9 @@ packages:
   get-tsconfig@4.8.1:
     resolution: {integrity: sha512-k9PN+cFBmaLWtVz29SkUoqU5O0slLuHJXt/2P+tMVFT+phsSGXGkp9t3rQIqdz0e+06EHNGs3oM6ZX1s2zHxRg==}
 
+  gl-matrix@3.4.3:
+    resolution: {integrity: sha512-wcCp8vu8FT22BnvKVPjXa/ICBWRq/zjFfdofZy1WSpQZpphblv12/bOQLBC1rMM7SGOFS9ltVmKOHil5+Ml7gA==}
+
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -1387,6 +1396,9 @@ packages:
     peerDependenciesMeta:
       vite:
         optional: true
+
+  wgpu-matrix@3.2.0:
+    resolution: {integrity: sha512-0Ac1QiZFICoOyLHCWETXSPkWx9mVMAs1z98smywAm67vyzNkmaiHVqzrlm2emrzMZbmx6tO8DCOjtwer0ZnDiQ==}
 
   workerd@1.20240925.0:
     resolution: {integrity: sha512-/Jj6+yLwfieZGEt3Kx4+5MoufuC3g/8iFaIh4MPBNGJOGYmdSKXvgCqz09m2+tVCYnysRfbq2zcbVxJRBfOCqQ==}
@@ -2201,6 +2213,8 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
+  gl-matrix@3.4.3: {}
+
   glob-parent@5.1.2:
     dependencies:
       is-glob: 4.0.3
@@ -2583,6 +2597,8 @@ snapshots:
   vitefu@1.0.2(vite@5.4.8(@types/node@22.7.5)):
     optionalDependencies:
       vite: 5.4.8(@types/node@22.7.5)
+
+  wgpu-matrix@3.2.0: {}
 
   workerd@1.20240925.0:
     optionalDependencies:
