@@ -31,7 +31,6 @@
 	},
 	"dependencies": {
 		"@unocss/reset": "0.63.4",
-		"gl-matrix": "3.4.3",
 		"wgpu-matrix": "3.2.0"
 	}
 }

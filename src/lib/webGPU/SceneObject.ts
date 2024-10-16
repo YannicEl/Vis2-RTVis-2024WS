@@ -1,4 +1,4 @@
-import type { mat4 } from 'gl-matrix';
+import type { Mat4 } from 'wgpu-matrix';
 import type { Geometry } from './geometry/Geometry.js';
 import { queueBufferWrite } from './helpers/webGpu.js';
 import type { Material } from './material/Material.js';
@@ -82,7 +82,7 @@ export class SceneObject {
 		throw new Error('Method not implemented.');
 	}
 
-	render(device: GPUDevice, encoder: GPURenderPassEncoder, viewProjectionMatrix: mat4): void {
+	render(device: GPUDevice, encoder: GPURenderPassEncoder, viewProjectionMatrix: Mat4): void {
 		if (
 			!this.#pipeline ||
 			!this.#uniformBindGroup ||
@@ -93,11 +93,7 @@ export class SceneObject {
 			throw new Error('SceneObject not loaded');
 		}
 
-		queueBufferWrite(
-			device,
-			this.#viewProjectionMatrixBuffer,
-			viewProjectionMatrix as Float32Array
-		);
+		queueBufferWrite(device, this.#viewProjectionMatrixBuffer, viewProjectionMatrix);
 
 		encoder.setPipeline(this.#pipeline);
 		encoder.setBindGroup(0, this.#uniformBindGroup);
