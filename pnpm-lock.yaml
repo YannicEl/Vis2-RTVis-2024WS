@@ -12,10 +12,10 @@ importers:
         specifier: 0.63.4
         version: 0.63.4
       gl-matrix:
-        specifier: ^3.4.3
+        specifier: 3.4.3
         version: 3.4.3
       wgpu-matrix:
-        specifier: ^3.2.0
+        specifier: 3.2.0
         version: 3.2.0
     devDependencies:
       '@sveltejs/adapter-cloudflare-workers':
