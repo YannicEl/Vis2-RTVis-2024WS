@@ -10,10 +10,10 @@ export type CameraParams = {
 };
 
 export class Camera {
-	public fov = 60;
-	public aspect = 1;
-	public near = 1;
-	public far = 2000;
+	public fov: number;
+	public aspect: number;
+	public near: number;
+	public far: number;
 
 	public position = vec3.create(0, 0, 3);
 	public front = vec3.create(0, 0, -1);
@@ -24,11 +24,11 @@ export class Camera {
 	public yaw = degToRad(-90);
 	public pitch = degToRad(0);
 
-	constructor({ fov, aspect, near, far }: CameraParams = {}) {
-		if (fov) this.fov = fov;
-		if (aspect) this.aspect = aspect;
-		if (near) this.near = near;
-		if (far) this.far = far;
+	constructor({ fov = 60, aspect = 1, near = 1, far = 2000 }: CameraParams = {}) {
+		this.fov = degToRad(fov);
+		this.aspect = aspect;
+		this.near = near;
+		this.far = far;
 	}
 
 	get viewMatrix(): Mat4 {
@@ -48,7 +48,7 @@ export class Camera {
 	}
 
 	get projectionMatrix(): Mat4 {
-		return mat4.perspective(degToRad(this.fov), this.aspect, this.near, this.far);
+		return mat4.perspective(this.fov, this.aspect, this.near, this.far);
 	}
 
 	get viewProjectionMatrix(): Mat4 {
