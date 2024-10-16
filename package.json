@@ -14,20 +14,20 @@
 		"deploy": "wrangler deploy"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-cloudflare-workers": "2.5.4",
-		"@sveltejs/kit": "2.6.4",
+		"@sveltejs/adapter-cloudflare-workers": "2.5.5",
+		"@sveltejs/kit": "2.7.1",
 		"@sveltejs/vite-plugin-svelte": "4.0.0-next.8",
-		"@webgpu/types": "0.1.48",
+		"@webgpu/types": "0.1.49",
 		"prettier": "3.3.3",
 		"prettier-plugin-organize-imports": "4.1.0",
 		"prettier-plugin-svelte": "3.2.7",
 		"prettier-plugin-tailwindcss": "0.6.8",
 		"svelte": "5.0.0-next.264",
-		"svelte-check": "4.0.4",
+		"svelte-check": "4.0.5",
 		"typescript": "5.6.3",
 		"unocss": "0.63.4",
-		"vite": "5.4.8",
-		"wrangler": "3.80.3"
+		"vite": "5.4.9",
+		"wrangler": "3.80.4"
 	},
 	"dependencies": {
 		"@unocss/reset": "0.63.4",
