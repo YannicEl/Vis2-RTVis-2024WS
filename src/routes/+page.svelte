@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BottomControls from '$lib/components/BottomControls.svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
@@ -40,7 +41,9 @@
 </script>
 
 <main class="relative h-screen w-screen">
-	<FpsCounter class="absolute left-2 top-2" {fps} />
+	<FpsCounter class="absolute top-2 left-2" {fps} />
+
+	<BottomControls class="absolute right-0 bottom-4 left-0 mx-auto w-min" />
 
 	<canvas bind:this={canvas} class="h-full w-full"></canvas>
 </main>

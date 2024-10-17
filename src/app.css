@@ -1,3 +1,9 @@
+@import 'tailwindcss';
+
+@theme {
+	--font-family-display: 'Inter', 'sans-serif';
+}
+
 html {
 	font-family: 'Inter', 'sans-serif';
 }

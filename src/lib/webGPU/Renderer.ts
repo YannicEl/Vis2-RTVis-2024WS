@@ -38,7 +38,7 @@ export class Renderer {
 			colorAttachments: [
 				{
 					view: this.#ctx.getCurrentTexture().createView(),
-					clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+					clearValue: [1, 1, 1, 1],
 					loadOp: 'clear',
 					storeOp: 'store',
 				},

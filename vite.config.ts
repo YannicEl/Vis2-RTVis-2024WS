@@ -1,7 +1,8 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import unoCSS from 'unocss/vite';
+import TailwindCSS from '@tailwindcss/vite';
+import Icons from 'unplugin-icons/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [sveltekit(), unoCSS()],
+	plugins: [sveltekit(), TailwindCSS(), Icons({ compiler: 'svelte', autoInstall: true })],
 });
