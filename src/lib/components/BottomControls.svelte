@@ -26,10 +26,7 @@
 </script>
 
 <div
-	class={mergeClasses(
-		className,
-		'shadow-elevation-100 flex gap-1 rounded-xl border border-gray-200 p-1'
-	)}
+	class={mergeClasses(className, 'shadow-elevation-100 flex rounded-xl border border-gray-200 p-1')}
 	{...props}
 >
 	<button onclick={zoomIn}>
