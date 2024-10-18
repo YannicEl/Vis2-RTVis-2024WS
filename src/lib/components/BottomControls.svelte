@@ -8,9 +8,6 @@
 
 <div {...props}>
 	<button>
-		<SvelteLogo style="font-size:2em" />
+		<SvelteLogo class="mt-2" style="font-size:2em" />
 	</button>
 </div>
-
-<style>
-</style>

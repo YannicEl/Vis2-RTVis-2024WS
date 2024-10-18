@@ -1,6 +1,6 @@
 {
 	"name": "vis2-rtvis-2024ws",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -14,7 +14,6 @@
 		"deploy": "wrangler deploy"
 	},
 	"devDependencies": {
-		"@iconify-json/logos": "^1.2.3",
 		"@sveltejs/adapter-cloudflare-workers": "2.5.5",
 		"@sveltejs/kit": "2.7.1",
 		"@sveltejs/vite-plugin-svelte": "4.0.0-next.8",
@@ -31,7 +30,7 @@
 		"unocss": "0.63.4",
 		"unplugin-icons": "0.19.3",
 		"vite": "5.4.9",
-		"wrangler": "3.80.5"
+		"wrangler": "3.81.0"
 	},
 	"dependencies": {
 		"wgpu-matrix": "3.2.0"
