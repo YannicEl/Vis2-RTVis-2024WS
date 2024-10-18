@@ -2,6 +2,7 @@
 	import { setCameraContext } from '$lib/cameraControlls.svelte';
 	import BottomControls from '$lib/components/BottomControls.svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
+	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
@@ -11,7 +12,7 @@
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { Scene } from '$lib/webGPU/Scene';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
@@ -21,6 +22,7 @@
 
 	// const geometry = new TriangleGeometry();
 	const geometry = new QuadGeometry();
+	// const material = new ColorMaterial('red');
 	const material = new RayMarchingMaterial();
 	const triangle = new SceneObject(geometry, material);
 
@@ -29,11 +31,16 @@
 	onMount(async () => {
 		if (!canvas) return;
 
-		try {
-			const webGPU = await initWebGPU();
-			scene.load(webGPU.device);
+		const context = canvas.getContext('webgpu');
+		if (!context) return;
 
-			const renderer = new Renderer(canvas, webGPU.device);
+		try {
+			const { device } = await initWebGPU();
+			scene.load(device);
+
+			autoResizeCanvas(canvas, device);
+
+			const renderer = new Renderer({ context, device, clearColor: 'white' });
 
 			draw((deltaTime) => {
 				fps = 1000 / deltaTime;

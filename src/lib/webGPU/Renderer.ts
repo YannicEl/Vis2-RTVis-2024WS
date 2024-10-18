@@ -1,35 +1,34 @@
 import type { Camera } from './Camera.js';
+import { Color } from './color/Color.js';
 import type { Scene } from './Scene.js';
 
+export type RendererParams = {
+	context: GPUCanvasContext;
+	device: GPUDevice;
+	clearColor?: string | Color;
+};
+
 export class Renderer {
-	#ctx: GPUCanvasContext;
+	#context: GPUCanvasContext;
 	#device: GPUDevice;
+	#clearColor: Color;
 
-	constructor(canvas: HTMLCanvasElement, device: GPUDevice) {
+	constructor({ context, device, clearColor = 'black' }: RendererParams) {
 		this.#device = device;
-
-		const ctx = canvas.getContext('webgpu');
-		if (!ctx) throw new Error('Error requesting WebPU context');
-		this.#ctx = ctx;
+		this.#context = context;
 
 		const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-		ctx.configure({
+		context.configure({
 			device,
 			format: presentationFormat,
 			alphaMode: 'opaque',
 		});
 
-		const resizeObserver = new ResizeObserver((entries) => {
-			for (const entry of entries) {
-				if (entry.target instanceof HTMLCanvasElement) {
-					const width = entry.contentBoxSize[0]!.inlineSize;
-					const height = entry.contentBoxSize[0]!.blockSize;
-					canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-					canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
-				}
-			}
-		});
-		resizeObserver.observe(canvas);
+		if (typeof clearColor === 'string') {
+			this.#clearColor = Color.fromCssString(clearColor);
+		} else {
+			this.#clearColor = clearColor;
+		}
 	}
 
 	render(scene: Scene, camera: Camera): void {
@@ -37,8 +36,8 @@ export class Renderer {
 		const renderPassDescriptor: GPURenderPassDescriptor = {
 			colorAttachments: [
 				{
-					view: this.#ctx.getCurrentTexture().createView(),
-					clearValue: [1, 1, 1, 1],
+					view: this.#context.getCurrentTexture().createView(),
+					clearValue: this.#clearColor.value,
 					loadOp: 'clear',
 					storeOp: 'store',
 				},
