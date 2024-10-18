@@ -1,10 +1,31 @@
+export type GeometryParams = {
+	vertices: Float32Array;
+};
+
 export abstract class Geometry {
-	protected vertexBuffer: GPUBuffer | null = null;
+	#vertices: Float32Array;
 
-	constructor() {}
+	constructor({ vertices }: GeometryParams) {
+		this.#vertices = vertices;
+	}
 
-	abstract load(device: GPUDevice): {
-		vertexBuffer: GPUBuffer;
-		viewProjectionMatrixBuffer: GPUBuffer;
-	};
+	load(device: GPUDevice) {
+		const vertexBuffer = device.createBuffer({
+			size: this.#vertices.byteLength,
+			usage: GPUBufferUsage.VERTEX,
+			mappedAtCreation: true,
+		});
+		new Float32Array(vertexBuffer.getMappedRange()).set(this.#vertices);
+		vertexBuffer.unmap();
+
+		const viewProjectionMatrixBuffer = device.createBuffer({
+			size: 4 * 16, // 4x4 matrix
+			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+		});
+
+		return {
+			vertexBuffer,
+			viewProjectionMatrixBuffer,
+		};
+	}
 }
