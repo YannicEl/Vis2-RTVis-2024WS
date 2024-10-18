@@ -1,4 +1,5 @@
 import type { Mat4 } from 'wgpu-matrix';
+import { mat4 } from 'wgpu-matrix';
 import type { Geometry } from './geometry/Geometry.js';
 import { queueBufferWrite } from './helpers/webGpu.js';
 import type { Material } from './material/Material.js';
@@ -7,16 +8,27 @@ export class SceneObject {
 	#geometry: Geometry;
 	#material: Material;
 
-	#vertexBuffer: GPUBuffer | null = null;
 	#pipeline: GPURenderPipeline | null = null;
-
 	#uniformBindGroup: GPUBindGroup | null = null;
+
+	#vertexBuffer: GPUBuffer | null = null;
 	#viewProjectionMatrixBuffer: GPUBuffer | null = null;
+	#modelMatrixBuffer: GPUBuffer | null = null;
 	#materialBuffer: GPUBuffer | null = null;
+
+	#modelMatrix: Mat4;
 
 	constructor(geometry: Geometry, material: Material) {
 		this.#geometry = geometry;
 		this.#material = material;
+
+		// prettier-ignore
+		this.#modelMatrix = mat4.create(
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1,
+    );
 	}
 
 	load(device: GPUDevice): void {
@@ -28,6 +40,11 @@ export class SceneObject {
 		this.#materialBuffer = materialBuffer;
 
 		this.#viewProjectionMatrixBuffer = device.createBuffer({
+			size: 4 * 16, // 4x4 matrix
+			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+		});
+
+		this.#modelMatrixBuffer = device.createBuffer({
 			size: 4 * 16, // 4x4 matrix
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
@@ -73,6 +90,12 @@ export class SceneObject {
 					},
 				},
 				{
+					binding: 1,
+					resource: {
+						buffer: this.#modelMatrixBuffer,
+					},
+				},
+				{
 					binding: 2,
 					resource: {
 						buffer: this.#materialBuffer,
@@ -92,12 +115,14 @@ export class SceneObject {
 			!this.#uniformBindGroup ||
 			!this.#vertexBuffer ||
 			!this.#viewProjectionMatrixBuffer ||
+			!this.#modelMatrixBuffer ||
 			!this.#materialBuffer
 		) {
 			throw new Error('SceneObject not loaded');
 		}
 
 		queueBufferWrite(device, this.#viewProjectionMatrixBuffer, viewProjectionMatrix);
+		queueBufferWrite(device, this.#modelMatrixBuffer, this.#modelMatrix);
 
 		encoder.setPipeline(this.#pipeline);
 		encoder.setBindGroup(0, this.#uniformBindGroup);
