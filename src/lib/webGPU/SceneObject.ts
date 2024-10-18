@@ -129,4 +129,12 @@ export class SceneObject {
 		encoder.setVertexBuffer(0, this.#vertexBuffer);
 		encoder.draw(this.#geometry.vertices.length / 3);
 	}
+
+	rotateY(angle: number): void {
+		this.#modelMatrix = mat4.rotateY(this.#modelMatrix, angle);
+	}
+
+	rotateX(angle: number): void {
+		this.#modelMatrix = mat4.rotateX(this.#modelMatrix, angle);
+	}
 }

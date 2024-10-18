@@ -37,6 +37,9 @@
 			draw((deltaTime) => {
 				fps = 1000 / deltaTime;
 
+				triangle.rotateY(0.1 / deltaTime);
+				triangle.rotateX(0.05 / deltaTime);
+
 				renderer.render(scene, camera);
 			});
 		} catch (error) {
