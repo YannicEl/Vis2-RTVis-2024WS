@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      pdb-parser-js:
+        specifier: ^0.0.5
+        version: 0.0.5
       wgpu-matrix:
         specifier: 3.2.0
         version: 3.2.0
@@ -990,6 +993,9 @@ packages:
   pathe@1.1.2:
     resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
 
+  pdb-parser-js@0.0.5:
+    resolution: {integrity: sha512-a4wzkfB96pTPX7WLy5LKi363aqZCFnqVUPc9zEC6fcjWsYFZPyxayUBMUBf3QCURpMZKu6csbEdkzWG3Ih9JnQ==}
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -1306,6 +1312,9 @@ packages:
   tapable@2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
     engines: {node: '>=6'}
+
+  three@0.142.0:
+    resolution: {integrity: sha512-ESjPO+3geFr+ZUfVMpMnF/eVU2uJPOh0e2ZpMFqjNca1wApS9lJb7E4MjwGIczgt9iuKd8PEm6Pfgp2bJ92Xtg==}
 
   tiny-glob@0.2.9:
     resolution: {integrity: sha512-g/55ssRPUjShh+xkfx9UPDXqhckHEsHr4Vd9zX55oSdGZc/MD0m3sferOkwWtp98bv+kcVfEHtRJgBVJzelrzg==}
@@ -2186,6 +2195,10 @@ snapshots:
 
   pathe@1.1.2: {}
 
+  pdb-parser-js@0.0.5:
+    dependencies:
+      three: 0.142.0
+
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
@@ -2438,6 +2451,8 @@ snapshots:
   tailwindcss@4.0.0-alpha.27: {}
 
   tapable@2.2.1: {}
+
+  three@0.142.0: {}
 
   tiny-glob@0.2.9:
     dependencies:

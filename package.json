@@ -34,6 +34,7 @@
 		"wrangler": "3.81.0"
 	},
 	"dependencies": {
+		"pdb-parser-js": "^0.0.5",
 		"wgpu-matrix": "3.2.0"
 	}
 }

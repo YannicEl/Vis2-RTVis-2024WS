@@ -16,7 +16,7 @@ export class SphereGeometry extends Geometry {
 		let index = 0;
 
 		// buffers
-		const vertices = new Float32Array((widthSegments + 1) * (heightSegments + 1) * 3);
+		const vertices = new Float32Array((widthSegments + 1) * (heightSegments + 1) * 3 * 2);
 		console.log(vertices.length);
 
 		// generate sphere vertices
@@ -38,6 +38,14 @@ export class SphereGeometry extends Geometry {
 				// we do not have access to indices. we need to create the next triangle here to substitute for the index buffer
 				// fuck this, actually
 				// TODO: implement https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html#index-buffers
+
+				vertices[index] = z;
+				vertices[index + 1] = y;
+				vertices[index + 2] =
+					-radius *
+					Math.cos(phiStart + ((ix + 1) / widthSegments) * phiLength) *
+					Math.sin(thetaStart + v * thetaLength);
+				index += 3;
 			}
 		}
 

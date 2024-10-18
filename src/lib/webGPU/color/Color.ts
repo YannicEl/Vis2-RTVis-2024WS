@@ -10,6 +10,27 @@ export type ColorParams =
 			alpha: number;
 	  };
 
+export const cssColors = [
+	'black',
+	'silver',
+	'gray',
+	'white',
+	'maroon',
+	'red',
+	'purple',
+	'fuchsia',
+	'green',
+	'lime',
+	'olive',
+	'yellow',
+	'navy',
+	'blue',
+	'teal',
+	'aqua',
+] as const;
+
+export type CssColor = (typeof cssColors)[number];
+
 export class Color {
 	public value: Vec4;
 
@@ -22,7 +43,7 @@ export class Color {
 		}
 	}
 
-	static fromCssString(cssColor: string): Color {
+	static fromCssString(cssColor: CssColor): Color {
 		// TODO cache offscreen canvas
 		const canvas = new OffscreenCanvas(1, 1);
 		const ctx = canvas.getContext('2d', { willReadFrequently: true });
