@@ -2,10 +2,20 @@
 
 @theme {
 	--font-family-display: 'Inter', 'sans-serif';
+
+	--shadow-elevation-100: 0 1px 3px 0 #00000026, 0 0 0.5px 0 #0000004d;
+	--shadow-elevation-200: 0 1px 3px 0 #0000001a, 0 3px 8px 0 #0000001a, 0 0 0.5px 0 #0000002e;
+	--shadow-elevation-300: 0 1px 3px 0 #0000001a, 0 5px 12px 0 #00000021, 0 0 0.5px 0 #00000026;
+	--shadow-elevation-400: 0 2px 5px 0 #00000026, 0 10px 16px 0 #0000001f, 0 0 0.5px 0 #0000001f;
+	--shadow-elevation-500: 0 2px 5px 0 #00000026, 0 10px 24px 0 #0000002e, 0 0 0.5px 0 #00000014;
 }
 
 html {
 	font-family: 'Inter', 'sans-serif';
+}
+
+button {
+	cursor: pointer;
 }
 
 /* latin */

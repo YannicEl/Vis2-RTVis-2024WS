@@ -11,7 +11,6 @@
 
 <style>
 	div {
-		color: #75f914;
 		font-family: monospace;
 	}
 </style>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { setCameraContext } from '$lib/cameraControlls,svelte';
 	import BottomControls from '$lib/components/BottomControls.svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { Camera } from '$lib/webGPU/Camera';
@@ -12,30 +13,32 @@
 
 	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
+
+	const camera = new Camera();
+	setCameraContext(camera);
+
+	const geometry = new TriangleGeometry();
+	const material = new ColorMaterial('#ff0000');
+	const triangle = new SceneObject(geometry, material);
+
+	const scene = new Scene([triangle]);
+
 	onMount(async () => {
-		if (canvas) {
-			try {
-				const webGPU = await initWebGPU();
+		if (!canvas) return;
 
-				const geometry = new TriangleGeometry();
-				const material = new ColorMaterial('#ff0000');
-				const triangle = new SceneObject(geometry, material);
+		try {
+			const webGPU = await initWebGPU();
+			scene.load(webGPU.device);
 
-				const scene = new Scene();
-				scene.add(triangle);
-				scene.load(webGPU.device);
+			const renderer = new Renderer(canvas, webGPU.device);
 
-				const renderer = new Renderer(canvas, webGPU.device);
-				const camera = new Camera();
+			draw((deltaTime) => {
+				fps = 1000 / deltaTime;
 
-				draw((deltaTime) => {
-					fps = 1000 / deltaTime;
-
-					renderer.render(scene, camera);
-				});
-			} catch (error) {
-				alert(error);
-			}
+				renderer.render(scene, camera);
+			});
+		} catch (error) {
+			alert(error);
 		}
 	});
 </script>
