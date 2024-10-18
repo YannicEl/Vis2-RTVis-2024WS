@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setCameraContext } from '$lib/cameraControlls.svelte';
+	import { setCameraContext } from '$lib/cameraControls.svelte';
 	import BottomControls from '$lib/components/BottomControls.svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
@@ -16,12 +16,15 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { loadPDB } from '$lib/mol/pdbLoader';
 	import { renderPDB } from '$lib/mol/pdbRender';
+	import { useRotatingCamera } from '$lib/rotatingCamera.svelte';
 
 	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
 
 	const camera = new Camera();
 	setCameraContext(camera);
+
+	const { rotateCamera } = useRotatingCamera();
 
 	// const geometry = new SphereGeometry();
 	const geometry = new TriangleGeometry();
@@ -62,7 +65,9 @@
 				triangle.rotateY(0.0001 * deltaTime);
 				triangle.rotateX(0.0005 * deltaTime);
 
-				// triangle.moveX(0.0001 * deltaTime);
+				rotateCamera(deltaTime);
+
+				// triangle.moveX(0.0001 * deltaTime);#
 
 				renderer.render(scene, camera);
 			});

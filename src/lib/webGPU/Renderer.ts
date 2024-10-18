@@ -1,11 +1,11 @@
 import type { Camera } from './Camera.js';
-import { Color } from './color/Color.js';
+import { Color, type CssColor } from './color/Color.js';
 import type { Scene } from './Scene.js';
 
 export type RendererParams = {
 	context: GPUCanvasContext;
 	device: GPUDevice;
-	clearColor?: string | Color;
+	clearColor?: CssColor | Color;
 };
 
 export class Renderer {
