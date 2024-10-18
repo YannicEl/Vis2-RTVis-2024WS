@@ -36,6 +36,8 @@ export class SphereGeometry extends Geometry {
 				index += 3;
 
 				// we do not have access to indices. we need to create the next triangle here to substitute for the index buffer
+				// fuck this, actually
+				// TODO: implement https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html#index-buffers
 			}
 		}
 
