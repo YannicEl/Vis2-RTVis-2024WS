@@ -3,6 +3,7 @@
 	import BottomControls from '$lib/components/BottomControls.svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { Camera } from '$lib/webGPU/Camera';
+	import { CubeGeometry } from '$lib/webGPU/geometry/CubeGeometry';
 	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
@@ -17,7 +18,8 @@
 	const camera = new Camera();
 	setCameraContext(camera);
 
-	const geometry = new TriangleGeometry();
+	// const geometry = new TriangleGeometry();
+	const geometry = new CubeGeometry();
 	const material = new ColorMaterial('#ff0000');
 	const triangle = new SceneObject(geometry, material);
 

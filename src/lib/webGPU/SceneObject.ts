@@ -22,11 +22,15 @@ export class SceneObject {
 	load(device: GPUDevice): void {
 		const { vertexShaderModule, fragmentShaderModule, materialBuffer } =
 			this.#material.load(device);
-		const { vertexBuffer, viewProjectionMatrixBuffer } = this.#geometry.load(device);
+		const { vertexBuffer } = this.#geometry.load(device);
 
 		this.#vertexBuffer = vertexBuffer;
-		this.#viewProjectionMatrixBuffer = viewProjectionMatrixBuffer;
 		this.#materialBuffer = materialBuffer;
+
+		this.#viewProjectionMatrixBuffer = device.createBuffer({
+			size: 4 * 16, // 4x4 matrix
+			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+		});
 
 		this.#pipeline = device.createRenderPipeline({
 			layout: 'auto',
@@ -69,7 +73,7 @@ export class SceneObject {
 					},
 				},
 				{
-					binding: 1,
+					binding: 2,
 					resource: {
 						buffer: this.#materialBuffer,
 					},
@@ -98,6 +102,6 @@ export class SceneObject {
 		encoder.setPipeline(this.#pipeline);
 		encoder.setBindGroup(0, this.#uniformBindGroup);
 		encoder.setVertexBuffer(0, this.#vertexBuffer);
-		encoder.draw(3, 1, 0, 0);
+		encoder.draw(this.#geometry.vertices.length / 3);
 	}
 }

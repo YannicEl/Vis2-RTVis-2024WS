@@ -32,8 +32,7 @@ export class Camera {
 	}
 
 	get viewMatrix(): Mat4 {
-		vec3.normalize(
-			this.front,
+		this.front = vec3.normalize(
 			vec3.create(
 				Math.cos(this.yaw) * Math.cos(this.pitch),
 				Math.sin(this.pitch),
