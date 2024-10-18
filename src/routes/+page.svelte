@@ -3,10 +3,11 @@
 	import BottomControls from '$lib/components/BottomControls.svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { Camera } from '$lib/webGPU/Camera';
-	import { CubeGeometry } from '$lib/webGPU/geometry/CubeGeometry';
+	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
+	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { Scene } from '$lib/webGPU/Scene';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
@@ -19,8 +20,8 @@
 	setCameraContext(camera);
 
 	// const geometry = new TriangleGeometry();
-	const geometry = new CubeGeometry();
-	const material = new ColorMaterial('#ff0000');
+	const geometry = new QuadGeometry();
+	const material = new RayMarchingMaterial();
 	const triangle = new SceneObject(geometry, material);
 
 	const scene = new Scene([triangle]);
@@ -37,8 +38,8 @@
 			draw((deltaTime) => {
 				fps = 1000 / deltaTime;
 
-				triangle.rotateY(0.0001 * deltaTime);
-				triangle.rotateX(0.0005 * deltaTime);
+				// triangle.rotateY(0.0001 * deltaTime);
+				// triangle.rotateX(0.0005 * deltaTime);
 
 				renderer.render(scene, camera);
 			});

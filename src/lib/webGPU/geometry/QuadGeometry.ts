@@ -1,6 +1,6 @@
 import { Geometry } from './Geometry.js';
 
-export class CubeGeometry extends Geometry {
+export class QuadGeometry extends Geometry {
 	constructor() {
 		// prettier-ignore
 		const vertices = new Float32Array([
