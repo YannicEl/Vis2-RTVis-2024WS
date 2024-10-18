@@ -6,7 +6,7 @@
 	import IconFullscreenExit from '~icons/material-symbols/fullscreen-exit';
 	import IconsAdd from '~icons/material-symbols/add';
 	import IconMinus from '~icons/material-symbols/remove';
-	import { getCameraContext } from '$lib/cameraControlls,svelte';
+	import { getCameraContext } from '$lib/cameraControlls.svelte';
 	import { vec3 } from 'wgpu-matrix';
 
 	type Props = {} & SvelteHTMLElements['div'];

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setCameraContext } from '$lib/cameraControlls,svelte';
+	import { setCameraContext } from '$lib/cameraControlls.svelte';
 	import BottomControls from '$lib/components/BottomControls.svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { Camera } from '$lib/webGPU/Camera';
@@ -37,8 +37,8 @@
 			draw((deltaTime) => {
 				fps = 1000 / deltaTime;
 
-				triangle.rotateY(0.1 / deltaTime);
-				triangle.rotateX(0.05 / deltaTime);
+				triangle.rotateY(0.0001 * deltaTime);
+				triangle.rotateX(0.0005 * deltaTime);
 
 				renderer.render(scene, camera);
 			});
