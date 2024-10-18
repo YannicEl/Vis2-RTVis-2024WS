@@ -3,8 +3,8 @@ import { Geometry } from './Geometry.js';
 export class SphereGeometry extends Geometry {
 	constructor(
 		radius = 1,
-		widthSegments = 32,
-		heightSegments = 16,
+		widthSegments = 16,
+		heightSegments = 8,
 		phiStart = 0,
 		phiLength = Math.PI * 2,
 		thetaStart = 0,
@@ -34,8 +34,12 @@ export class SphereGeometry extends Geometry {
 				vertices[index + 1] = y;
 				vertices[index + 2] = z;
 				index += 3;
+
+				// we do not have access to indices. we need to create the next triangle here to substitute for the index buffer
 			}
 		}
+
+		console.log(vertices);
 
 		super({ vertices });
 	}
