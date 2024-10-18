@@ -137,4 +137,12 @@ export class SceneObject {
 	rotateX(angle: number): void {
 		this.#modelMatrix = mat4.rotateX(this.#modelMatrix, angle);
 	}
+
+	moveX(distance: number): void {
+		this.#modelMatrix = mat4.translate(this.#modelMatrix, [distance, 0, 0]);
+	}
+
+	setPosition(x: number, y: number, z: number): void {
+		this.#modelMatrix = mat4.setTranslation(this.#modelMatrix, [x, y, z]);
+	}
 }
