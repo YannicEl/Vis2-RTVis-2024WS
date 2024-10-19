@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { setCameraContext } from '$lib/cameraControls.svelte';
+	import { getCameraContext } from '$lib/cameraControls.svelte';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
-	import { Camera } from '$lib/webGPU/Camera';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
@@ -18,8 +17,7 @@
 	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
 
-	const camera = new Camera();
-	setCameraContext(camera);
+	const camera = getCameraContext();
 
 	const { rotateCamera } = useRotatingCamera(camera);
 

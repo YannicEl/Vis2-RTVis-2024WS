@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import { Camera } from './webGPU/Camera';
+import type { Camera } from './webGPU/Camera';
 
 export const CameraContexKey = Symbol();
 

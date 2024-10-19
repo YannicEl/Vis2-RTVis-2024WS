@@ -1,6 +1,6 @@
 import type { Mat4 } from 'wgpu-matrix';
 import { mat4, vec3 } from 'wgpu-matrix';
-import { degToRad } from './helpers/helpers.js';
+import { degToRad } from './helpers/helpers';
 
 export type CameraParams = {
 	fov?: number;

@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { setCameraContext } from '$lib/cameraControls.svelte';
+	import { getCameraContext } from '$lib/cameraControls.svelte';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
-	import { Camera } from '$lib/webGPU/Camera';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
@@ -11,13 +10,12 @@
 	import { useRotatingCamera } from '$lib/rotatingCamera.svelte';
 	import { onMount } from 'svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
+	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 
 	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
 
-	const camera = new Camera();
-	setCameraContext(camera);
-
+	const camera = getCameraContext();
 	const { rotateCamera } = useRotatingCamera(camera);
 
 	onMount(async () => {
@@ -36,6 +34,8 @@
 
 			const scene = new Scene([quad]);
 			scene.load(device);
+
+			const controls = new ArcballControls(canvas, camera);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
 
