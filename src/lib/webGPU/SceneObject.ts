@@ -23,12 +23,7 @@ export class SceneObject {
 		this.#material = material;
 
 		// prettier-ignore
-		this.#modelMatrix = mat4.create(
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1,
-    );
+		this.#modelMatrix = mat4.identity()
 	}
 
 	load(device: GPUDevice): void {
