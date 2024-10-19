@@ -1,11 +1,10 @@
-import { getCameraContext } from '$lib/cameraControls.svelte';
 import { vec3 } from 'wgpu-matrix';
+import type { Camera } from './webGPU/Camera';
 
 let isRotating = $state(false);
 let rotation = 0;
 
-export const useRotatingCamera = () => {
-	const camera = getCameraContext();
+export const useRotatingCamera = (camera: Camera) => {
 	const toggleRotating = () => {
 		isRotating = !isRotating;
 	};

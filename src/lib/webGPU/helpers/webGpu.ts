@@ -1,9 +1,9 @@
-type InitWebGPUParmas = {
+export type InitWebGPUParmas = {
 	adapterOptions?: GPURequestAdapterOptions;
 	deviceOptions?: GPUDeviceDescriptor;
 };
 
-type WebGPU = {
+export type WebGPU = {
 	adapter: GPUAdapter;
 	device: GPUDevice;
 };

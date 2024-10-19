@@ -26,7 +26,7 @@
 		camera.position = vec3.add(camera.position, vec3.create(0, 0, -0.5));
 	}
 
-	const rotate = useRotatingCamera();
+	const rotate = useRotatingCamera(camera);
 </script>
 
 <div

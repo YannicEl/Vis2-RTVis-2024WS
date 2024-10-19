@@ -8,8 +8,9 @@ export class Scene {
 		this.#children = children;
 	}
 
-	add(child: SceneObject) {
-		this.#children.push(child);
+	add(child: SceneObject | SceneObject[]) {
+		if (!Array.isArray(child)) child = [child];
+		this.#children.push(...child);
 	}
 
 	load(device: GPUDevice) {
