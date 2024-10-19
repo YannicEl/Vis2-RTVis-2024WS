@@ -29,7 +29,7 @@ export const cssColors = [
 	'aqua',
 ] as const;
 
-export type CssColor = (typeof cssColors)[number];
+export type CssColor = (typeof cssColors)[number] | (string & {});
 
 export class Color {
 	public value: Vec4;
