@@ -17,9 +17,8 @@ export class Camera {
 
 	public position = vec3.create(0, 0, 3);
 	public front = vec3.create(0, 0, -1);
-	public worldUp = vec3.create(0, 1, 0);
+	public up = vec3.create(0, 1, 0);
 	public right = vec3.create();
-	public up = vec3.create();
 
 	public yaw = degToRad(-90);
 	public pitch = degToRad(0);
@@ -29,18 +28,39 @@ export class Camera {
 		this.aspect = aspect;
 		this.near = near;
 		this.far = far;
+
+		const matrix_ = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+		const right = new Float32Array(matrix_.buffer, 4 * 0, 4);
+		const up_ = new Float32Array(matrix_.buffer, 4 * 4, 4);
+		const back_ = new Float32Array(matrix_.buffer, 4 * 8, 4);
+		const position_ = new Float32Array(matrix_.buffer, 4 * 12, 4);
+
+		this.right = vec3.normalize(vec3.cross(this.front, this.up));
+		this.up = vec3.normalize(vec3.cross(this.right, this.front));
+
+		console.log('new right', right.toString());
+		console.log('old right', this.right.toString());
+		console.log('');
+
+		console.log('new up', up_.toString());
+		console.log('old up', this.up.toString());
+		console.log('');
+
+		console.log('new back', back_.toString());
+		console.log('old front', this.front.toString());
+		console.log('');
 	}
 
 	get viewMatrix(): Mat4 {
-		this.front = vec3.normalize(
-			vec3.create(
-				Math.cos(this.yaw) * Math.cos(this.pitch),
-				Math.sin(this.pitch),
-				Math.sin(this.yaw) * Math.cos(this.pitch)
-			)
-		);
+		// this.front = vec3.normalize(
+		// 	vec3.create(
+		// 		Math.cos(this.yaw) * Math.cos(this.pitch),
+		// 		Math.sin(this.pitch),
+		// 		Math.sin(this.yaw) * Math.cos(this.pitch)
+		// 	)
+		// );
 
-		this.right = vec3.normalize(vec3.cross(this.front, this.worldUp));
+		this.right = vec3.normalize(vec3.cross(this.front, this.up));
 		this.up = vec3.normalize(vec3.cross(this.right, this.front));
 
 		return mat4.lookAt(this.position, vec3.add(this.position, this.front), this.up);
