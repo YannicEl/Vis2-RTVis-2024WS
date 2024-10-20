@@ -1,15 +1,25 @@
 import { Geometry } from './Geometry.js';
 
+export type SphereGeometryParams = {
+	radius?: number;
+	widthSegments?: number;
+	heightSegments?: number;
+	phiStart?: number;
+	phiLength?: number;
+	thetaStart?: number;
+	thetaLength?: number;
+};
+
 export class SphereGeometry extends Geometry {
-	constructor(
+	constructor({
 		radius = 1,
 		widthSegments = 16,
 		heightSegments = 8,
 		phiStart = 0,
 		phiLength = Math.PI * 2,
 		thetaStart = 0,
-		thetaLength = Math.PI
-	) {
+		thetaLength = Math.PI,
+	}: SphereGeometryParams = {}) {
 		widthSegments = Math.max(3, Math.floor(widthSegments));
 		heightSegments = Math.max(2, Math.floor(heightSegments));
 

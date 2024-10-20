@@ -11,7 +11,6 @@ export class SceneObject {
 	#pipeline: GPURenderPipeline | null = null;
 	#uniformBindGroup: GPUBindGroup | null = null;
 
-	#vertexBuffer: GPUBuffer | null = null;
 	#viewProjectionMatrixBuffer: GPUBuffer | null = null;
 	#modelMatrixBuffer: GPUBuffer | null = null;
 	#materialBuffer: GPUBuffer | null = null;
@@ -21,25 +20,24 @@ export class SceneObject {
 	constructor(geometry: Geometry, material: Material) {
 		this.#geometry = geometry;
 		this.#material = material;
-
-		// prettier-ignore
-		this.#modelMatrix = mat4.identity()
+		this.#modelMatrix = mat4.identity();
 	}
 
 	load(device: GPUDevice): void {
 		const { vertexShaderModule, fragmentShaderModule, materialBuffer } =
 			this.#material.load(device);
-		const { vertexBuffer } = this.#geometry.load(device);
+		this.#geometry.load(device);
 
-		this.#vertexBuffer = vertexBuffer;
 		this.#materialBuffer = materialBuffer;
 
 		this.#viewProjectionMatrixBuffer = device.createBuffer({
+			label: 'View Projection Matrix Buffer',
 			size: 4 * 16, // 4x4 matrix
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
 
 		this.#modelMatrixBuffer = device.createBuffer({
+			label: 'Model Matrix Buffer',
 			size: 4 * 16, // 4x4 matrix
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
@@ -108,9 +106,10 @@ export class SceneObject {
 		if (
 			!this.#pipeline ||
 			!this.#uniformBindGroup ||
-			!this.#vertexBuffer ||
 			!this.#viewProjectionMatrixBuffer ||
 			!this.#modelMatrixBuffer ||
+			!this.#geometry.vertexBuffer ||
+			!this.#geometry.indexBuffer ||
 			!this.#materialBuffer
 		) {
 			throw new Error('SceneObject not loaded');
@@ -121,8 +120,10 @@ export class SceneObject {
 
 		encoder.setPipeline(this.#pipeline);
 		encoder.setBindGroup(0, this.#uniformBindGroup);
-		encoder.setVertexBuffer(0, this.#vertexBuffer);
-		encoder.draw(this.#geometry.vertices.length / 3);
+		encoder.setVertexBuffer(0, this.#geometry.vertexBuffer);
+		encoder.setIndexBuffer(this.#geometry.indexBuffer, 'uint32');
+
+		encoder.drawIndexed(this.#geometry.indices.length);
 	}
 
 	rotateY(angle: number): void {

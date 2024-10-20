@@ -10,6 +10,11 @@ export class TriangleGeometry extends Geometry {
       -1, -1, 0, 
     ])
 
-		super({ vertices });
+		// prettier-ignore
+		const indices = new Uint32Array([
+      0, 1, 2,
+    ]);
+
+		super({ vertices, indices });
 	}
 }

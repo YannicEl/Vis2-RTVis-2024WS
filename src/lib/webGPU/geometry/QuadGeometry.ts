@@ -7,13 +7,16 @@ export class QuadGeometry extends Geometry {
       // position
       -1,  1,  0, 
       1,  1, 0, 
-      -1, -1, 0,
-      
-      -1, -1, 0,
-      1,  1, 0,
       1, -1, 0,
+      -1, -1, 0,
     ])
 
-		super({ vertices });
+		// prettier-ignore
+		const indices = new Uint32Array([
+      2, 3, 0,
+      0, 1, 2,
+    ]);
+
+		super({ vertices, indices });
 	}
 }

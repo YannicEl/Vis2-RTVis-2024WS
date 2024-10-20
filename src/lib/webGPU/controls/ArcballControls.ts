@@ -78,5 +78,10 @@ export class ArcballControls {
 		}
 
 		this.#camera.position = vec3.scale(this.#camera.front, -this.#distance);
+
+		input.x = 0;
+		input.y = 0;
+		input.zoom = 0;
+		input.touching = false;
 	}
 }

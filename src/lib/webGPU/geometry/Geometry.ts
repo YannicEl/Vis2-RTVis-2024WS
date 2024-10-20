@@ -1,25 +1,33 @@
 export type GeometryParams = {
 	vertices: Float32Array;
+	indices: Uint32Array;
 };
 
 export abstract class Geometry {
 	public vertices: Float32Array;
+	public vertexBuffer: GPUBuffer | null = null;
 
-	constructor({ vertices }: GeometryParams) {
+	public indices: Uint32Array;
+	public indexBuffer: GPUBuffer | null = null;
+
+	constructor({ vertices, indices }: GeometryParams) {
 		this.vertices = vertices;
+		this.indices = indices;
 	}
 
-	load(device: GPUDevice) {
-		const vertexBuffer = device.createBuffer({
+	load(device: GPUDevice): void {
+		this.vertexBuffer = device.createBuffer({
+			label: 'Vertex Buffer',
 			size: this.vertices.byteLength,
-			usage: GPUBufferUsage.VERTEX,
-			mappedAtCreation: true,
+			usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
 		});
-		new Float32Array(vertexBuffer.getMappedRange()).set(this.vertices);
-		vertexBuffer.unmap();
+		device.queue.writeBuffer(this.vertexBuffer, 0, this.vertices);
 
-		return {
-			vertexBuffer,
-		};
+		this.indexBuffer = device.createBuffer({
+			label: 'Index Buffer',
+			size: this.indices.byteLength,
+			usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+		});
+		device.queue.writeBuffer(this.indexBuffer, 0, this.indices);
 	}
 }

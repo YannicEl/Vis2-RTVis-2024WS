@@ -53,6 +53,7 @@
 			};
 
 			canvas.onpointermove = (event) => {
+				// Nicht mein code simon. Nicht böse sein bitte
 				input.touching = event.pointerType == 'mouse' ? (event.buttons & 1) !== 0 : true;
 				if (input.touching) {
 					input.x += event.movementX;
@@ -61,23 +62,15 @@
 			};
 
 			canvas.onwheel = (e) => {
-				// The scroll value varies substantially between user agents / browsers.
-				// Just use the sign.
 				input.zoom += Math.sign(e.deltaY);
 				e.preventDefault();
 				e.stopPropagation();
 			};
 
-			// input.y = 1000;
-
 			draw((deltaTime) => {
 				fps = 1000 / deltaTime;
 
 				controls.update(deltaTime, input);
-				input.touching = false;
-				input.x = 0;
-				input.y = 0;
-				input.zoom = 0;
 
 				renderer.render(scene, camera);
 			});
