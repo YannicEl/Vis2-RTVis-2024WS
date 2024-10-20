@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getCameraContext } from '$lib/cameraControls.svelte';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
@@ -10,16 +9,16 @@
 	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { loadPDB } from '$lib/mol/pdbLoader';
 	import { renderPDB } from '$lib/mol/pdbRender';
-	import { useRotatingCamera } from '$lib/rotatingCamera.svelte';
 	import { onMount } from 'svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
+	import { Camera } from '$lib/webGPU/Camera';
+	import { globalState } from '$lib/globalState.svelte';
 
 	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
 
-	const camera = getCameraContext();
-
-	const { rotateCamera } = useRotatingCamera(camera);
+	const camera = new Camera();
+	globalState.camera = camera;
 
 	// const geometry = new SphereGeometry();
 	const geometry = new TriangleGeometry();
@@ -39,16 +38,24 @@
 		console.log(PDB);
 		const atoms = renderPDB(PDB);
 
-		const scene = new Scene([triangle, ...atoms]);
-
 		const context = canvas.getContext('webgpu');
 		if (!context) return;
 
 		try {
-			const { device } = await initWebGPU();
-			scene.load(device);
+			const camera = new Camera();
+			globalState.camera = camera;
 
-			autoResizeCanvas(canvas, device);
+			const { device } = await initWebGPU();
+			autoResizeCanvas({
+				canvas,
+				device,
+				onResize: (canvas) => {
+					camera.aspect = canvas.clientWidth / canvas.clientHeight;
+				},
+			});
+
+			const scene = new Scene([triangle, ...atoms]);
+			scene.load(device);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
 
@@ -59,8 +66,6 @@
 
 				triangle.rotateY(0.0001 * deltaTime);
 				triangle.rotateX(0.0005 * deltaTime);
-
-				rotateCamera(deltaTime);
 
 				// triangle.moveX(0.0001 * deltaTime);#
 

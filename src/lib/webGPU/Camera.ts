@@ -28,27 +28,6 @@ export class Camera {
 		this.aspect = aspect;
 		this.near = near;
 		this.far = far;
-
-		const matrix_ = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-		const right = new Float32Array(matrix_.buffer, 4 * 0, 4);
-		const up_ = new Float32Array(matrix_.buffer, 4 * 4, 4);
-		const back_ = new Float32Array(matrix_.buffer, 4 * 8, 4);
-		const position_ = new Float32Array(matrix_.buffer, 4 * 12, 4);
-
-		this.right = vec3.normalize(vec3.cross(this.front, this.up));
-		this.up = vec3.normalize(vec3.cross(this.right, this.front));
-
-		console.log('new right', right.toString());
-		console.log('old right', this.right.toString());
-		console.log('');
-
-		console.log('new up', up_.toString());
-		console.log('old up', this.up.toString());
-		console.log('');
-
-		console.log('new back', back_.toString());
-		console.log('old front', this.front.toString());
-		console.log('');
 	}
 
 	get viewMatrix(): Mat4 {

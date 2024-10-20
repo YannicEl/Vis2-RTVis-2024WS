@@ -20,10 +20,10 @@ export class ArcballControls {
 	#camera: Camera;
 
 	#distance = 5;
-	#rotationSpeed = 0.001;
+	#rotationSpeed = 0.0005;
 	#zoomSpeed = 0.1;
 	#angularVelocity = 0;
-	#frictionCoefficient = 0.99;
+	#frictionCoefficient = 0.001;
 
 	#axis = vec3.create();
 
@@ -32,8 +32,6 @@ export class ArcballControls {
 	}
 
 	update(deltaTime: number, input: Input) {
-		deltaTime = 16;
-
 		const epsilon = 0.0000001;
 
 		if (input.touching) {
@@ -65,7 +63,6 @@ export class ArcballControls {
 
 		// The rotation around this.axis to apply to the camera matrix this update
 		const rotationAngle = this.#angularVelocity * deltaTime;
-		console.log(rotationAngle);
 		if (rotationAngle > epsilon) {
 			// Rotate the matrix around axis
 			// Note: The rotation is not done as a matrix-matrix multiply as the repeated multiplications
@@ -73,9 +70,6 @@ export class ArcballControls {
 			this.#camera.front = vec3.normalize(
 				vec3.transformMat4Upper3x3(this.#camera.front, mat4.rotation(this.#axis, rotationAngle))
 			);
-
-			// this.recalcuateRight();
-			// this.recalcuateUp();
 		}
 
 		// recalculate `this.position` from `this.front` considering zoom

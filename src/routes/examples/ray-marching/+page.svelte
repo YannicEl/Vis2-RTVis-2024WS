@@ -1,22 +1,19 @@
 <script lang="ts">
-	import { getCameraContext } from '$lib/cameraControls.svelte';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { Scene } from '$lib/webGPU/Scene';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
-	import { useRotatingCamera } from '$lib/rotatingCamera.svelte';
 	import { onMount } from 'svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { ArcballControls, type Input } from '$lib/webGPU/controls/ArcballControls';
 	import { CubeGeometry } from '$lib/webGPU/geometry/CubeGeometry';
+	import { Camera } from '$lib/webGPU/Camera';
+	import { globalState } from '$lib/globalState.svelte';
 
 	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
-
-	const camera = getCameraContext();
-	const { rotateCamera } = useRotatingCamera(camera);
 
 	onMount(async () => {
 		if (!canvas) return;
@@ -25,8 +22,17 @@
 		if (!context) return;
 
 		try {
+			const camera = new Camera();
+			globalState.camera = camera;
+
 			const { device } = await initWebGPU();
-			autoResizeCanvas(canvas, device);
+			autoResizeCanvas({
+				canvas,
+				device,
+				onResize: (canvas) => {
+					camera.aspect = canvas.clientWidth / canvas.clientHeight;
+				},
+			});
 
 			const geometry = new CubeGeometry();
 			const material = new ColorMaterial('red');
@@ -62,10 +68,10 @@
 				e.stopPropagation();
 			};
 
+			// input.y = 1000;
+
 			draw((deltaTime) => {
 				fps = 1000 / deltaTime;
-
-				rotateCamera(deltaTime);
 
 				controls.update(deltaTime, input);
 				input.touching = false;
