@@ -22,15 +22,19 @@ export class SphereGeometry extends Geometry {
 	}: SphereGeometryParams = {}) {
 		widthSegments = Math.max(3, Math.floor(widthSegments));
 		heightSegments = Math.max(2, Math.floor(heightSegments));
+		const thetaEnd = Math.min(thetaStart + thetaLength, Math.PI);
 
 		let index = 0;
+		const grid = [];
 
 		// buffers
-		const vertices = new Float32Array((widthSegments + 1) * (heightSegments + 1) * 3 * 2);
-		console.log(vertices.length);
+		const vertices = new Float32Array((widthSegments + 1) * (heightSegments + 1) * 3);
+		// we do not know how many indices we will need yet
+		const indicesTemp = [];
 
 		// generate sphere vertices
 		for (let iy = 0; iy <= heightSegments; iy++) {
+			const verticesRow = [];
 			const v = iy / heightSegments;
 			for (let ix = 0; ix <= widthSegments; ix++) {
 				const u = ix / widthSegments;
@@ -40,27 +44,30 @@ export class SphereGeometry extends Geometry {
 				const z =
 					radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
 
-				vertices[index] = x;
-				vertices[index + 1] = y;
-				vertices[index + 2] = z;
-				index += 3;
+				vertices[index * 3] = x;
+				vertices[index * 3 + 1] = y;
+				vertices[index * 3 + 2] = z;
 
-				// we do not have access to indices. we need to create the next triangle here to substitute for the index buffer
-				// fuck this, actually
-				// TODO: implement https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html#index-buffers
+				verticesRow.push(index++);
+			}
 
-				vertices[index] = z;
-				vertices[index + 1] = y;
-				vertices[index + 2] =
-					-radius *
-					Math.cos(phiStart + ((ix + 1) / widthSegments) * phiLength) *
-					Math.sin(thetaStart + v * thetaLength);
-				index += 3;
+			grid.push(verticesRow);
+		}
+
+		for (let iy = 0; iy < heightSegments; iy++) {
+			for (let ix = 0; ix < widthSegments; ix++) {
+				const a = grid[iy][ix + 1];
+				const b = grid[iy][ix];
+				const c = grid[iy + 1][ix];
+				const d = grid[iy + 1][ix + 1];
+
+				if (iy !== 0 || thetaStart > 0) indicesTemp.push(a, b, d);
+				if (iy !== heightSegments - 1 || thetaEnd < Math.PI) indicesTemp.push(b, c, d);
 			}
 		}
 
-		console.log(vertices);
+		const indices = new Uint32Array(indicesTemp);
 
-		super({ vertices });
+		super({ vertices, indices });
 	}
 }
