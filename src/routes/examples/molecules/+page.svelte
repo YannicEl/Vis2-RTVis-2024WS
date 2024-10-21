@@ -10,11 +10,10 @@
 	import { loadPDB } from '$lib/mol/pdbLoader';
 	import { renderPDB } from '$lib/mol/pdbRender';
 	import { onMount } from 'svelte';
-	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
+	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 
-	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
 
 	const camera = new Camera();
@@ -58,16 +57,19 @@
 			scene.load(device);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
+			const controls = new ArcballControls({ camera });
 
 			triangle.setPosition(0, 1, -10);
 
 			draw((deltaTime) => {
-				fps = 1000 / deltaTime;
+				globalState.fps = 1000 / deltaTime;
 
 				triangle.rotateY(0.0001 * deltaTime);
 				triangle.rotateX(0.0005 * deltaTime);
 
 				// triangle.moveX(0.0001 * deltaTime);#
+
+				controls.update(deltaTime);
 
 				renderer.render(scene, camera);
 			});
@@ -76,7 +78,5 @@
 		}
 	});
 </script>
-
-<FpsCounter class="absolute top-2 left-2" {fps} />
 
 <canvas bind:this={canvas} class="h-full w-full"></canvas>

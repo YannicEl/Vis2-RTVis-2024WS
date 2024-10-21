@@ -6,13 +6,11 @@
 	import { Scene } from '$lib/webGPU/Scene';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { onMount } from 'svelte';
-	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import { ArcballControls, type Input } from '$lib/webGPU/controls/ArcballControls';
 	import { CubeGeometry } from '$lib/webGPU/geometry/CubeGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 
-	let fps = $state(0);
 	let canvas = $state<HTMLCanvasElement>();
 
 	onMount(async () => {
@@ -41,36 +39,13 @@
 			const scene = new Scene([quad]);
 			scene.load(device);
 
+			const renderer = new Renderer({ context, device, clearColor: 'white' });
 			const controls = new ArcballControls({ camera });
 
-			const renderer = new Renderer({ context, device, clearColor: 'white' });
-
-			const input: Input = {
-				touching: false,
-				zoom: 0,
-				x: 0,
-				y: 0,
-			};
-
-			canvas.onpointermove = (event) => {
-				// Nicht mein code simon. Nicht böse sein bitte
-				input.touching = event.pointerType == 'mouse' ? (event.buttons & 1) !== 0 : true;
-				if (input.touching) {
-					input.x += event.movementX;
-					input.y += event.movementY;
-				}
-			};
-
-			canvas.onwheel = (e) => {
-				input.zoom += Math.sign(e.deltaY);
-				e.preventDefault();
-				e.stopPropagation();
-			};
-
 			draw((deltaTime) => {
-				fps = 1000 / deltaTime;
+				globalState.fps = 1000 / deltaTime;
 
-				controls.update(deltaTime, input);
+				controls.update(deltaTime);
 
 				renderer.render(scene, camera);
 			});
@@ -79,7 +54,5 @@
 		}
 	});
 </script>
-
-<FpsCounter class="absolute top-2 left-2" {fps} />
 
 <canvas bind:this={canvas} class="h-full w-full"></canvas>

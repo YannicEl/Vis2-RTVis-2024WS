@@ -1,7 +1,10 @@
 import { Camera } from './webGPU/Camera';
 
 export type GlobalState = {
-	camera: Camera;
+	fps: number;
+	camera?: Camera;
 };
 
-export let globalState = $state<Partial<GlobalState>>({});
+export let globalState = $state<GlobalState>({
+	fps: 0,
+});
