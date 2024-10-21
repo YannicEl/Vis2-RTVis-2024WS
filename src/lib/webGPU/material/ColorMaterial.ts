@@ -1,12 +1,17 @@
-import { Color, type CssColor } from '../color/Color';
+import type { CssColor } from '../color/Color';
+import { Color } from '../color/Color';
 import colorSchader from '../shader/color.wgsl?raw';
+import type { MaterialBuffer } from './Material';
 import { Material } from './Material';
 
 export class ColorMaterial extends Material {
 	constructor(cssColor: CssColor) {
-		const bufferDescriptor: GPUBufferDescriptor = {
-			size: 4 * 16, // 4x4 matrix
-			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+		const buffer: MaterialBuffer = {
+			descriptor: {
+				size: 4 * 16, // 4x4 matrix
+				usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+			},
+			value: Color.fromCssString(cssColor).value,
 		};
 
 		super({
@@ -18,10 +23,7 @@ export class ColorMaterial extends Material {
 				label: 'Color Fragment Shader',
 				code: colorSchader,
 			},
-			buffer: {
-				descriptor: bufferDescriptor,
-				value: Color.fromCssString(cssColor).value,
-			},
+			buffer,
 		});
 	}
 }

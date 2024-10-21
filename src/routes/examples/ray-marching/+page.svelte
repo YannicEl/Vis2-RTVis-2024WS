@@ -33,7 +33,7 @@
 			});
 
 			const geometry = new QuadGeometry();
-			const material = new RayMarchingMaterial();
+			const material = new RayMarchingMaterial({ clearColor: 'white' });
 			const quad = new SceneObject(geometry, material);
 
 			const scene = new Scene([quad]);

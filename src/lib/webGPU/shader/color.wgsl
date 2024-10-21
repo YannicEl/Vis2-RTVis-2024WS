@@ -5,12 +5,18 @@ struct VertexOutput {
   @builtin(position) position : vec4f,
 }
 
+struct VertexInput {
+  @location(0) position : vec4f,
+}
+
 @vertex
 fn vertex(
-  @location(0) position : vec4f,
+  input: VertexInput
 ) -> VertexOutput {
   var output : VertexOutput;
-  output.position = viewProjectionMatrix * modelMatrix * position;
+  
+  output.position = viewProjectionMatrix * modelMatrix * input.position;
+
   return output;
 }
 
@@ -20,7 +26,7 @@ fn vertex(
 
 @fragment
 fn fragment(
-  fragmentInput: VertexOutput
+  input: VertexOutput
 ) -> @location(0) vec4f {
   return color;
 }
