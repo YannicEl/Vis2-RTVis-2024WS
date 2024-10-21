@@ -1,6 +1,6 @@
 export type AutoResizeCanvasParams = {
 	canvas: HTMLCanvasElement;
-	device?: GPUDevice;
+	device: GPUDevice;
 	onResize?: (canvas: HTMLCanvasElement) => void;
 };
 
@@ -10,9 +10,8 @@ export function autoResizeCanvas({ canvas, device, onResize }: AutoResizeCanvasP
 			if (entry.target instanceof HTMLCanvasElement) {
 				const width = entry.contentBoxSize[0].inlineSize;
 				const height = entry.contentBoxSize[0].blockSize;
-				const { maxTextureDimension2D = Infinity } = device?.limits ?? {};
-
-				canvas.width = Math.max(1, Math.max(width, maxTextureDimension2D));
+				const { maxTextureDimension2D } = device.limits;
+				canvas.width = Math.max(1, Math.min(width, maxTextureDimension2D));
 				canvas.height = Math.max(1, Math.min(height, maxTextureDimension2D));
 
 				onResize?.(entry.target);
