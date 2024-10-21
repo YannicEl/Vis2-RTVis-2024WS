@@ -18,7 +18,7 @@ export type Input = {
 // https://webgpu.github.io/webgpu-samples/?sample=cameras#camera.ts
 export class ArcballControls {
 	#camera: Camera;
-	#input: Input = {
+	public input: Input = {
 		touching: false,
 		zoom: 0,
 		x: 0,
@@ -38,22 +38,22 @@ export class ArcballControls {
 
 		document.onpointermove = (event) => {
 			// Nicht mein code simon. Nicht böse sein bitte
-			this.#input.touching = event.pointerType == 'mouse' ? (event.buttons & 1) !== 0 : true;
-			if (this.#input.touching) {
-				this.#input.x += event.movementX;
-				this.#input.y += event.movementY;
+			this.input.touching = event.pointerType == 'mouse' ? (event.buttons & 1) !== 0 : true;
+			if (this.input.touching) {
+				this.input.x += event.movementX;
+				this.input.y += event.movementY;
 			}
 		};
 
 		document.onwheel = (event) => {
-			this.#input.zoom += Math.sign(event.deltaY);
+			this.input.zoom += Math.sign(event.deltaY);
 		};
 	}
 
 	update(deltaTime: number) {
 		const epsilon = 0.0000001;
 
-		if (this.#input.touching) {
+		if (this.input.touching) {
 			// Currently being dragged.
 			this.#angularVelocity = 0;
 		} else {
@@ -63,8 +63,8 @@ export class ArcballControls {
 
 		// Calculate the movement vector
 		const movement = vec3.create();
-		vec3.addScaled(movement, this.#camera.right, -this.#input.x, movement);
-		vec3.addScaled(movement, this.#camera.up, this.#input.y, movement);
+		vec3.addScaled(movement, this.#camera.right, -this.input.x, movement);
+		vec3.addScaled(movement, this.#camera.up, this.input.y, movement);
 
 		// Cross the movement vector with the view direction to calculate the rotation axis x magnitude
 		const crossProduct = vec3.cross(movement, this.#camera.front);
@@ -92,15 +92,15 @@ export class ArcballControls {
 		}
 
 		// recalculate `this.position` from `this.front` considering zoom
-		if (this.#input.zoom !== 0) {
-			this.#distance *= 1 + this.#input.zoom * this.#zoomSpeed;
+		if (this.input.zoom !== 0) {
+			this.#distance *= 1 + this.input.zoom * this.#zoomSpeed;
 		}
 
 		this.#camera.position = vec3.scale(this.#camera.front, -this.#distance);
 
-		this.#input.x = 0;
-		this.#input.y = 0;
-		this.#input.zoom = 0;
-		this.#input.touching = false;
+		this.input.x = 0;
+		this.input.y = 0;
+		this.input.zoom = 0;
+		this.input.touching = false;
 	}
 }

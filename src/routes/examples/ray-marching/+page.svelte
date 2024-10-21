@@ -40,7 +40,9 @@
 			scene.load(device);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
+
 			const controls = new ArcballControls({ camera });
+			globalState.contols = controls;
 
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;

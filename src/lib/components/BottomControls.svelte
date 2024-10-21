@@ -7,7 +7,6 @@
 	import IconsAdd from '~icons/material-symbols/add';
 	import IconMinus from '~icons/material-symbols/remove';
 	import { globalState } from '$lib/globalState.svelte';
-	import { vec3 } from 'wgpu-matrix';
 
 	type Props = {} & SvelteHTMLElements['div'];
 	let { class: className, ...props }: Props = $props();
@@ -15,18 +14,14 @@
 	const fullscreen = useFullscreen(document.documentElement);
 
 	function zoomOut(): void {
-		console.log(globalState.camera);
-		const { camera } = globalState;
-		if (camera) {
-			camera.position = vec3.add(camera.position, vec3.create(0, 0, 0.5));
+		if (globalState.contols) {
+			globalState.contols.input.zoom = 1;
 		}
 	}
 
 	function zoomIn(): void {
-		console.log(globalState.camera);
-		const { camera } = globalState;
-		if (camera) {
-			camera.position = vec3.add(camera.position, vec3.create(0, 0, -0.5));
+		if (globalState.contols) {
+			globalState.contols.input.zoom = -1;
 		}
 	}
 </script>

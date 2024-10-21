@@ -57,7 +57,9 @@
 			scene.load(device);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
+
 			const controls = new ArcballControls({ camera });
+			globalState.contols = controls;
 
 			triangle.setPosition(0, 1, -10);
 
