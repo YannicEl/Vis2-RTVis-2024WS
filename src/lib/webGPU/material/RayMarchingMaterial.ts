@@ -11,7 +11,7 @@ export type RayMarchingMaterialParams = {
 
 export class RayMarchingMaterial extends Material {
 	constructor({ clearColor, fragmentColor }: RayMarchingMaterialParams) {
-		const bufferSize = 4 * 4 + 4 * 4; // 2 x vec3
+		const bufferSize = 4 * 4 + 4 * 4; // 2 x vec4
 
 		const buffer: MaterialBuffer = {
 			descriptor: {

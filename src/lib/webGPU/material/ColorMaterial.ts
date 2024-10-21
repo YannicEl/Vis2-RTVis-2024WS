@@ -8,7 +8,7 @@ export class ColorMaterial extends Material {
 	constructor(cssColor: CssColor) {
 		const buffer: MaterialBuffer = {
 			descriptor: {
-				size: 4 * 4, // vec3
+				size: 4 * 4, // vec4
 				usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 			},
 			value: Color.fromCssString(cssColor).value,

@@ -54,6 +54,6 @@ export class Color {
 		ctx.fillRect(0, 0, 1, 1);
 
 		const [red, green, blue, alpha] = ctx.getImageData(0, 0, 1, 1).data;
-		return new Color([red, green, blue, alpha]);
+		return new Color([red / 255, green / 255, blue / 255, alpha / 255]);
 	}
 }

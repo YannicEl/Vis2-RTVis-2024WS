@@ -3,6 +3,7 @@ import type { Camera } from '../Camera';
 
 export type ArcballControlsParams = {
 	camera: Camera;
+	distance?: number;
 	rotationSpeed?: number;
 	zoomSpeed?: number;
 	frictionCoefficient?: number;
@@ -25,16 +26,27 @@ export class ArcballControls {
 		y: 0,
 	};
 
-	#distance = 5;
-	#rotationSpeed = 0.0005;
-	#zoomSpeed = 0.1;
+	#distance: number;
+	#rotationSpeed: number;
+	#zoomSpeed: number;
+	#frictionCoefficient: number;
+
 	#angularVelocity = 0;
-	#frictionCoefficient = 0.001;
 
 	#axis = vec3.create();
 
-	constructor({ camera }: ArcballControlsParams) {
+	constructor({
+		camera,
+		distance = 5,
+		rotationSpeed = 0.0005,
+		zoomSpeed = 0.1,
+		frictionCoefficient = 0.001,
+	}: ArcballControlsParams) {
 		this.#camera = camera;
+		this.#distance = distance;
+		this.#rotationSpeed = rotationSpeed;
+		this.#zoomSpeed = zoomSpeed;
+		this.#frictionCoefficient = frictionCoefficient;
 
 		document.onpointermove = (event) => {
 			// Nicht mein code simon. Nicht böse sein bitte

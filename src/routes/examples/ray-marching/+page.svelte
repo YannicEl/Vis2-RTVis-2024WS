@@ -35,7 +35,7 @@
 			const geometry = new QuadGeometry();
 			const material = new RayMarchingMaterial({
 				clearColor: 'white',
-				fragmentColor: 'red',
+				fragmentColor: 'white',
 			});
 			const quad = new SceneObject(geometry, material);
 
@@ -44,7 +44,7 @@
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
 
-			const controls = new ArcballControls({ camera });
+			const controls = new ArcballControls({ camera, distance: 1 });
 			globalState.contols = controls;
 
 			draw((deltaTime) => {
