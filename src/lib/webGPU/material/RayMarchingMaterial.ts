@@ -1,19 +1,17 @@
-import fragmentShader from '../shader/ray_marching.frag.wgsl?raw';
-import vertexShader from '../shader/ray_marching.vert.wgsl?raw';
-import { Material } from './Material.js';
+import rayMarchingShader from '../shader/ray_marching.wgsl?raw';
+import { Material } from './Material';
 
 export class RayMarchingMaterial extends Material {
 	constructor() {
-		const bufferDescriptor: GPUBufferDescriptor = {
-			size: 4 * 16, // 4x4 matrix
-			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-		};
-
 		super({
-			vertexShader,
-			fragmentShader,
-			bufferDescriptor,
-			bufferValue: new Float32Array(16),
+			vertexShader: {
+				label: 'Ray Marching Vertex Shader',
+				code: rayMarchingShader,
+			},
+			fragmentShader: {
+				label: 'Ray Marching Fragment Shader',
+				code: rayMarchingShader,
+			},
 		});
 	}
 }

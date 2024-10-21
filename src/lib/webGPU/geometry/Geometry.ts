@@ -5,10 +5,10 @@ export type GeometryParams = {
 
 export abstract class Geometry {
 	public vertices: Float32Array;
-	public vertexBuffer: GPUBuffer | null = null;
+	public vertexBuffer?: GPUBuffer;
 
 	public indices: Uint32Array;
-	public indexBuffer: GPUBuffer | null = null;
+	public indexBuffer?: GPUBuffer;
 
 	constructor({ vertices, indices }: GeometryParams) {
 		this.vertices = vertices;

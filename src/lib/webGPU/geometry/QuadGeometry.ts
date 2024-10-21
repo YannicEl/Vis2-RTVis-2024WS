@@ -1,4 +1,4 @@
-import { Geometry } from './Geometry.js';
+import { Geometry } from './Geometry';
 
 export class QuadGeometry extends Geometry {
 	constructor() {

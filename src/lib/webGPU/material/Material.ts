@@ -1,37 +1,37 @@
 import { queueBufferWrite } from '../helpers/webGpu';
 
+export type MaterialBuffer = {
+	descriptor: GPUBufferDescriptor;
+	value: Float32Array;
+};
+
 export type MaterialParams = {
-	vertexShader: string;
-	fragmentShader: string;
-	bufferDescriptor: GPUBufferDescriptor;
-	bufferValue: Float32Array;
+	vertexShader: GPUShaderModuleDescriptor;
+	fragmentShader: GPUShaderModuleDescriptor;
+	buffer?: MaterialBuffer;
 };
 
 export abstract class Material {
-	#fragmentShader: string;
-	#vertexShader: string;
+	#fragmentShader: GPUShaderModuleDescriptor;
+	#vertexShader: GPUShaderModuleDescriptor;
 
-	#bufferDescriptor: GPUBufferDescriptor;
-	#bufferValue: Float32Array;
+	#buffer?: MaterialBuffer;
 
-	constructor({ vertexShader, fragmentShader, bufferDescriptor, bufferValue }: MaterialParams) {
+	constructor({ vertexShader, fragmentShader, buffer }: MaterialParams) {
 		this.#vertexShader = vertexShader;
 		this.#fragmentShader = fragmentShader;
-		this.#bufferDescriptor = bufferDescriptor;
-		this.#bufferValue = bufferValue;
+		this.#buffer = buffer;
 	}
 
 	load(device: GPUDevice) {
-		const vertexShaderModule = device.createShaderModule({
-			code: this.#vertexShader,
-		});
+		const vertexShaderModule = device.createShaderModule(this.#vertexShader);
+		const fragmentShaderModule = device.createShaderModule(this.#fragmentShader);
 
-		const fragmentShaderModule = device.createShaderModule({
-			code: this.#fragmentShader,
-		});
-
-		const materialBuffer = device.createBuffer(this.#bufferDescriptor);
-		queueBufferWrite(device, materialBuffer, this.#bufferValue);
+		let materialBuffer: GPUBuffer | undefined;
+		if (this.#buffer) {
+			materialBuffer = device.createBuffer(this.#buffer.descriptor);
+			queueBufferWrite(device, materialBuffer, this.#buffer.value);
+		}
 
 		return {
 			vertexShaderModule,

@@ -1,5 +1,5 @@
-import type { Camera } from './Camera.js';
-import { SceneObject } from './SceneObject.js';
+import type { Camera } from './Camera';
+import { SceneObject } from './SceneObject';
 
 export class Scene {
 	#children: SceneObject[];

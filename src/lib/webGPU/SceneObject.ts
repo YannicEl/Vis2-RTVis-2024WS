@@ -1,19 +1,18 @@
 import type { Mat4 } from 'wgpu-matrix';
 import { mat4 } from 'wgpu-matrix';
-import type { Geometry } from './geometry/Geometry.js';
-import { queueBufferWrite } from './helpers/webGpu.js';
-import type { Material } from './material/Material.js';
+import type { Geometry } from './geometry/Geometry';
+import { queueBufferWrite } from './helpers/webGpu';
+import type { Material } from './material/Material';
 
 export class SceneObject {
 	#geometry: Geometry;
 	#material: Material;
 
-	#pipeline: GPURenderPipeline | null = null;
-	#uniformBindGroup: GPUBindGroup | null = null;
+	#pipeline?: GPURenderPipeline;
+	#uniformBindGroup?: GPUBindGroup;
 
-	#viewProjectionMatrixBuffer: GPUBuffer | null = null;
-	#modelMatrixBuffer: GPUBuffer | null = null;
-	#materialBuffer: GPUBuffer | null = null;
+	#viewProjectionMatrixBuffer?: GPUBuffer;
+	#modelMatrixBuffer?: GPUBuffer;
 
 	#modelMatrix: Mat4;
 
@@ -28,8 +27,6 @@ export class SceneObject {
 			this.#material.load(device);
 		this.#geometry.load(device);
 
-		this.#materialBuffer = materialBuffer;
-
 		this.#viewProjectionMatrixBuffer = device.createBuffer({
 			label: 'View Projection Matrix Buffer',
 			size: 4 * 16, // 4x4 matrix
@@ -43,9 +40,11 @@ export class SceneObject {
 		});
 
 		this.#pipeline = device.createRenderPipeline({
+			label: 'SceneObject Render Pipeline',
 			layout: 'auto',
 			vertex: {
 				module: vertexShaderModule,
+				entryPoint: 'vertex',
 				buffers: [
 					{
 						arrayStride: 4 * 3,
@@ -62,6 +61,7 @@ export class SceneObject {
 			},
 			fragment: {
 				module: fragmentShaderModule,
+				entryPoint: 'fragment',
 				targets: [
 					{
 						format: navigator.gpu.getPreferredCanvasFormat(),
@@ -73,7 +73,8 @@ export class SceneObject {
 			},
 		});
 
-		this.#uniformBindGroup = device.createBindGroup({
+		const bindGroupDescriptor = {
+			label: 'Uniform Bind Group',
 			layout: this.#pipeline.getBindGroupLayout(0),
 			entries: [
 				{
@@ -88,14 +89,19 @@ export class SceneObject {
 						buffer: this.#modelMatrixBuffer,
 					},
 				},
-				{
-					binding: 2,
-					resource: {
-						buffer: this.#materialBuffer,
-					},
-				},
 			],
-		});
+		} satisfies GPUBindGroupDescriptor;
+
+		if (materialBuffer) {
+			bindGroupDescriptor.entries.push({
+				binding: 2,
+				resource: {
+					buffer: materialBuffer,
+				},
+			});
+		}
+
+		this.#uniformBindGroup = device.createBindGroup(bindGroupDescriptor);
 	}
 
 	update(): void {
@@ -109,8 +115,7 @@ export class SceneObject {
 			!this.#viewProjectionMatrixBuffer ||
 			!this.#modelMatrixBuffer ||
 			!this.#geometry.vertexBuffer ||
-			!this.#geometry.indexBuffer ||
-			!this.#materialBuffer
+			!this.#geometry.indexBuffer
 		) {
 			throw new Error('SceneObject not loaded');
 		}

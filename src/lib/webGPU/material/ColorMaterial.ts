@@ -1,7 +1,6 @@
 import { Color, type CssColor } from '../color/Color';
-import fragmentShader from '../shader/color.frag.wgsl?raw';
-import vertexShader from '../shader/color.vert.wgsl?raw';
-import { Material } from './Material.js';
+import colorSchader from '../shader/color.wgsl?raw';
+import { Material } from './Material';
 
 export class ColorMaterial extends Material {
 	constructor(cssColor: CssColor) {
@@ -11,10 +10,18 @@ export class ColorMaterial extends Material {
 		};
 
 		super({
-			vertexShader,
-			fragmentShader,
-			bufferDescriptor,
-			bufferValue: Color.fromCssString(cssColor).value,
+			vertexShader: {
+				label: 'Color Vertex Shader',
+				code: colorSchader,
+			},
+			fragmentShader: {
+				label: 'Color Fragment Shader',
+				code: colorSchader,
+			},
+			buffer: {
+				descriptor: bufferDescriptor,
+				value: Color.fromCssString(cssColor).value,
+			},
 		});
 	}
 }

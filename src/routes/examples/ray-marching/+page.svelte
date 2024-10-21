@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
-	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { Scene } from '$lib/webGPU/Scene';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { onMount } from 'svelte';
 	import { ArcballControls, type Input } from '$lib/webGPU/controls/ArcballControls';
-	import { CubeGeometry } from '$lib/webGPU/geometry/CubeGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
+	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
+	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -32,8 +32,8 @@
 				},
 			});
 
-			const geometry = new CubeGeometry();
-			const material = new ColorMaterial('red');
+			const geometry = new QuadGeometry();
+			const material = new RayMarchingMaterial();
 			const quad = new SceneObject(geometry, material);
 
 			const scene = new Scene([quad]);

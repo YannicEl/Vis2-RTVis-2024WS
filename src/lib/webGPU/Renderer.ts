@@ -1,6 +1,6 @@
-import type { Camera } from './Camera.js';
-import { Color, type CssColor } from './color/Color.js';
-import type { Scene } from './Scene.js';
+import type { Camera } from './Camera';
+import { Color, type CssColor } from './color/Color';
+import type { Scene } from './Scene';
 
 export type RendererParams = {
 	context: GPUCanvasContext;
