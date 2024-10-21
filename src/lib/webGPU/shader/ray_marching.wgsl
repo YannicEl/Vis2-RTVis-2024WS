@@ -1,22 +1,22 @@
 // https://michaelwalczyk.com/blog-ray-marching.html
 
-@group(0) @binding(0) var<uniform> viewProjectionMatrix : mat4x4f;
-@group(0) @binding(1) var<uniform> modelMatrix : mat4x4f;
+@group(0) @binding(0) var<uniform> viewProjectionMatrix: mat4x4f;
+@group(0) @binding(1) var<uniform> modelMatrix: mat4x4f;
 
 struct VertexOutput {
-  @builtin(position) position : vec4f,
+  @builtin(position) position: vec4f,
   @location(2) uv: vec2f,
 }
 
 struct VertexInput {
-  @location(0) position : vec4f,
+  @location(0) position: vec4f,
 }
 
 @vertex
 fn vertex(
   input: VertexInput
 ) -> VertexOutput {
-  var output : VertexOutput;
+  var output: VertexOutput;
 
   output.position = viewProjectionMatrix * modelMatrix * input.position;
 
@@ -27,7 +27,12 @@ fn vertex(
 
 // -------------- //
 
-@group(0) @binding(2) var<uniform> clearColor : vec4f;
+struct FragmentUniform {
+  clearColor: vec4f,
+  fragmentColor: vec4f,
+}
+
+@group(0) @binding(2) var<uniform> fragmentUniform: FragmentUniform;
 
 @fragment
 fn fragment(
@@ -58,7 +63,7 @@ fn ray_march(ray_origin: vec3f, ray_diretion: vec3f) -> vec4f {
 
     // hit
     if (distance_to_closest < MINIMUM_HIT_DISTANCE) {
-      return vec4f(1.0, 0.0, 0.0, 0.0);
+      return fragmentUniform.fragmentColor;
     }
 
     // miss
@@ -70,7 +75,7 @@ fn ray_march(ray_origin: vec3f, ray_diretion: vec3f) -> vec4f {
     total_distance_traveled += distance_to_closest;
   }
 
-  return clearColor;
+  return fragmentUniform.clearColor;
 }
 
 fn sphere_SDF(position: vec3f, center: vec3f, radius: f32) -> f32 {
