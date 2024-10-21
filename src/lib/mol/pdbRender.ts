@@ -1,11 +1,11 @@
 import { cssColors } from '$lib/webGPU/color/Color';
-import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
+import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 import { SceneObject } from '$lib/webGPU/SceneObject';
 import { type Pdb } from 'pdb-parser-js/dist/pdb';
 
 export const renderPDB = (pdb: Pdb) => {
-	const geometry = new TriangleGeometry();
+	const geometry = new SphereGeometry();
 
 	const atoms = pdb.coordinate.atoms
 		.map((atom, i) => {

@@ -2,6 +2,7 @@
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
+	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Renderer } from '$lib/webGPU/Renderer';
@@ -19,8 +20,8 @@
 	const camera = new Camera();
 	globalState.camera = camera;
 
-	// const geometry = new SphereGeometry();
-	const geometry = new TriangleGeometry();
+	const geometry = new SphereGeometry();
+	// const geometry = new TriangleGeometry();
 	const material = new ColorMaterial('black');
 	// const material = new RayMarchingMaterial();
 	const triangle = new SceneObject(geometry, material);
@@ -60,8 +61,6 @@
 
 			const controls = new ArcballControls({ camera });
 			globalState.contols = controls;
-
-			triangle.setPosition(0, 1, -10);
 
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
