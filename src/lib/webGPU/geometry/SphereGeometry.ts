@@ -28,9 +28,8 @@ export class SphereGeometry extends Geometry {
 		const grid = [];
 
 		// buffers
-		const vertices = new Float32Array((widthSegments + 1) * (heightSegments + 1) * 3);
-		// we do not know how many indices we will need yet
-		const indicesTemp = [];
+		const vertices = [];
+		const indices = [];
 
 		// generate sphere vertices
 		for (let iy = 0; iy <= heightSegments; iy++) {
@@ -61,12 +60,10 @@ export class SphereGeometry extends Geometry {
 				const c = grid[iy + 1][ix];
 				const d = grid[iy + 1][ix + 1];
 
-				if (iy !== 0 || thetaStart > 0) indicesTemp.push(a, b, d);
-				if (iy !== heightSegments - 1 || thetaEnd < Math.PI) indicesTemp.push(b, c, d);
+				if (iy !== 0 || thetaStart > 0) indices.push(a, b, d);
+				if (iy !== heightSegments - 1 || thetaEnd < Math.PI) indices.push(b, c, d);
 			}
 		}
-
-		const indices = new Uint32Array(indicesTemp);
 
 		super({ vertices, indices });
 	}

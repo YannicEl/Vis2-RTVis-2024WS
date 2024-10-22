@@ -1,6 +1,6 @@
 export type GeometryParams = {
-	vertices: Float32Array;
-	indices: Uint32Array;
+	vertices: number[];
+	indices: number[];
 };
 
 export abstract class Geometry {
@@ -11,8 +11,8 @@ export abstract class Geometry {
 	public indexBuffer?: GPUBuffer;
 
 	constructor({ vertices, indices }: GeometryParams) {
-		this.vertices = vertices;
-		this.indices = indices;
+		this.vertices = new Float32Array(vertices);
+		this.indices = new Uint32Array(indices);
 	}
 
 	load(device: GPUDevice): void {

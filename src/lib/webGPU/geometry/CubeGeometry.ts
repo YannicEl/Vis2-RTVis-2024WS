@@ -3,7 +3,7 @@ import { Geometry } from './Geometry';
 export class CubeGeometry extends Geometry {
 	constructor() {
 		// prettier-ignore
-		const vertices = new Float32Array([
+		const vertices = [
       // TOP LEFT FRONT
       -1, 1,  1,
   
@@ -27,10 +27,10 @@ export class CubeGeometry extends Geometry {
   
       // BOTTOM RIGHT BACK
       1,  -1, -1
-    ])
+    ];
 
 		// prettier-ignore
-		const indices = new Uint32Array([
+		const indices = [
       // FRONT
       0,  1,  2,
       1,  2,  3,
@@ -54,7 +54,7 @@ export class CubeGeometry extends Geometry {
       // BOTTOM
       3,  2,  7,
       2,  7,  6
-    ])
+    ];
 
 		super({ vertices, indices });
 	}

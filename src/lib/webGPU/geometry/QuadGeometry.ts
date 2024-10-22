@@ -3,19 +3,19 @@ import { Geometry } from './Geometry';
 export class QuadGeometry extends Geometry {
 	constructor() {
 		// prettier-ignore
-		const vertices = new Float32Array([
+		const vertices = [
       // position
       -1,  1,  0, 
       1,  1, 0, 
       1, -1, 0,
       -1, -1, 0,
-    ])
+    ];
 
 		// prettier-ignore
-		const indices = new Uint32Array([
-      2, 3, 0,
+		const indices =[
       0, 1, 2,
-    ]);
+      2, 3, 0,
+    ];
 
 		super({ vertices, indices });
 	}
