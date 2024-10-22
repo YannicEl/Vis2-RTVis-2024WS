@@ -46,18 +46,20 @@
 			globalState.camera = camera;
 
 			const { device } = await initWebGPU();
+			const scene = new Scene([triangle, ...atoms]);
+
+			scene.load(device);
+
+			const renderer = new Renderer({ context, device, clearColor: 'white' });
+
 			autoResizeCanvas({
 				canvas,
 				device,
 				onResize: (canvas) => {
 					camera.aspect = canvas.clientWidth / canvas.clientHeight;
+					renderer.onCanvasResized(canvas.width, canvas.height);
 				},
 			});
-
-			const scene = new Scene([triangle, ...atoms]);
-			scene.load(device);
-
-			const renderer = new Renderer({ context, device, clearColor: 'white' });
 
 			const controls = new ArcballControls({ camera });
 			globalState.contols = controls;

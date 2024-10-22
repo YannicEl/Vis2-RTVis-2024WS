@@ -70,6 +70,12 @@ export class SceneObject {
 			},
 			primitive: {
 				topology: 'triangle-list',
+				cullMode: 'back',
+			},
+			depthStencil: {
+				depthWriteEnabled: true,
+				depthCompare: 'less',
+				format: 'depth24plus',
 			},
 		});
 

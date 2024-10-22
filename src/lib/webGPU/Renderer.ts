@@ -12,10 +12,17 @@ export class Renderer {
 	#context: GPUCanvasContext;
 	#device: GPUDevice;
 	#clearColor: Color;
+	#depthTexture: GPUTexture;
+	#presentationSize: [number, number] = [300, 150];
 
 	constructor({ context, device, clearColor = 'black' }: RendererParams) {
 		this.#device = device;
 		this.#context = context;
+		this.#depthTexture = this.#device.createTexture({
+			size: this.#presentationSize,
+			format: 'depth24plus',
+			usage: GPUTextureUsage.RENDER_ATTACHMENT,
+		});
 
 		const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 		context.configure({
@@ -31,6 +38,15 @@ export class Renderer {
 		}
 	}
 
+	onCanvasResized(width: number, height: number) {
+		this.#presentationSize = [width, height];
+		this.#depthTexture = this.#device.createTexture({
+			size: this.#presentationSize,
+			format: 'depth24plus',
+			usage: GPUTextureUsage.RENDER_ATTACHMENT,
+		});
+	}
+
 	render(scene: Scene, camera: Camera): void {
 		const commandEncoder = this.#device.createCommandEncoder();
 		const renderPassDescriptor: GPURenderPassDescriptor = {
@@ -42,6 +58,12 @@ export class Renderer {
 					storeOp: 'store',
 				},
 			],
+			depthStencilAttachment: {
+				view: this.#depthTexture.createView(),
+				depthClearValue: 1.0,
+				depthLoadOp: 'clear',
+				depthStoreOp: 'store',
+			},
 		};
 
 		const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);

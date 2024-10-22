@@ -24,13 +24,6 @@
 			globalState.camera = camera;
 
 			const { device } = await initWebGPU();
-			autoResizeCanvas({
-				canvas,
-				device,
-				onResize: (canvas) => {
-					camera.aspect = canvas.clientWidth / canvas.clientHeight;
-				},
-			});
 
 			const geometry = new QuadGeometry();
 			const material = new RayMarchingMaterial({
@@ -43,6 +36,15 @@
 			scene.load(device);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
+
+			autoResizeCanvas({
+				canvas,
+				device,
+				onResize: (canvas) => {
+					camera.aspect = canvas.clientWidth / canvas.clientHeight;
+					renderer.onCanvasResized(canvas.width, canvas.height);
+				},
+			});
 
 			const controls = new ArcballControls({ camera, distance: 1 });
 			globalState.contols = controls;
