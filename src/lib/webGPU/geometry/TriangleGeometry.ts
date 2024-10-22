@@ -12,7 +12,7 @@ export class TriangleGeometry extends Geometry {
 
 		// prettier-ignore
 		const indices = [
-      0, 1, 2,
+      2, 1, 0,
     ];
 
 		super({ vertices, indices });

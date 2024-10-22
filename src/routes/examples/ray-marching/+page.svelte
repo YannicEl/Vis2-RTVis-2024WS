@@ -20,10 +20,10 @@
 		if (!context) return;
 
 		try {
+			const { device } = await initWebGPU();
+
 			const camera = new Camera();
 			globalState.camera = camera;
-
-			const { device } = await initWebGPU();
 
 			const geometry = new QuadGeometry();
 			const material = new RayMarchingMaterial({
