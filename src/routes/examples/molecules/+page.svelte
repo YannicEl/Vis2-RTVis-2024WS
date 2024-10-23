@@ -14,11 +14,22 @@
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
+	import { getSettings } from '$lib/settings.svelte';
 
 	let canvas = $state<HTMLCanvasElement>();
 
+	const settings = getSettings();
+	const fovControl = settings.addControl({
+		name: 'FOV',
+		type: 'range',
+		value: 60,
+		min: 0,
+		max: 180,
+	});
+
 	const camera = new Camera();
 	globalState.camera = camera;
+	fovControl.onChange((value) => (camera.fov = value));
 
 	const geometry = new SphereGeometry();
 	// const geometry = new TriangleGeometry();
@@ -42,9 +53,6 @@
 		if (!context) return;
 
 		try {
-			const camera = new Camera();
-			globalState.camera = camera;
-
 			const { device } = await initWebGPU();
 			const scene = new Scene([triangle, ...atoms]);
 
@@ -61,7 +69,7 @@
 				},
 			});
 
-			const controls = new ArcballControls({ camera });
+			const controls = new ArcballControls({ eventSource: canvas, camera });
 			globalState.contols = controls;
 
 			draw((deltaTime) => {

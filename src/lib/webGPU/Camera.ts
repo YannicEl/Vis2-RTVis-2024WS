@@ -24,7 +24,7 @@ export class Camera {
 	public pitch = degToRad(0);
 
 	constructor({ fov = 60, aspect = 1, near = 1, far = 2000 }: CameraParams = {}) {
-		this.fov = degToRad(fov);
+		this.fov = fov;
 		this.aspect = aspect;
 		this.near = near;
 		this.far = far;
@@ -46,7 +46,7 @@ export class Camera {
 	}
 
 	get projectionMatrix(): Mat4 {
-		return mat4.perspective(this.fov, this.aspect, this.near, this.far);
+		return mat4.perspective(degToRad(this.fov), this.aspect, this.near, this.far);
 	}
 
 	get viewProjectionMatrix(): Mat4 {

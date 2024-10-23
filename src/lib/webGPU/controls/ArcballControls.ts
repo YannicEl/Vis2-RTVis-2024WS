@@ -2,6 +2,7 @@ import { mat4, vec3 } from 'wgpu-matrix';
 import type { Camera } from '../Camera';
 
 export type ArcballControlsParams = {
+	eventSource: HTMLElement;
 	camera: Camera;
 	distance?: number;
 	rotationSpeed?: number;
@@ -36,6 +37,7 @@ export class ArcballControls {
 	#axis = vec3.create();
 
 	constructor({
+		eventSource,
 		camera,
 		distance = 5,
 		rotationSpeed = 0.0005,
@@ -48,7 +50,7 @@ export class ArcballControls {
 		this.#zoomSpeed = zoomSpeed;
 		this.#frictionCoefficient = frictionCoefficient;
 
-		document.onpointermove = (event) => {
+		eventSource.onpointermove = (event) => {
 			// Nicht mein code simon. Nicht böse sein bitte
 			this.input.touching = event.pointerType == 'mouse' ? (event.buttons & 1) !== 0 : true;
 			if (this.input.touching) {
@@ -57,7 +59,7 @@ export class ArcballControls {
 			}
 		};
 
-		document.onwheel = (event) => {
+		eventSource.onwheel = (event) => {
 			this.input.zoom += Math.sign(event.deltaY);
 		};
 	}
