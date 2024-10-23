@@ -1,4 +1,4 @@
-import { cssColors } from '$lib/webGPU/color/Color';
+import { elementColors } from '$lib/mol/pdbColors';
 import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 import { SceneObject } from '$lib/webGPU/SceneObject';
@@ -18,13 +18,15 @@ export const renderPDB = (pdb: Pdb) => {
 			)
 				return null;
 
-			const color = cssColors[i % cssColors.length];
+			const element = atom.data.element!;
+			const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
+
 			const material = new ColorMaterial(color);
-			const triangle = new SceneObject(geometry, material);
+			const sphere = new SceneObject(geometry, material);
 
-			triangle.setPosition(vec3.create(atom.data.x, atom.data.y, atom.data.z));
+			sphere.setPosition(vec3.create(atom.data.x, atom.data.y, atom.data.z));
 
-			return triangle;
+			return sphere;
 		})
 		.filter(Boolean) as SceneObject[];
 

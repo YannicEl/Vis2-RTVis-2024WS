@@ -31,16 +31,6 @@
 	globalState.camera = camera;
 	fovControl.onChange((value) => (camera.fov = value));
 
-	const geometry = new SphereGeometry();
-	// const geometry = new TriangleGeometry();
-	const material = new ColorMaterial('black');
-	// const material = new RayMarchingMaterial();
-	const triangle = new SceneObject(geometry, material);
-
-	const quadGeometry = new QuadGeometry();
-	const quadMaterial = new ColorMaterial('red');
-	const quad = new SceneObject(quadGeometry, quadMaterial);
-
 	onMount(async () => {
 		if (!canvas) return;
 
@@ -54,11 +44,11 @@
 
 		try {
 			const { device } = await initWebGPU();
-			const scene = new Scene([triangle, ...atoms]);
+			const scene = new Scene(atoms);
 
 			scene.load(device);
 
-			const renderer = new Renderer({ context, device, clearColor: 'white' });
+			const renderer = new Renderer({ context, device, clearColor: 'green' });
 
 			autoResizeCanvas({
 				canvas,
@@ -74,11 +64,6 @@
 
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
-
-				triangle.rotateY(0.0001 * deltaTime);
-				triangle.rotateX(0.0005 * deltaTime);
-
-				// triangle.moveX(0.0001 * deltaTime);#
 
 				controls.update(deltaTime);
 
