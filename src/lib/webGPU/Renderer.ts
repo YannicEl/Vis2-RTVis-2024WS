@@ -13,13 +13,12 @@ export class Renderer {
 	#device: GPUDevice;
 	#clearColor: Color;
 	#depthTexture: GPUTexture;
-	#presentationSize: [number, number] = [300, 150];
 
 	constructor({ context, device, clearColor = 'black' }: RendererParams) {
 		this.#device = device;
 		this.#context = context;
 		this.#depthTexture = this.#device.createTexture({
-			size: this.#presentationSize,
+			size: [context.canvas.width, context.canvas.height],
 			format: 'depth24plus',
 			usage: GPUTextureUsage.RENDER_ATTACHMENT,
 		});
@@ -39,9 +38,8 @@ export class Renderer {
 	}
 
 	onCanvasResized(width: number, height: number) {
-		this.#presentationSize = [width, height];
 		this.#depthTexture = this.#device.createTexture({
-			size: this.#presentationSize,
+			size: [width, height],
 			format: 'depth24plus',
 			usage: GPUTextureUsage.RENDER_ATTACHMENT,
 		});

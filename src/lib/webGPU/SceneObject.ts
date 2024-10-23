@@ -1,10 +1,10 @@
 import type { Mat4 } from 'wgpu-matrix';
-import { mat4 } from 'wgpu-matrix';
 import type { Geometry } from './geometry/Geometry';
 import { queueBufferWrite } from './helpers/webGpu';
 import type { Material } from './material/Material';
+import { Object3D } from './Object3D';
 
-export class SceneObject {
+export class SceneObject extends Object3D {
 	#geometry: Geometry;
 	#material: Material;
 
@@ -14,12 +14,11 @@ export class SceneObject {
 	#viewProjectionMatrixBuffer?: GPUBuffer;
 	#modelMatrixBuffer?: GPUBuffer;
 
-	#modelMatrix: Mat4;
-
 	constructor(geometry: Geometry, material: Material) {
+		super();
+
 		this.#geometry = geometry;
 		this.#material = material;
-		this.#modelMatrix = mat4.identity();
 	}
 
 	load(device: GPUDevice): void {
@@ -110,9 +109,7 @@ export class SceneObject {
 		this.#uniformBindGroup = device.createBindGroup(bindGroupDescriptor);
 	}
 
-	update(): void {
-		throw new Error('Method not implemented.');
-	}
+	update(deltaTime: number): void {}
 
 	render(device: GPUDevice, encoder: GPURenderPassEncoder, viewProjectionMatrix: Mat4): void {
 		if (
@@ -127,7 +124,7 @@ export class SceneObject {
 		}
 
 		queueBufferWrite(device, this.#viewProjectionMatrixBuffer, viewProjectionMatrix);
-		queueBufferWrite(device, this.#modelMatrixBuffer, this.#modelMatrix);
+		queueBufferWrite(device, this.#modelMatrixBuffer, this.modelMatrix);
 
 		encoder.setPipeline(this.#pipeline);
 		encoder.setBindGroup(0, this.#uniformBindGroup);
@@ -135,21 +132,5 @@ export class SceneObject {
 		encoder.setIndexBuffer(this.#geometry.indexBuffer, 'uint32');
 
 		encoder.drawIndexed(this.#geometry.indices.length);
-	}
-
-	rotateY(angle: number): void {
-		this.#modelMatrix = mat4.rotateY(this.#modelMatrix, angle);
-	}
-
-	rotateX(angle: number): void {
-		this.#modelMatrix = mat4.rotateX(this.#modelMatrix, angle);
-	}
-
-	moveX(distance: number): void {
-		this.#modelMatrix = mat4.translate(this.#modelMatrix, [distance, 0, 0]);
-	}
-
-	setPosition(x: number, y: number, z: number): void {
-		this.#modelMatrix = mat4.setTranslation(this.#modelMatrix, [x, y, z]);
 	}
 }
