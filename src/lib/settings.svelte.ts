@@ -42,6 +42,11 @@ export function getSettings() {
 			onChange?.(value.value);
 		});
 
+		function remove() {
+			const index = controls.indexOf(value);
+			controls.splice(index, 1);
+		}
+
 		return {
 			get value() {
 				return value.value;
@@ -49,6 +54,7 @@ export function getSettings() {
 			onChange: (callback: OnControlChangeCallback<T>) => {
 				onChange = callback;
 			},
+			remove,
 		};
 	}
 

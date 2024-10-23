@@ -4,7 +4,7 @@
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { Scene } from '$lib/webGPU/Scene';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
@@ -72,6 +72,8 @@
 			alert(error);
 		}
 	});
+
+	onDestroy(() => fovControl.remove());
 </script>
 
 <canvas bind:this={canvas} class="h-full w-full"></canvas>
