@@ -10,11 +10,11 @@
 	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { loadPDB } from '$lib/mol/pdbLoader';
 	import { renderPDB } from '$lib/mol/pdbRender';
-	import { onDestroy, onMount } from 'svelte';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { getSettings } from '$lib/settings.svelte';
+	import { onMount } from 'svelte';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -88,8 +88,6 @@
 			alert(error);
 		}
 	});
-
-	onDestroy(() => fovControl.remove());
 </script>
 
 <canvas bind:this={canvas} class="h-full w-full"></canvas>

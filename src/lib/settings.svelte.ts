@@ -1,3 +1,5 @@
+import { onDestroy } from 'svelte';
+
 export type ControlParams<T = unknown> =
 	| NumberControlParams<T>
 	| CheckboxControlParams<T>
@@ -46,6 +48,8 @@ export function getSettings() {
 			const index = controls.indexOf(value);
 			controls.splice(index, 1);
 		}
+
+		onDestroy(remove);
 
 		return {
 			get value() {
