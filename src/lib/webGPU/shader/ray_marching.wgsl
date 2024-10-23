@@ -21,6 +21,7 @@ fn vertex(
   output.position = viewProjectionMatrix * modelMatrix * input.position;
 
   output.uv = input.position.xy;
+  // output.uv.x *= 1.445977011494253;
 
   return output;
 }

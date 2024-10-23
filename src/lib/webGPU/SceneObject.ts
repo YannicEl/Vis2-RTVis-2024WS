@@ -26,6 +26,13 @@ export class SceneObject extends Object3D {
 			this.#material.load(device);
 		this.#geometry.load(device);
 
+		const bufferSize = 4 * 16 + 4 * 16; // 2 x mat4
+		const uniformBuffer = device.createBuffer({
+			label: 'Uniform Buffer',
+			size: bufferSize,
+			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+		});
+
 		this.#viewProjectionMatrixBuffer = device.createBuffer({
 			label: 'View Projection Matrix Buffer',
 			size: 4 * 16, // 4x4 matrix

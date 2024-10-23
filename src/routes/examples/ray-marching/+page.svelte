@@ -11,6 +11,8 @@
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
 	import { getSettings } from '$lib/settings.svelte';
+	import { degToRad } from '$lib/webGPU/helpers/helpers';
+	import { vec3 } from 'wgpu-matrix';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -23,6 +25,19 @@
 		max: 180,
 	});
 
+	const camera = new Camera();
+	fovControl.onChange((value) => (camera.fov = value));
+	globalState.camera = camera;
+
+	const geometry = new QuadGeometry();
+	const material = new RayMarchingMaterial({
+		clearColor: 'red',
+		fragmentColor: 'white',
+	});
+	const quad = new SceneObject(geometry, material);
+
+	const scene = new Scene([quad]);
+
 	onMount(async () => {
 		if (!canvas) return;
 
@@ -32,19 +47,6 @@
 		try {
 			const { device } = await initWebGPU();
 
-			const camera = new Camera();
-			globalState.camera = camera;
-
-			fovControl.onChange((value) => (camera.fov = value));
-
-			const geometry = new QuadGeometry();
-			const material = new RayMarchingMaterial({
-				clearColor: 'white',
-				fragmentColor: 'white',
-			});
-			const quad = new SceneObject(geometry, material);
-
-			const scene = new Scene([quad]);
 			scene.load(device);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
@@ -55,16 +57,33 @@
 				onResize: (canvas) => {
 					camera.aspect = canvas.clientWidth / canvas.clientHeight;
 					renderer.onCanvasResized(canvas.width, canvas.height);
+
+					quad.reset();
+
+					const nearPlaneWidth =
+						camera.near * Math.tan(degToRad(camera.fov / 2)) * camera.aspect * 2;
+					quad.scaleX(nearPlaneWidth);
+
+					const nearPlaneHeight = nearPlaneWidth / camera.aspect;
+					quad.scaleY(nearPlaneHeight);
 				},
 			});
 
-			const controls = new ArcballControls({ eventSource: canvas, camera, distance: 1 });
+			const controls = new ArcballControls({ eventSource: canvas, camera, distance: 2.1 });
 			globalState.contols = controls;
 
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
 
+				let cameraForwardPos = vec3.clone(camera.position);
+				cameraForwardPos = vec3.add(cameraForwardPos, camera.front);
+				cameraForwardPos = vec3.mulScalar(cameraForwardPos, camera.near);
+				cameraForwardPos[2] -= camera.near;
+				quad.setPosition(cameraForwardPos);
+				// quad.rotate(controls.getAxis(), 1);
+
 				controls.update(deltaTime);
+				scene.update(deltaTime);
 
 				renderer.render(scene, camera);
 			});
@@ -74,4 +93,9 @@
 	});
 </script>
 
-<canvas bind:this={canvas} class="h-full w-full"></canvas>
+<canvas
+	bind:this={canvas}
+	width={window.innerWidth}
+	height={window.innerHeight}
+	class="h-full w-full"
+></canvas>
