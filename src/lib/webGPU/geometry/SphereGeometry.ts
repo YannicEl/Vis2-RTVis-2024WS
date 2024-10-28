@@ -28,8 +28,8 @@ export class SphereGeometry extends Geometry {
 		const grid = [];
 
 		// buffers
-		const vertices = [];
-		const indices = [];
+		const vertices: number[] = [];
+		const indices: number[] = [];
 
 		// generate sphere vertices
 		for (let iy = 0; iy <= heightSegments; iy++) {

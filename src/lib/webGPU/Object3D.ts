@@ -1,5 +1,6 @@
 import type { Mat4, Vec3 } from 'wgpu-matrix';
 import { mat4, vec3 } from 'wgpu-matrix';
+import { degToRad } from './helpers/helpers';
 
 export abstract class Object3D {
 	public modelMatrix: Mat4;
@@ -14,12 +15,16 @@ export abstract class Object3D {
 		this.modelMatrix = mat4.identity();
 	}
 
-	rotateY(angle: number): void {
-		this.modelMatrix = mat4.rotateY(this.modelMatrix, angle);
+	rotateX(angle: number): void {
+		this.modelMatrix = mat4.rotateX(this.modelMatrix, degToRad(angle));
 	}
 
-	rotateX(angle: number): void {
-		this.modelMatrix = mat4.rotateX(this.modelMatrix, angle);
+	rotateY(angle: number): void {
+		this.modelMatrix = mat4.rotateY(this.modelMatrix, degToRad(angle));
+	}
+
+	rotateZ(angle: number): void {
+		this.modelMatrix = mat4.rotateZ(this.modelMatrix, degToRad(angle));
 	}
 
 	moveX(distance: number): void {
@@ -29,6 +34,17 @@ export abstract class Object3D {
 	setPosition(value: Vec3): void {
 		this.position = value;
 		this.modelMatrix = mat4.setTranslation(this.modelMatrix, value);
+	}
+
+	// TODO: fix, does not work as expected
+	setRotation(angle: number): void {
+		// this.modelMatrix = mat4.translate(this.modelMatrix, value);
+		// this.modelMatrix = mat4.rotateX(this.modelMatrix, value[0]);
+		// this.modelMatrix = mat4.rotateY(this.modelMatrix, value[1]);
+		// this.modelMatrix = mat4.rotateZ(this.modelMatrix, value[2]);
+
+		console.log('angle', angle);
+		this.modelMatrix = mat4.rotate(this.modelMatrix, vec3.create(1, 0, 0), angle);
 	}
 
 	scaleX(value: number): void {

@@ -48,7 +48,7 @@
 
 			scene.load(device);
 
-			const renderer = new Renderer({ context, device, clearColor: 'green' });
+			const renderer = new Renderer({ context, device, clearColor: 'black' });
 
 			autoResizeCanvas({
 				canvas,
