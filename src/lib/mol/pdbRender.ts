@@ -149,7 +149,7 @@ export const renderPDB = (pdb: Pdb) => {
 
 	// cylinder.setRotation(vec3.normalize(direction));
 	// cylinder.rotateZ(90);
-	cylinder.setRotation(vec3.angle(direction, vec3.create(0, 0, 0)));
+	cylinder.setRotation(vec3.angle(direction, vec3.create(0, 0, 0)), vec3.create(0, 0, 1));
 
 	cylinder.setPosition(vec3.add(atom1.position, vec3.scale(direction, 0.5)));
 

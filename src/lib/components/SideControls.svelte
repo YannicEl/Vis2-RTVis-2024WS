@@ -39,10 +39,27 @@
 						<option value={option.value}>{option.label}</option>
 					{/each}
 				</select>
-			{:else if control.type === 'number' || control.type === 'range'}
+			{:else if control.type === 'number'}
 				<input
 					type={control.type}
 					name={control.name}
+					bind:value={control.value}
+					min={control.min}
+					max={control.max}
+					step={control.step}
+				/>
+			{:else if control.type === 'range'}
+				<input
+					type={control.type}
+					name={control.name}
+					bind:value={control.value}
+					min={control.min}
+					max={control.max}
+					step={control.step}
+				/>
+
+				<input
+					type="number"
 					bind:value={control.value}
 					min={control.min}
 					max={control.max}

@@ -1,65 +1,68 @@
-import type { Mat4, Vec3 } from 'wgpu-matrix';
-import { mat4, vec3 } from 'wgpu-matrix';
+import type { Mat4, Quat, Vec3 } from 'wgpu-matrix';
+import { mat4, quat, vec3 } from 'wgpu-matrix';
 import { degToRad } from './helpers/helpers';
 
 export abstract class Object3D {
-	public modelMatrix: Mat4;
 	public position: Vec3;
+	public scale: Vec3;
+	public quaternion: Quat;
 
 	constructor() {
-		this.modelMatrix = mat4.identity();
 		this.position = vec3.create();
+		this.scale = vec3.create(1, 1, 1);
+		this.quaternion = quat.identity();
+	}
+
+	// TODO: don't recompute matrix every time
+	get modelMatrix(): Mat4 {
+		let matrix = mat4.identity();
+		const { axis, angle } = quat.toAxisAngle(this.quaternion);
+		matrix = mat4.rotate(matrix, axis, angle);
+		matrix = mat4.scale(matrix, this.scale);
+		matrix = mat4.translate(matrix, this.position);
+		return matrix;
 	}
 
 	reset(): void {
-		this.modelMatrix = mat4.identity();
+		this.position = vec3.create();
+		this.scale = vec3.create(1, 1, 1);
+		this.quaternion = quat.identity();
 	}
 
 	rotateX(angle: number): void {
-		this.modelMatrix = mat4.rotateX(this.modelMatrix, degToRad(angle));
+		this.quaternion = quat.rotateX(this.quaternion, degToRad(angle));
 	}
 
 	rotateY(angle: number): void {
-		this.modelMatrix = mat4.rotateY(this.modelMatrix, degToRad(angle));
+		this.quaternion = quat.rotateY(this.quaternion, degToRad(angle));
 	}
 
 	rotateZ(angle: number): void {
-		this.modelMatrix = mat4.rotateZ(this.modelMatrix, degToRad(angle));
+		this.quaternion = quat.rotateZ(this.quaternion, degToRad(angle));
 	}
 
-	moveX(distance: number): void {
-		this.modelMatrix = mat4.translate(this.modelMatrix, [distance, 0, 0]);
+	translate(value: Vec3): void {
+		this.position = vec3.add(this.position, value);
 	}
 
 	setPosition(value: Vec3): void {
 		this.position = value;
-		this.modelMatrix = mat4.setTranslation(this.modelMatrix, value);
 	}
 
-	// TODO: fix, does not work as expected
-	setRotation(angle: number): void {
-		// this.modelMatrix = mat4.translate(this.modelMatrix, value);
-		// this.modelMatrix = mat4.rotateX(this.modelMatrix, value[0]);
-		// this.modelMatrix = mat4.rotateY(this.modelMatrix, value[1]);
-		// this.modelMatrix = mat4.rotateZ(this.modelMatrix, value[2]);
-
-		console.log('angle', angle);
-		this.modelMatrix = mat4.rotate(this.modelMatrix, vec3.create(1, 0, 0), angle);
+	setRotation(angle: number, axis: Vec3): void {
+		this.quaternion = quat.fromAxisAngle(axis, degToRad(angle));
+		console.log(this.quaternion);
 	}
 
 	scaleX(value: number): void {
-		this.modelMatrix = mat4.scale(this.modelMatrix, [value, 1, 1]);
+		this.scale[0] = value;
 	}
 
 	scaleY(value: number): void {
-		this.modelMatrix = mat4.scale(this.modelMatrix, [1, value, 1]);
+		this.scale[1] = value;
 	}
 
 	scaleZ(value: number): void {
-		this.modelMatrix = mat4.scale(this.modelMatrix, [1, 1, value]);
-	}
-
-	scale(value: Vec3): void {
-		this.modelMatrix = mat4.scale(this.modelMatrix, value);
+		this.scale[2] = value;
 	}
 }
