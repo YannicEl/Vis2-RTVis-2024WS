@@ -45,9 +45,6 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: 0.6.8
         version: 0.6.8(prettier-plugin-organize-imports@4.1.0(prettier@3.3.3)(typescript@5.6.3))(prettier-plugin-svelte@3.2.7(prettier@3.3.3)(svelte@5.1.6))(prettier@3.3.3)
-      sass-embedded:
-        specifier: 1.80.5
-        version: 1.80.5
       svelte:
         specifier: 5.1.6
         version: 5.1.6
@@ -1500,7 +1497,8 @@ snapshots:
 
   '@antfu/utils@0.7.10': {}
 
-  '@bufbuild/protobuf@2.2.1': {}
+  '@bufbuild/protobuf@2.2.1':
+    optional: true
 
   '@cloudflare/kv-asset-handler@0.3.4':
     dependencies:
@@ -1926,7 +1924,8 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  buffer-builder@0.2.0: {}
+  buffer-builder@0.2.0:
+    optional: true
 
   capnp-ts@0.7.0:
     dependencies:
@@ -1951,7 +1950,8 @@ snapshots:
     dependencies:
       readdirp: 4.0.2
 
-  colorjs.io@0.5.2: {}
+  colorjs.io@0.5.2:
+    optional: true
 
   confbox@0.1.8: {}
 
@@ -2074,13 +2074,15 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  has-flag@4.0.0: {}
+  has-flag@4.0.0:
+    optional: true
 
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
 
-  immutable@4.3.7: {}
+  immutable@4.3.7:
+    optional: true
 
   import-meta-resolve@4.1.0: {}
 
@@ -2323,6 +2325,7 @@ snapshots:
   rxjs@7.8.1:
     dependencies:
       tslib: 2.8.0
+    optional: true
 
   sade@1.8.1:
     dependencies:
@@ -2418,6 +2421,7 @@ snapshots:
       sass-embedded-win32-arm64: 1.80.5
       sass-embedded-win32-ia32: 1.80.5
       sass-embedded-win32-x64: 1.80.5
+    optional: true
 
   selfsigned@2.4.1:
     dependencies:
@@ -2448,6 +2452,7 @@ snapshots:
   supports-color@8.1.1:
     dependencies:
       has-flag: 4.0.0
+    optional: true
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
@@ -2537,7 +2542,8 @@ snapshots:
       acorn: 8.14.0
       webpack-virtual-modules: 0.6.2
 
-  varint@6.0.0: {}
+  varint@6.0.0:
+    optional: true
 
   vite@5.4.10(@types/node@22.8.5)(lightningcss@1.27.0)(sass-embedded@1.80.5):
     dependencies:
