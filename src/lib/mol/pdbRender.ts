@@ -1,6 +1,7 @@
 import { elementColors } from '$lib/mol/pdbColors';
 import { CylinderGeometry } from '$lib/webGPU/geometry/CylinderGeometry';
 import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
+import { radToDeg } from '$lib/webGPU/helpers/helpers';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 import { SceneObject } from '$lib/webGPU/SceneObject';
 import type { Pdb } from 'pdb-parser-js/dist/pdb';
@@ -89,6 +90,7 @@ export const renderPDB = (pdb: Pdb) => {
 	const connect = pdb.connectivity.conects[0];
 	const primaryAtom = atomsSorted[connect.atomSeqNum - 1];
 	console.log('primaryAtom', primaryAtom);
+
 	for (const bond of connect.bondedAtomSeqNums) {
 		const secondaryAtom = atomsSorted[bond - 1];
 
@@ -130,7 +132,7 @@ export const renderPDB = (pdb: Pdb) => {
 		}),
 		new ColorMaterial('white')
 	);
-	atom2.setPosition(vec3.create(1, 1, 0));
+	atom2.setPosition(vec3.create(1, 0, 0));
 
 	const direction = vec3.subtract(atom2.position, atom1.position);
 	const distance = vec3.length(direction);
@@ -144,14 +146,21 @@ export const renderPDB = (pdb: Pdb) => {
 		new ColorMaterial('green')
 	);
 
-	// console.log('direction', direction);
-	// console.log('angle', radToDeg(vec3.angle(direction, vec3.create(0, 0, 0))));
-
 	// cylinder.setRotation(vec3.normalize(direction));
 	// cylinder.rotateZ(90);
-	cylinder.setRotation(vec3.angle(direction, vec3.create(0, 0, 0)), vec3.create(0, 0, 1));
+	// cylinder.setRotation(radToDeg(vec3.angle(direction, vec3.create(1, 1, 1))), vec3.create(1, 1, 1));
 
-	cylinder.setPosition(vec3.add(atom1.position, vec3.scale(direction, 0.5)));
+	// console.log(radToDeg(vec3.angle(direction, vec3.create(1, 0, 0))));
+	// console.log(radToDeg(vec3.angle(direction, vec3.create(0, 1, 0))));
+	// console.log(radToDeg(vec3.angle(direction, vec3.create(0, 0, 1))));
+
+	// cylinder.rotateZ(90);
+
+	// cylinder.rotateX(radToDeg(vec3.angle(direction, vec3.create(1, 0, 0))));
+	// cylinder.rotateY(radToDeg(vec3.angle(direction, vec3.create(0, 1, 0))));
+	cylinder.rotateZ(radToDeg(vec3.angle(direction, vec3.create(0, 0, 1))));
+
+	// cylinder.setPosition(vec3.add(atom1.position, vec3.scale(direction, 0.5)));
 
 	return [atom1, atom2, cylinder];
 	// return [...atoms, ...bonds];
