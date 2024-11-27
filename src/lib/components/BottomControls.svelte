@@ -50,7 +50,7 @@
 	</button>
 </div>
 
-<style lang="scss">
+<style>
 	button {
 		border-radius: var(--radius-xl);
 		padding: var(--spacing-2);
