@@ -51,7 +51,6 @@ export abstract class Object3D {
 
 	setRotation(angle: number, axis: Vec3): void {
 		this.quaternion = quat.fromAxisAngle(axis, degToRad(angle));
-		console.log(this.quaternion);
 	}
 
 	scaleX(value: number): void {
