@@ -47,14 +47,29 @@
 			/** Example Start */
 
 			// Works
-			stick.rotateX(45);
-			stick.rotateZ(145);
+			/* stick.rotateX(45);
+			stick.rotateZ(145) */
 
 			// Doesn't work
-			// stick.rotateZ(145);
-			// stick.rotateX(45);
+			stick.rotateZ(145);
+			stick.rotateX(45);
 
 			/** Example End */
+
+			// dynamic example
+			// const direction = vec3.subtract(atom2.position, atom1.position);
+			// const distance = vec3.length(direction);
+			// const cylinder = new SceneObject(
+			// 	new CylinderGeometry({
+			// 		radiusTop: 0.05,
+			// 		radiusBottom: 0.05,
+			// 		height: distance,
+			// 	}),
+			// 	new ColorMaterial('green')
+			// );
+
+			// cylinder.setPosition(vec3.add(atom1.position, vec3.scale(direction, 0.5)));
+			// TODO: rotate cylinder to direction
 
 			const renderer = new Renderer({ context, device, clearColor: 'black' });
 			const camera = new Camera();
