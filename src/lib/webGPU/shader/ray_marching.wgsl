@@ -41,21 +41,21 @@ fn fragment(
 ) -> @location(0) vec4f {
   let camera_position = vec3f(0, 0, -4);
   let ray_origin = camera_position;
-  let ray_diretion = vec3f(input.uv, 1);
+  let ray_direction = vec3f(input.uv, 1);
 
-  return ray_march(ray_origin, ray_diretion);
+  return ray_march(ray_origin, ray_direction);
 }
 
 const NUMBER_OF_STEPS = 32;
 const MINIMUM_HIT_DISTANCE = 0.001;
 const MAXIMUM_TRACE_DISTANCE = 1000.0;
 
-fn ray_march(ray_origin: vec3f, ray_diretion: vec3f) -> vec4f {
+fn ray_march(ray_origin: vec3f, ray_direction: vec3f) -> vec4f {
   var total_distance_traveled: f32 = 0.0;
 
   for (var i = 0; i < NUMBER_OF_STEPS; i++) {
     // Calculate our current position along the ray
-    let current_position: vec3f = ray_origin + total_distance_traveled * ray_diretion;
+    let current_position: vec3f = ray_origin + total_distance_traveled * ray_direction;
 
     // We wrote this function earlier in the tutorial -
     // assume that the sphere is centered at the origin
