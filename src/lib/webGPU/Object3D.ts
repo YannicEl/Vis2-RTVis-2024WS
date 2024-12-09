@@ -17,9 +17,9 @@ export abstract class Object3D {
 	get modelMatrix(): Mat4 {
 		let matrix = mat4.identity();
 		const { axis, angle } = quat.toAxisAngle(this.quaternion);
+		matrix = mat4.translate(matrix, this.position);
 		matrix = mat4.rotate(matrix, axis, angle);
 		matrix = mat4.scale(matrix, this.scale);
-		matrix = mat4.translate(matrix, this.position);
 		return matrix;
 	}
 

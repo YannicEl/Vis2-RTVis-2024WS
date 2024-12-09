@@ -29,30 +29,79 @@
 			const cylinderGeometry = new CylinderGeometry({
 				radiusTop: 0.05,
 				radiusBottom: 0.05,
-				height: 6,
+				height: 1,
 			});
 			const sphereGeometry = new SphereGeometry({
 				radius: 0.1,
 			});
 
-			const atom1 = new SceneObject(sphereGeometry, colorWhite);
-			const atom2 = new SceneObject(sphereGeometry, colorWhite);
-			const stick = new SceneObject(cylinderGeometry, colorBlue);
-			const scene = new Scene([atom1, atom2, stick]);
+			const atom_a1 = new SceneObject(sphereGeometry, colorWhite);
+			const atom_a2 = new SceneObject(sphereGeometry, colorWhite);
+			const stick_a = new SceneObject(cylinderGeometry, colorBlue);
+			
+			const atom_b1 = new SceneObject(sphereGeometry, colorWhite);
+			const atom_b2 = new SceneObject(sphereGeometry, colorWhite);
+			const stick_b = new SceneObject(cylinderGeometry, colorBlue);
+
+			const scene = new Scene([atom_a1, atom_a2, stick_a, atom_b1, atom_b2, stick_b]);
 			scene.load(device);
 
-			atom1.setPosition(vec3.create(0, 0, 0));
-			atom2.setPosition(vec3.create(1, 1, 1));
+			atom_a1.setPosition(vec3.create(0, 0, 0));
+			atom_a2.setPosition(vec3.create(1, 1, 1));
+
+			atom_b1.setPosition(vec3.create(3, 1, 0));
+			atom_b2.setPosition(vec3.create(3, 0, 1));
+
+			let connectAtoms = (stick, atom1, atom2) => {
+				let diff = vec3.sub(atom2.position, atom1.position);
+				let dist = vec3.length(diff);
+				stick.scaleY(dist);
+
+				let u1 = vec3.create(0, 1, 0);
+				let u2 = vec3.divScalar(diff, dist);
+				let dot_u1u2 = vec3.dot(u1, u2);
+				let angle = Math.acos(dot_u1u2);
+				let axis = vec3.cross(u1, u2);
+				stick.setRotation(180 * angle / Math.PI, axis);
+				
+				stick.translate(vec3.divScalar(vec3.add(atom1.position, atom2.position), 2));
+			};
+
+			connectAtoms(stick_a, atom_a1, atom_a2);
+			connectAtoms(stick_b, atom_b1, atom_b2);
+
+			/*
+			let diff = vec3.sub(atom_a2.position, atom_a1.position);
+			let dist = vec3.length(diff)
+			console.log(diff);
+			console.log(dist);
+			stick_a.scaleY(1 / dist);
+			//stick_a.rotateZ(90);
+
+			let u1 = vec3.create(0, 1, 0);
+			let u2 = vec3.divScalar(diff, dist);
+			let dot_u1u2 = vec3.dot(u1, u2);
+			let angle = Math.acos(dot_u1u2);
+			let axis = vec3.cross(u1, u2);
+
+			stick_a.setRotation(180 * angle / Math.PI, axis);
+
+			stick_a.translate(vec3.create(0.5, 0, 0));
+			*/
 
 			/** Example Start */
 
 			// Works
-			/* stick.rotateX(45);
-			stick.rotateZ(145) */
+			//stick_a.rotateX(45);
+			//stick_a.rotateZ(145);
+
+			//stick_b.rotateX(45);
+			//stick_b.rotateZ(145);
+			//stick_b.setPosition(vec3.create(3, 0, 0));
 
 			// Doesn't work
-			stick.rotateZ(145);
-			stick.rotateX(45);
+			//stick.rotateZ(145);
+			//stick.rotateX(45);
 
 			/** Example End */
 
