@@ -49,7 +49,6 @@ export class RayMarchingMaterial extends Material {
 
 	update(device: GPUDevice, { cameraPosition }: Partial<RayMarchingMaterialParams>) {
 		if (this.#buffer) {
-			console.log({ cameraPosition: cameraPosition?.toString() });
 			this.#buffer.set({
 				// clearColor: Color.fromCssString(params.clearColor).value,
 				// fragmentColor: Color.fromCssString(params.fragmentColor).value,
