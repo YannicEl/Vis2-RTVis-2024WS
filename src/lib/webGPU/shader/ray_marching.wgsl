@@ -1,7 +1,11 @@
 // https://michaelwalczyk.com/blog-ray-marching.html
 
-@group(0) @binding(0) var<uniform> viewProjectionMatrix: mat4x4f;
-@group(0) @binding(1) var<uniform> modelMatrix: mat4x4f;
+struct VertexUniform {
+  viewProjectionMatrix: mat4x4f;
+  modelMatrix: mat4x4f;
+}
+
+@group(0) @binding(0) var<uniform> vertexUniform: FragmentUniform;
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
@@ -18,7 +22,7 @@ fn vertex(
 ) -> VertexOutput {
   var output: VertexOutput;
 
-  output.position = viewProjectionMatrix * modelMatrix * input.position;
+  output.position = vertexUniform.viewProjectionMatrix * vertexUniform.modelMatrix * input.position;
 
   output.uv = input.position.xy;
   // output.uv.x *= 1.445977011494253;
