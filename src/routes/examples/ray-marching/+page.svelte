@@ -38,7 +38,6 @@
 	});
 
 	const camera = new Camera();
-	camera.setPosition(vec3.create(0, 0, -4));
 	fovControl.onChange((value) => (camera.fov = value));
 	globalState.camera = camera;
 
@@ -104,7 +103,7 @@
 				// quad.rotate(controls.getAxis(), 1);
 
 				controls.update(deltaTime);
-				// material.update(device, { cameraPosition: camera.position });
+				material.update(device, { cameraPosition: camera.position });
 				scene.update(deltaTime);
 
 				renderer.render(scene, camera);

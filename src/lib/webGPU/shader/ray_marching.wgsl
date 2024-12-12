@@ -44,7 +44,7 @@ struct FragmentUniform {
 fn fragment(
   input: VertexOutput
 ) -> @location(0) vec4f {
-  let camera_position =  vec3f(fragmentUniform.cameraPosition[0], fragmentUniform.cameraPosition[1], fragmentUniform.cameraPosition[2]);
+  let camera_position =  vec3f(fragmentUniform.cameraPosition[0], fragmentUniform.cameraPosition[1], fragmentUniform.cameraPosition[2] * -1);
   let ray_origin = camera_position;
   let ray_direction = vec3f(input.uv, 1);
 
