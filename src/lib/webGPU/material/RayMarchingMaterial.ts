@@ -1,7 +1,8 @@
 import type { CssColor } from '../color/Color';
 import { Color } from '../color/Color';
+import { queueBufferWrite } from '../helpers/webGpu';
 import rayMarchingShader from '../shader/ray_marching.wgsl?raw';
-import { createUniformBuffer } from '../utils/buffer';
+import { UniformBuffer } from '../utils/UniformBuffer';
 import { Material } from './Material';
 
 export type RayMarchingMaterialParams = {
@@ -10,14 +11,21 @@ export type RayMarchingMaterialParams = {
 };
 
 export class RayMarchingMaterial extends Material {
-	constructor({ clearColor, fragmentColor }: RayMarchingMaterialParams) {
-		const buffer = createUniformBuffer({
-			clearColor: 'vec4',
-			fragmentColor: 'vec4',
-		});
+	#buffer?: UniformBuffer<'clearColor' | 'fragmentColor'>;
 
-		buffer.set('fragmentColor', Color.fromCssString(fragmentColor).value);
-		buffer.set('clearColor', Color.fromCssString(clearColor).value);
+	constructor({ clearColor, fragmentColor }: RayMarchingMaterialParams) {
+		const buffer = new UniformBuffer(
+			{
+				clearColor: 'vec4',
+				fragmentColor: 'vec4',
+			},
+			'Ray Marching Material Buffer'
+		);
+
+		buffer.set({
+			clearColor: Color.fromCssString(clearColor).value,
+			fragmentColor: Color.fromCssString(fragmentColor).value,
+		});
 
 		super({
 			vertexShader: {
@@ -28,7 +36,19 @@ export class RayMarchingMaterial extends Material {
 				label: 'Ray Marching Fragment Shader',
 				code: rayMarchingShader,
 			},
-			buffer: buffer.value,
+			buffer,
 		});
+
+		this.#buffer = buffer;
+	}
+
+	update(device: GPUDevice, color: Color) {
+		if (this.#buffer) {
+			const tempBuffer = device.createBuffer(this.#buffer.descriptor);
+
+			this.#buffer.value.set(color.value, 0);
+
+			queueBufferWrite(device, tempBuffer, this.#buffer.value);
+		}
 	}
 }

@@ -13,6 +13,7 @@
 	import { getSettings } from '$lib/settings.svelte';
 	import { degToRad } from '$lib/webGPU/helpers/helpers';
 	import { vec3 } from 'wgpu-matrix';
+	import { Color } from '$lib/webGPU/color/Color';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -23,6 +24,17 @@
 		value: 60,
 		min: 0,
 		max: 180,
+	});
+
+	const colorControl = settings.addControl({
+		name: 'Clear color',
+		type: 'select',
+		value: 'red',
+		options: [
+			{ label: 'Red', value: 'red' },
+			{ label: 'Green', value: 'green' },
+			{ label: 'Blue', value: 'blue' },
+		],
 	});
 
 	const camera = new Camera();
@@ -67,6 +79,11 @@
 					const nearPlaneHeight = nearPlaneWidth / camera.aspect;
 					quad.scaleY(nearPlaneHeight);
 				},
+			});
+
+			colorControl.onChange((color) => {
+				material.update(device, Color.fromCssString(color));
+				scene.load(device);
 			});
 
 			const controls = new ArcballControls({ eventSource: canvas, camera, distance: 2.1 });

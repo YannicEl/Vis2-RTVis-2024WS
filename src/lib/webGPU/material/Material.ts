@@ -1,4 +1,4 @@
-import { queueBufferWrite } from '../helpers/webGpu';
+import type { UniformBuffer } from '../utils/UniformBuffer';
 
 export type MaterialBuffer = {
 	descriptor: GPUBufferDescriptor;
@@ -8,14 +8,14 @@ export type MaterialBuffer = {
 export type MaterialParams = {
 	vertexShader: GPUShaderModuleDescriptor;
 	fragmentShader: GPUShaderModuleDescriptor;
-	buffer?: MaterialBuffer;
+	buffer?: UniformBuffer;
 };
 
 export abstract class Material {
 	#fragmentShader: GPUShaderModuleDescriptor;
 	#vertexShader: GPUShaderModuleDescriptor;
 
-	#buffer?: MaterialBuffer;
+	#buffer?: UniformBuffer;
 
 	constructor({ vertexShader, fragmentShader, buffer }: MaterialParams) {
 		this.#vertexShader = vertexShader;
@@ -27,16 +27,15 @@ export abstract class Material {
 		const vertexShaderModule = device.createShaderModule(this.#vertexShader);
 		const fragmentShaderModule = device.createShaderModule(this.#fragmentShader);
 
-		let materialBuffer: GPUBuffer | undefined;
 		if (this.#buffer) {
-			materialBuffer = device.createBuffer(this.#buffer.descriptor);
-			queueBufferWrite(device, materialBuffer, this.#buffer.value);
+			this.#buffer.load(device);
+			this.#buffer.write(device);
 		}
 
 		return {
 			vertexShaderModule,
 			fragmentShaderModule,
-			materialBuffer,
+			materialBuffer: this.#buffer,
 		};
 	}
 }

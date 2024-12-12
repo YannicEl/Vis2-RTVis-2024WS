@@ -39,23 +39,6 @@ export function draw(callback: (deltaTime: number) => void): void {
 	window.requestAnimationFrame((now) => onFrame(0, now));
 }
 
-export const createAndMapBuffer = (
-	device: GPUDevice,
-	size: number,
-	usage: GPUBufferUsageFlags,
-	array: number[] | Float32Array | Float64Array
-) => {
-	const buffer = device.createBuffer({
-		size,
-		usage,
-		mappedAtCreation: true,
-	});
-	new Float32Array(buffer.getMappedRange()).set(array);
-	buffer.unmap();
-
-	return buffer;
-};
-
 export const queueBufferWrite = (
 	device: GPUDevice,
 	buffer: GPUBuffer,

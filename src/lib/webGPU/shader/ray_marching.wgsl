@@ -1,11 +1,11 @@
 // https://michaelwalczyk.com/blog-ray-marching.html
 
 struct VertexUniform {
-  viewProjectionMatrix: mat4x4f;
-  modelMatrix: mat4x4f;
+  viewProjectionMatrix: mat4x4f,
+  modelMatrix: mat4x4f,
 }
 
-@group(0) @binding(0) var<uniform> vertexUniform: FragmentUniform;
+@group(0) @binding(0) var<uniform> vertexUniform: VertexUniform;
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
@@ -37,7 +37,7 @@ struct FragmentUniform {
   fragmentColor: vec4f,
 }
 
-@group(0) @binding(2) var<uniform> fragmentUniform: FragmentUniform;
+@group(0) @binding(1) var<uniform> fragmentUniform: FragmentUniform;
 
 @fragment
 fn fragment(
