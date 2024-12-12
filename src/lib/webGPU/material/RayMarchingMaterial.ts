@@ -1,6 +1,6 @@
+import { type Vec4 } from 'wgpu-matrix';
 import type { CssColor } from '../color/Color';
 import { Color } from '../color/Color';
-import { queueBufferWrite } from '../helpers/webGpu';
 import rayMarchingShader from '../shader/ray_marching.wgsl?raw';
 import { UniformBuffer } from '../utils/UniformBuffer';
 import { Material } from './Material';
@@ -8,23 +8,28 @@ import { Material } from './Material';
 export type RayMarchingMaterialParams = {
 	fragmentColor: CssColor;
 	clearColor: CssColor;
+	cameraPosition: Vec4;
 };
 
 export class RayMarchingMaterial extends Material {
-	#buffer?: UniformBuffer<'clearColor' | 'fragmentColor'>;
+	#buffer?: UniformBuffer<keyof RayMarchingMaterialParams>;
 
-	constructor({ clearColor, fragmentColor }: RayMarchingMaterialParams) {
+	constructor({ clearColor, fragmentColor, cameraPosition }: RayMarchingMaterialParams) {
 		const buffer = new UniformBuffer(
 			{
 				clearColor: 'vec4',
 				fragmentColor: 'vec4',
+				cameraPosition: 'vec4',
 			},
 			'Ray Marching Material Buffer'
 		);
 
+		console.log({ cameraPosition });
+
 		buffer.set({
 			clearColor: Color.fromCssString(clearColor).value,
 			fragmentColor: Color.fromCssString(fragmentColor).value,
+			cameraPosition: cameraPosition,
 		});
 
 		super({
@@ -42,13 +47,15 @@ export class RayMarchingMaterial extends Material {
 		this.#buffer = buffer;
 	}
 
-	update(device: GPUDevice, color: Color) {
+	update(device: GPUDevice, { cameraPosition }: Partial<RayMarchingMaterialParams>) {
 		if (this.#buffer) {
-			const tempBuffer = device.createBuffer(this.#buffer.descriptor);
-
-			this.#buffer.value.set(color.value, 0);
-
-			queueBufferWrite(device, tempBuffer, this.#buffer.value);
+			console.log({ cameraPosition: cameraPosition?.toString() });
+			this.#buffer.set({
+				// clearColor: Color.fromCssString(params.clearColor).value,
+				// fragmentColor: Color.fromCssString(params.fragmentColor).value,
+				cameraPosition,
+			});
+			this.#buffer.write(device);
 		}
 	}
 }

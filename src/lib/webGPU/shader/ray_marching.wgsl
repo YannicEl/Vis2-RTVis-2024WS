@@ -35,6 +35,7 @@ fn vertex(
 struct FragmentUniform {
   clearColor: vec4f,
   fragmentColor: vec4f,
+  cameraPosition: vec4f,
 }
 
 @group(0) @binding(1) var<uniform> fragmentUniform: FragmentUniform;
@@ -43,7 +44,7 @@ struct FragmentUniform {
 fn fragment(
   input: VertexOutput
 ) -> @location(0) vec4f {
-  let camera_position = vec3f(0, 0, -4);
+  let camera_position =  vec3f(fragmentUniform.cameraPosition[0], fragmentUniform.cameraPosition[1], fragmentUniform.cameraPosition[2]);
   let ray_origin = camera_position;
   let ray_direction = vec3f(input.uv, 1);
 

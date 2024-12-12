@@ -1,7 +1,13 @@
 import { queueBufferWrite } from '../helpers/webGpu';
 
-type BufferSize = 'vec4' | 'mat4';
-export type UniformBufferParams<T extends string> = Record<T, BufferSize>;
+type DataType = 'vec3' | 'vec4' | 'mat4';
+export type UniformBufferParams<T extends string> = Record<T, DataType>;
+
+export const DATA_TYPE_SIZES = {
+	vec3: 3,
+	vec4: 4,
+	mat4: 16,
+} as const;
 
 export class UniformBuffer<T extends string = any> {
 	descriptor: GPUBufferDescriptor;
@@ -14,7 +20,7 @@ export class UniformBuffer<T extends string = any> {
 		let bufferSize = 0;
 		for (const key in params) {
 			this.#offsets[key] = bufferSize;
-			bufferSize += params[key] === 'vec4' ? 4 : 16;
+			bufferSize += DATA_TYPE_SIZES[params[key]];
 		}
 
 		this.value = new Float32Array(bufferSize);
@@ -26,11 +32,12 @@ export class UniformBuffer<T extends string = any> {
 		};
 	}
 
-	set(values: Record<T, ArrayLike<number>>) {
+	set(values: Partial<Record<T, ArrayLike<number>>>) {
 		for (const key in values) {
 			const value = values[key];
-			console.log();
-			this.value.set(value, this.#offsets[key]);
+			if (value) {
+				this.value.set(value, this.#offsets[key]);
+			}
 		}
 	}
 

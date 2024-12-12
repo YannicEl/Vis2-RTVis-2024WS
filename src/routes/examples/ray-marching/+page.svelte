@@ -38,6 +38,7 @@
 	});
 
 	const camera = new Camera();
+	camera.setPosition(vec3.create(0, 0, -4));
 	fovControl.onChange((value) => (camera.fov = value));
 	globalState.camera = camera;
 
@@ -45,6 +46,7 @@
 	const material = new RayMarchingMaterial({
 		clearColor: 'red',
 		fragmentColor: 'white',
+		cameraPosition: camera.position,
 	});
 	const quad = new SceneObject(geometry, material);
 
@@ -82,7 +84,9 @@
 			});
 
 			colorControl.onChange((color) => {
-				material.update(device, Color.fromCssString(color));
+				material.update(device, {
+					clearColor: color,
+				});
 				scene.load(device);
 			});
 
@@ -100,6 +104,7 @@
 				// quad.rotate(controls.getAxis(), 1);
 
 				controls.update(deltaTime);
+				// material.update(device, { cameraPosition: camera.position });
 				scene.update(deltaTime);
 
 				renderer.render(scene, camera);
