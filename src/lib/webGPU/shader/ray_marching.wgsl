@@ -25,7 +25,7 @@ fn vertex(
   output.position = vertexUniform.viewProjectionMatrix * vertexUniform.modelMatrix * input.position;
 
   output.uv = input.position.xy;
-  // output.uv.x *= 1.445977011494253;
+  output.uv.x *= fragmentUniform.aspectRatio;
 
   return output;
 }
@@ -35,7 +35,8 @@ fn vertex(
 struct FragmentUniform {
   clearColor: vec4f,
   fragmentColor: vec4f,
-  cameraPosition: vec4f,
+  cameraPosition: vec3f,
+  aspectRatio: f32,
 }
 
 @group(0) @binding(1) var<uniform> fragmentUniform: FragmentUniform;
@@ -44,7 +45,9 @@ struct FragmentUniform {
 fn fragment(
   input: VertexOutput
 ) -> @location(0) vec4f {
-  let camera_position =  vec3f(fragmentUniform.cameraPosition[0], fragmentUniform.cameraPosition[1], fragmentUniform.cameraPosition[2] * -1);
+  var camera_position = vec3f(fragmentUniform.cameraPosition);
+  camera_position.z = camera_position.z * -1;
+
   let ray_origin = camera_position;
   let ray_direction = vec3f(input.uv, 1);
 

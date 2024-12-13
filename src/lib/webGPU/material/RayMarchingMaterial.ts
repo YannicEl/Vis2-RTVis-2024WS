@@ -9,27 +9,33 @@ export type RayMarchingMaterialParams = {
 	fragmentColor: CssColor;
 	clearColor: CssColor;
 	cameraPosition: Vec4;
+	aspectRatio: number;
 };
 
 export class RayMarchingMaterial extends Material {
 	#buffer?: UniformBuffer<keyof RayMarchingMaterialParams>;
 
-	constructor({ clearColor, fragmentColor, cameraPosition }: RayMarchingMaterialParams) {
+	constructor({
+		clearColor,
+		fragmentColor,
+		cameraPosition,
+		aspectRatio,
+	}: RayMarchingMaterialParams) {
 		const buffer = new UniformBuffer(
 			{
 				clearColor: 'vec4',
 				fragmentColor: 'vec4',
-				cameraPosition: 'vec4',
+				cameraPosition: 'vec3',
+				aspectRatio: 'f32',
 			},
 			'Ray Marching Material Buffer'
 		);
 
-		console.log({ cameraPosition });
-
 		buffer.set({
 			clearColor: Color.fromCssString(clearColor).value,
 			fragmentColor: Color.fromCssString(fragmentColor).value,
-			cameraPosition: cameraPosition,
+			cameraPosition,
+			aspectRatio: [aspectRatio],
 		});
 
 		super({
@@ -41,19 +47,23 @@ export class RayMarchingMaterial extends Material {
 				label: 'Ray Marching Fragment Shader',
 				code: rayMarchingShader,
 			},
-			buffer,
+			uniformBuffer: buffer,
 		});
 
 		this.#buffer = buffer;
 	}
 
-	update(device: GPUDevice, { cameraPosition }: Partial<RayMarchingMaterialParams>) {
+	update(
+		device: GPUDevice,
+		{ clearColor, fragmentColor, cameraPosition, aspectRatio }: Partial<RayMarchingMaterialParams>
+	) {
 		if (this.#buffer) {
-			this.#buffer.set({
-				// clearColor: Color.fromCssString(params.clearColor).value,
-				// fragmentColor: Color.fromCssString(params.fragmentColor).value,
-				cameraPosition,
-			});
+			if (clearColor) this.#buffer.set({ clearColor: Color.fromCssString(clearColor).value });
+			if (fragmentColor)
+				this.#buffer.set({ fragmentColor: Color.fromCssString(fragmentColor).value });
+			if (cameraPosition) this.#buffer.set({ cameraPosition });
+			if (aspectRatio) this.#buffer.set({ aspectRatio: [aspectRatio] });
+
 			this.#buffer.write(device);
 		}
 	}

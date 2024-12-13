@@ -24,7 +24,7 @@ export class ColorMaterial extends Material {
 				label: 'Color Fragment Shader',
 				code: colorSchader,
 			},
-			buffer,
+			uniformBuffer: buffer,
 		});
 	}
 }

@@ -46,6 +46,7 @@
 		clearColor: 'red',
 		fragmentColor: 'white',
 		cameraPosition: camera.position,
+		aspectRatio: camera.aspect,
 	});
 	const quad = new SceneObject(geometry, material);
 
@@ -103,7 +104,10 @@
 				// quad.rotate(controls.getAxis(), 1);
 
 				controls.update(deltaTime);
-				material.update(device, { cameraPosition: camera.position });
+				material.update(device, {
+					cameraPosition: camera.position,
+					aspectRatio: camera.aspect,
+				});
 				scene.update(deltaTime);
 
 				renderer.render(scene, camera);

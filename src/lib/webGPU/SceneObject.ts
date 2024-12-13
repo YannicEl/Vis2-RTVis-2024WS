@@ -28,8 +28,7 @@ export class SceneObject extends Object3D {
 	}
 
 	load(device: GPUDevice): void {
-		const { vertexShaderModule, fragmentShaderModule, materialBuffer } =
-			this.#material.load(device);
+		const { vertexShaderModule, fragmentShaderModule, uniformBuffer } = this.#material.load(device);
 		this.#geometry.load(device);
 
 		this.#vertexUniformBuffer.load(device);
@@ -87,11 +86,11 @@ export class SceneObject extends Object3D {
 			],
 		} satisfies GPUBindGroupDescriptor;
 
-		if (materialBuffer?.buffer) {
+		if (uniformBuffer?.buffer) {
 			bindGroupDescriptor.entries.push({
 				binding: 1,
 				resource: {
-					buffer: materialBuffer.buffer,
+					buffer: uniformBuffer.buffer,
 				},
 			});
 		}

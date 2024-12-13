@@ -1,9 +1,11 @@
 import { queueBufferWrite } from '../helpers/webGpu';
 
-type DataType = 'vec3' | 'vec4' | 'mat4';
+type DataType = 'f32' | 'vec2' | 'vec3' | 'vec4' | 'mat4';
 export type UniformBufferParams<T extends string> = Record<T, DataType>;
 
 export const DATA_TYPE_SIZES = {
+	f32: 1,
+	vec2: 2,
 	vec3: 3,
 	vec4: 4,
 	mat4: 16,
@@ -23,6 +25,7 @@ export class UniformBuffer<T extends string = any> {
 			bufferSize += DATA_TYPE_SIZES[params[key]];
 		}
 
+		if (bufferSize < 16) bufferSize = 16;
 		this.value = new Float32Array(bufferSize);
 
 		this.descriptor = {
