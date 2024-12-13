@@ -13,6 +13,8 @@
 	import { getSettings } from '$lib/settings.svelte';
 	import { degToRad } from '$lib/webGPU/helpers/helpers';
 	import { vec3 } from 'wgpu-matrix';
+	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
+	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -23,6 +25,14 @@
 		value: 60,
 		min: 0,
 		max: 180,
+	});
+
+	const rotationX = settings.addControl({
+		name: 'Rotation X',
+		type: 'range',
+		value: 0,
+		min: 0,
+		max: 360,
 	});
 
 	const colorControl = settings.addControl({
@@ -49,7 +59,13 @@
 	});
 	const quad = new SceneObject(geometry, material);
 
-	const scene = new Scene([quad]);
+	const colorBlue = new ColorMaterial('blue');
+	const sphereGeometry = new SphereGeometry({
+		radius: 1,
+	});
+	const sphere = new SceneObject(sphereGeometry, colorBlue);
+
+	const scene = new Scene([quad, sphere]);
 
 	onMount(async () => {
 		if (!canvas) return;
@@ -92,6 +108,10 @@
 			const controls = new ArcballControls({ eventSource: canvas, camera, distance: 2.1 });
 			globalState.contols = controls;
 
+			rotationX.onChange((angle) => {
+				quad.setRotation(angle, vec3.create(1, 0, 0));
+			});
+
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
 
@@ -103,6 +123,18 @@
 				cameraForwardPos[2] -= camera.near;
 				quad.setPosition(cameraForwardPos);
 				// quad.rotate(controls.getAxis(), 1);
+
+				// rotation
+				// let diff = vec3.sub(quad.position, camera.position);
+				// let dist = vec3.length(diff);
+				// // stick.scaleY(dist);
+
+				// let u1 = vec3.create(0, 1, 0);
+				// let u2 = vec3.divScalar(diff, dist);
+				// let dot_u1u2 = vec3.dot(u1, u2);
+				// let angle = Math.acos(dot_u1u2);
+				// let axis = vec3.cross(u1, u2);
+				// quad.setRotation((180 * angle) / Math.PI, axis);
 
 				material.update(device, {
 					cameraPosition: camera.position,
