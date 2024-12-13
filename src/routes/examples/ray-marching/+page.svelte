@@ -13,7 +13,6 @@
 	import { getSettings } from '$lib/settings.svelte';
 	import { degToRad } from '$lib/webGPU/helpers/helpers';
 	import { vec3 } from 'wgpu-matrix';
-	import { Color } from '$lib/webGPU/color/Color';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -96,6 +95,8 @@
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
 
+				controls.update(deltaTime);
+
 				let cameraForwardPos = vec3.clone(camera.position);
 				cameraForwardPos = vec3.add(cameraForwardPos, camera.front);
 				cameraForwardPos = vec3.mulScalar(cameraForwardPos, camera.near);
@@ -103,7 +104,6 @@
 				quad.setPosition(cameraForwardPos);
 				// quad.rotate(controls.getAxis(), 1);
 
-				controls.update(deltaTime);
 				material.update(device, {
 					cameraPosition: camera.position,
 					aspectRatio: camera.aspect,
