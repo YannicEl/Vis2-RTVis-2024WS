@@ -5,7 +5,7 @@
 	import { Scene } from '$lib/webGPU/Scene';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { onMount } from 'svelte';
-	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
+	import { ArcballControls2 } from '$lib/webGPU/controls/ArcballControls2';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
@@ -13,8 +13,6 @@
 	import { getSettings } from '$lib/settings.svelte';
 	import { degToRad } from '$lib/webGPU/helpers/helpers';
 	import { vec3 } from 'wgpu-matrix';
-	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
-	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -59,13 +57,7 @@
 	});
 	const quad = new SceneObject(geometry, material);
 
-	const colorBlue = new ColorMaterial('blue');
-	const sphereGeometry = new SphereGeometry({
-		radius: 1,
-	});
-	const sphere = new SceneObject(sphereGeometry, colorBlue);
-
-	const scene = new Scene([quad, sphere]);
+	const scene = new Scene([quad]);
 
 	onMount(async () => {
 		if (!canvas) return;
@@ -98,6 +90,18 @@
 				},
 			});
 
+			fovControl.onChange((fov) => {
+				camera.fov = fov;
+
+				quad.reset();
+
+				const nearPlaneWidth = camera.near * Math.tan(degToRad(camera.fov / 2)) * camera.aspect * 2;
+				quad.scaleX(nearPlaneWidth);
+
+				const nearPlaneHeight = nearPlaneWidth / camera.aspect;
+				quad.scaleY(nearPlaneHeight);
+			});
+
 			colorControl.onChange((color) => {
 				material.update(device, {
 					clearColor: color,
@@ -105,7 +109,7 @@
 				scene.load(device);
 			});
 
-			const controls = new ArcballControls({ eventSource: canvas, camera, distance: 2.1 });
+			const controls = new ArcballControls2({ eventSource: canvas, camera, distance: 2.1 });
 			globalState.contols = controls;
 
 			rotationX.onChange((angle) => {
