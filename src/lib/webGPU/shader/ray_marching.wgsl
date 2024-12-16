@@ -40,6 +40,8 @@ struct FragmentUniform {
 }
 
 @group(0) @binding(1) var<uniform> fragmentUniform: FragmentUniform;
+@group(0) @binding(2) var ourTexture: texture_2d<f32>;
+@group(0) @binding(3) var ourSampler: sampler;
 
 @fragment
 fn fragment(
@@ -51,7 +53,7 @@ fn fragment(
   let ray_origin = camera_position;
   let ray_direction = vec3f(input.uv, 1);
 
-  return ray_march(ray_origin, ray_direction);
+  return ray_march(ray_origin, ray_direction) * textureSample(ourTexture, ourSampler, input.uv);
 }
 
 const NUMBER_OF_STEPS = 32;

@@ -2,22 +2,25 @@ import type { Mat4 } from 'wgpu-matrix';
 import type { Geometry } from './geometry/Geometry';
 import type { Material } from './material/Material';
 import { Object3D } from './Object3D';
+import { Texture } from './texture/Texture';
 import { UniformBuffer } from './utils/UniformBuffer';
 
 export class SceneObject extends Object3D {
 	#geometry: Geometry;
 	#material: Material;
+	#texture?: Texture;
 
 	#pipeline?: GPURenderPipeline;
 	#uniformBindGroup?: GPUBindGroup;
 
 	#vertexUniformBuffer: UniformBuffer<'viewProjectionMatrix' | 'modelMatrix'>;
 
-	constructor(geometry: Geometry, material: Material) {
+	constructor(geometry: Geometry, material: Material, texture?: Texture) {
 		super();
 
 		this.#geometry = geometry;
 		this.#material = material;
+		this.#texture = texture;
 		this.#vertexUniformBuffer = new UniformBuffer(
 			{
 				viewProjectionMatrix: 'mat4',
@@ -92,6 +95,19 @@ export class SceneObject extends Object3D {
 				resource: {
 					buffer: uniformBuffer.buffer,
 				},
+			});
+		}
+
+		if (this.#texture) {
+			const gpuTexture = this.#texture.load(device);
+
+			bindGroupDescriptor.entries.push({
+				binding: 2,
+				resource: gpuTexture.createView(),
+			});
+			bindGroupDescriptor.entries.push({
+				binding: 3,
+				resource: device.createSampler(),
 			});
 		}
 

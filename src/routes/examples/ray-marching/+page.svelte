@@ -13,6 +13,7 @@
 	import { getSettings } from '$lib/settings.svelte';
 	import { degToRad } from '$lib/webGPU/helpers/helpers';
 	import { vec3 } from 'wgpu-matrix';
+	import { Texture } from '$lib/webGPU/texture/Texture';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -55,7 +56,26 @@
 		cameraPosition: camera.position,
 		aspectRatio: camera.aspect,
 	});
-	const quad = new SceneObject(geometry, material);
+
+	const width = 5;
+	const height = 7;
+	const _ = [255, 0, 0, 255]; // red
+	const y = [255, 255, 0, 255]; // yellow
+	const b = [0, 0, 255, 255]; // blue
+
+	// prettier-ignore
+	const data = new Uint8Array([
+      b, _, _, _, _,
+      _, y, y, y, _,
+      _, y, _, _, _,
+      _, y, y, _, _,
+      _, y, _, _, _,
+      _, y, _, _, _,
+      _, _, _, _, _,
+    ].flat());
+	const texture = new Texture({ data, width, height, format: 'rgba8unorm' });
+
+	const quad = new SceneObject(geometry, material, texture);
 
 	const scene = new Scene([quad]);
 
