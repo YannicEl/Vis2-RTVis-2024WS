@@ -1,7 +1,6 @@
 import { elementColors } from '$lib/mol/pdbColors';
 import { CylinderGeometry } from '$lib/webGPU/geometry/CylinderGeometry';
 import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
-import { radToDeg } from '$lib/webGPU/helpers/helpers';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 import { SceneObject } from '$lib/webGPU/SceneObject';
 import type { Pdb } from 'pdb-parser-js/dist/pdb';
@@ -70,7 +69,7 @@ export const renderPDB = (pdb: Pdb) => {
 			const direction = vec3.subtract(end, start);
 			const distance = vec3.length(direction);
 
-			const cylinder = new SceneObject(
+			const stick = new SceneObject(
 				new CylinderGeometry({
 					radiusTop: 0.05,
 					radiusBottom: 0.05,
@@ -79,89 +78,18 @@ export const renderPDB = (pdb: Pdb) => {
 				new ColorMaterial('green')
 			);
 
-			// cylinder.setRotation(vec3.normalize(direction));
-			cylinder.setPosition(vec3.add(start, vec3.scale(direction, 0.5)));
+			const u1 = vec3.create(0, 1, 0);
+			const u2 = vec3.divScalar(direction, distance);
 
-			bonds.push(cylinder);
+			const dot_u1u2 = vec3.dot(u1, u2);
+			const angle = Math.acos(dot_u1u2);
+
+			const axis = vec3.cross(u1, u2);
+			stick.setRotation((180 * angle) / Math.PI, axis);
+			stick.translate(vec3.divScalar(vec3.add(start, end), 2));
+
+			bonds.push(stick);
 		}
 	}
-
-	const bonds2: SceneObject[] = [];
-	const connect = pdb.connectivity.conects[0];
-	const primaryAtom = atomsSorted[connect.atomSeqNum - 1];
-	console.log('primaryAtom', primaryAtom);
-
-	for (const bond of connect.bondedAtomSeqNums) {
-		const secondaryAtom = atomsSorted[bond - 1];
-
-		console.log('secondaryAtom', secondaryAtom);
-
-		const start = vec3.create(primaryAtom.data.x!, primaryAtom.data.y!, primaryAtom.data.z!);
-		const end = vec3.create(secondaryAtom.data.x!, secondaryAtom.data.y!, secondaryAtom.data.z!);
-
-		const direction = vec3.subtract(end, start);
-		const distance = vec3.length(direction);
-
-		const cylinder = new SceneObject(
-			new CylinderGeometry({
-				radiusTop: 0.05,
-				radiusBottom: 0.05,
-				height: distance,
-			}),
-			new ColorMaterial('green')
-		);
-
-		// cylinder.setRotation(vec3.normalize(direction));
-
-		cylinder.setPosition(vec3.add(start, vec3.scale(direction, 0.5)));
-
-		bonds2.push(cylinder);
-	}
-
-	const atom1 = new SceneObject(
-		new SphereGeometry({
-			radius: 0.1,
-		}),
-		new ColorMaterial('white')
-	);
-	atom1.setPosition(vec3.create(0, 0, 0));
-
-	const atom2 = new SceneObject(
-		new SphereGeometry({
-			radius: 0.1,
-		}),
-		new ColorMaterial('white')
-	);
-	atom2.setPosition(vec3.create(1, 0, 0));
-
-	const direction = vec3.subtract(atom2.position, atom1.position);
-	const distance = vec3.length(direction);
-
-	const cylinder = new SceneObject(
-		new CylinderGeometry({
-			radiusTop: 0.05,
-			radiusBottom: 0.05,
-			height: distance,
-		}),
-		new ColorMaterial('green')
-	);
-
-	// cylinder.setRotation(vec3.normalize(direction));
-	// cylinder.rotateZ(90);
-	// cylinder.setRotation(radToDeg(vec3.angle(direction, vec3.create(1, 1, 1))), vec3.create(1, 1, 1));
-
-	// console.log(radToDeg(vec3.angle(direction, vec3.create(1, 0, 0))));
-	// console.log(radToDeg(vec3.angle(direction, vec3.create(0, 1, 0))));
-	// console.log(radToDeg(vec3.angle(direction, vec3.create(0, 0, 1))));
-
-	// cylinder.rotateZ(90);
-
-	// cylinder.rotateX(radToDeg(vec3.angle(direction, vec3.create(1, 0, 0))));
-	// cylinder.rotateY(radToDeg(vec3.angle(direction, vec3.create(0, 1, 0))));
-	cylinder.rotateZ(radToDeg(vec3.angle(direction, vec3.create(0, 0, 1))));
-
-	// cylinder.setPosition(vec3.add(atom1.position, vec3.scale(direction, 0.5)));
-
-	return [atom1, atom2, cylinder];
-	// return [...atoms, ...bonds];
+	return [...atoms, ...bonds];
 };
