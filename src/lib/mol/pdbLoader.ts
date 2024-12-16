@@ -1,7 +1,7 @@
 import { PdbParser } from 'pdb-parser-js';
 type pdbFiles = '3iz8' | 'example';
 
-export const loadPDB = async (fileName: pdbFiles) => {
+export const loadPDBLocal = async (fileName: pdbFiles) => {
 	try {
 		const fileContent = await import(`../mol-files/${fileName}.pdb?raw`);
 
@@ -12,4 +12,18 @@ export const loadPDB = async (fileName: pdbFiles) => {
 	} catch (e) {
 		console.error('error', e);
 	}
+};
+
+export const loadPDBWeb = async (id: string) => {
+	const response = await fetch(`https://files.rcsb.org/download/${id}.pdb`);
+	if (!response.ok) {
+		return null;
+	}
+
+	const data = await response.text();
+
+	const parser = new PdbParser();
+	parser.collect(data.split('\n'));
+	const pdb = parser.parse();
+	return pdb;
 };

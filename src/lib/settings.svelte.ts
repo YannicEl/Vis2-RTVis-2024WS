@@ -3,7 +3,9 @@ import { onDestroy } from 'svelte';
 export type ControlParams<T = unknown> =
 	| NumberControlParams<T>
 	| CheckboxControlParams<T>
-	| SelectControlParams<T>;
+	| SelectControlParams<T>
+	| TextControlParams<T>
+	| ButtonControlParams<T>;
 
 type BaseControl<T> = {
 	name: string;
@@ -27,6 +29,16 @@ export type SelectControlParams<T> = {
 		label?: string;
 		value: T;
 	}[];
+} & BaseControl<T>;
+
+export type TextControlParams<T> = {
+	type: 'text';
+} & BaseControl<T>;
+
+export type ButtonControlParams<T> = {
+	type: 'button';
+	label: string;
+	onClick: () => void;
 } & BaseControl<T>;
 
 type OnControlChangeCallback<T> = (value: T) => void;

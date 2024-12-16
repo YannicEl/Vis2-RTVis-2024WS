@@ -33,7 +33,9 @@
 >
 	{#each settings.controls as control (control)}
 		<label>
-			{control.name}
+			{#if control.type !== 'button'}
+				{control.name}
+			{/if}
 			{#if control.type === 'select'}
 				<select name="examples" bind:value={control.value}>
 					{#each control.options as option (option)}
@@ -66,6 +68,21 @@
 					max={control.max}
 					step={control.step}
 				/>
+			{:else if control.type === 'text'}
+				<input
+					type={control.type}
+					name={control.name}
+					bind:value={control.value}
+				/>
+			{:else if control.type === 'button'}
+				<button
+					type={control.type}
+					name={control.name}
+					onclick={control.onClick}
+					class="border border-gray-200 bg-white px-2 py-1 rounded"
+				>
+					{control.label}
+				</button>
 			{/if}
 		</label>
 	{/each}

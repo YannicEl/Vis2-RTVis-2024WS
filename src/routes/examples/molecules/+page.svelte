@@ -1,20 +1,18 @@
 <script lang="ts">
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
-	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
-	import { TriangleGeometry } from '$lib/webGPU/geometry/TriangleGeometry';
-	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
-	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { Scene } from '$lib/webGPU/Scene';
-	import { SceneObject } from '$lib/webGPU/SceneObject';
-	import { loadPDB } from '$lib/mol/pdbLoader';
-	import { renderPDB } from '$lib/mol/pdbRender';
+	import { loadPDBLocal, loadPDBWeb } from '$lib/mol/pdbLoader';
+	import { Pdb } from 'pdb-parser-js/dist/pdb';
+	import { PdbParser } from 'pdb-parser-js/';
+	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { getSettings } from '$lib/settings.svelte';
 	import { onMount } from 'svelte';
+	import type { SceneObject } from '$lib/webGPU/SceneObject';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -27,28 +25,71 @@
 		max: 180,
 	});
 
+	const searchControl = settings.addControl({
+		name: 'Search',
+		type: 'text',
+		value: '8Z3K',
+	});
+
+	const buttonControl = settings.addControl({
+		name: 'load',
+		label: 'Load',
+		type: 'button',
+		value: 'load',
+		async onClick() {
+			console.log('load', searchControl.value);
+
+			const PDB = await loadPDBWeb(searchControl.value);
+			if (!PDB) {
+				console.error(
+					`PDB ${searchControl.value} not found. It may not exist or os too large to load as PDB.`
+				);
+				return;
+			}
+
+			console.log('PDB', PDB);
+
+			const ballsAndSticks = createPdbGeometry(PDB);
+			renderPDB(ballsAndSticks);
+		},
+	});
+
 	const camera = new Camera();
 	globalState.camera = camera;
 	fovControl.onChange((value) => (camera.fov = value));
 
+	let device: GPUDevice;
+	let renderer: Renderer;
+
 	onMount(async () => {
 		if (!canvas) return;
 
-		const PDB = await loadPDB('example');
+		const PDB = await loadPDBLocal('example');
+		// const PDB = await loadPDBWeb('7GY2');
 		if (!PDB) return;
-		console.log(PDB);
-		const atoms = renderPDB(PDB);
+		const ballsAndSticks = createPdbGeometry(PDB);
+
+		try {
+			device = (await initWebGPU()).device;
+
+			renderPDB(ballsAndSticks);
+		} catch (error) {
+			alert(error);
+		}
+	});
+
+	function renderPDB(gemoetry: SceneObject[]) {
+		if (!canvas) return;
 
 		const context = canvas.getContext('webgpu');
 		if (!context) return;
 
 		try {
-			const { device } = await initWebGPU();
-			const scene = new Scene(atoms);
+			const scene = new Scene(gemoetry);
 
 			scene.load(device);
 
-			const renderer = new Renderer({ context, device, clearColor: 'black' });
+			renderer = new Renderer({ context, device, clearColor: 'black' });
 
 			autoResizeCanvas({
 				canvas,
@@ -72,7 +113,7 @@
 		} catch (error) {
 			alert(error);
 		}
-	});
+	}
 </script>
 
 <canvas bind:this={canvas} class="h-full w-full"></canvas>

@@ -6,7 +6,7 @@ import { SceneObject } from '$lib/webGPU/SceneObject';
 import type { Pdb } from 'pdb-parser-js/dist/pdb';
 import { vec3 } from 'wgpu-matrix';
 
-export const renderPDB = (pdb: Pdb) => {
+export const createPdbGeometry = (pdb: Pdb) => {
 	const geometry = new SphereGeometry({
 		radius: 0.1,
 	});
@@ -75,7 +75,7 @@ export const renderPDB = (pdb: Pdb) => {
 					radiusBottom: 0.05,
 					height: distance,
 				}),
-				new ColorMaterial('green')
+				new ColorMaterial('#ccc')
 			);
 
 			const u1 = vec3.create(0, 1, 0);
@@ -91,5 +91,23 @@ export const renderPDB = (pdb: Pdb) => {
 			bonds.push(stick);
 		}
 	}
-	return [...atoms, ...bonds];
+
+	const atomsAndBonds = [...atoms, ...bonds];
+
+	// center the molecule
+	const center = vec3.create();
+	for (const atom of atoms) {
+		center[0] += atom.position[0];
+		center[1] += atom.position[1];
+		center[2] += atom.position[2];
+	}
+	center[0] /= atoms.length;
+	center[1] /= atoms.length;
+	center[2] /= atoms.length;
+
+	for (const atom of atomsAndBonds) {
+		atom.translate(vec3.negate(center));
+	}
+
+	return atomsAndBonds;
 };
