@@ -14,6 +14,9 @@
 	import { degToRad } from '$lib/webGPU/helpers/helpers';
 	import { vec3 } from 'wgpu-matrix';
 	import { Texture } from '$lib/webGPU/texture/Texture';
+	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
+	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
+	import type { Object3D } from '$lib/webGPU/Object3D';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -45,9 +48,31 @@
 		],
 	});
 
+	const depthControl = settings.addControl({
+		name: 'Depth',
+		type: 'range',
+		value: 0,
+		min: 0,
+		step: 1,
+		max: 10,
+	});
+
 	const camera = new Camera();
 	fovControl.onChange((value) => (camera.fov = value));
 	globalState.camera = camera;
+
+	const colorWhite = new ColorMaterial('white');
+	const colorBlue = new ColorMaterial('green');
+	const sphereGeometry = new SphereGeometry({
+		radius: 0.1,
+	});
+
+	const atom1 = new SceneObject(sphereGeometry, colorWhite);
+	const atom2 = new SceneObject(sphereGeometry, colorWhite);
+	atom1.setPosition(vec3.create(0, 0, 0));
+	atom2.setPosition(vec3.create(1, 2, 0));
+
+	const atoms = [atom1, atom2];
 
 	const geometry = new QuadGeometry();
 	const material = new RayMarchingMaterial({
@@ -55,25 +80,89 @@
 		fragmentColor: 'white',
 		cameraPosition: camera.position,
 		aspectRatio: camera.aspect,
+		depth: depthControl.value,
 	});
 
-	const width = 5;
-	const height = 7;
+	function calculateBoundingBox(atoms: Object3D[]) {
+		const radius = 1;
+		const dimension = {
+			x: { min: 0, max: 0 },
+			y: { min: 0, max: 0 },
+			z: { min: 0, max: 0 },
+		};
+
+		for (const atom of atoms) {
+			const [x, y, z] = atom.position;
+			dimension.x.min = Math.min(x, dimension.x.min + radius);
+			dimension.x.max = Math.max(x, dimension.x.max + radius);
+
+			dimension.y.min = Math.min(y, dimension.y.min + radius);
+			dimension.y.max = Math.max(y, dimension.y.max + radius);
+
+			dimension.z.min = Math.min(z, dimension.z.min + radius);
+			dimension.z.max = Math.max(z, dimension.z.max + radius);
+		}
+
+		return {
+			width: dimension.x.max - dimension.x.min,
+			height: dimension.y.max - dimension.y.min,
+			depth: dimension.z.max - dimension.z.min,
+		};
+	}
+
+	const boundingBox = calculateBoundingBox(atoms);
+	console.log(boundingBox);
+
+	let width = 5;
+	let height = 7;
+	let depth = 3;
 	const _ = [255, 0, 0, 255]; // red
 	const y = [255, 255, 0, 255]; // yellow
+	const g = [0, 255, 0, 255]; // yellow
 	const b = [0, 0, 255, 255]; // blue
+	const k = [0, 0, 0, 0]; // black
 
 	// prettier-ignore
-	const data = new Uint8Array([
-      b, _, _, _, _,
+	let data = new Uint8Array([
+      _, _, _, _, _,
       _, y, y, y, _,
       _, y, _, _, _,
       _, y, y, _, _,
       _, y, _, _, _,
       _, y, _, _, _,
       _, _, _, _, _,
+
+      g, k, k, k, k,
+      k, y, y, y, k,
+      k, y, k, k, k,
+      k, y, y, k, k,
+      k, y, k, k, k,
+      k, y, k, k, k,
+      k, k, k, k, k,
+
+      b, b, b, b, b,
+      b, y, y, y, b,
+      b, y, b, b, b,
+      b, y, y, b, b,
+      b, y, b, b, b,
+      b, y, b, b, b,
+      b, b, b, b, b,  
     ].flat());
-	const texture = new Texture({ data, width, height, format: 'rgba8unorm' });
+
+	width = 1;
+	height = 1;
+	data = new Uint8Array([50, 125, 255]);
+	depth = 3;
+
+	const texture = new Texture({
+		data,
+		descriptor: {
+			label: 'Ray Marching Texture',
+			format: 'r8unorm',
+			dimension: '3d',
+			size: { width, height, depthOrArrayLayers: depth },
+		},
+	});
 
 	const quad = new SceneObject(geometry, material, texture);
 
@@ -122,6 +211,13 @@
 				quad.scaleY(nearPlaneHeight);
 			});
 
+			depthControl.onChange((value) => {
+				material.update(device, {
+					depth: value / (depth - 1),
+				});
+				scene.load(device);
+			});
+
 			colorControl.onChange((color) => {
 				material.update(device, {
 					clearColor: color,
@@ -147,18 +243,6 @@
 				cameraForwardPos[2] -= camera.near;
 				quad.setPosition(cameraForwardPos);
 				// quad.rotate(controls.getAxis(), 1);
-
-				// rotation
-				// let diff = vec3.sub(quad.position, camera.position);
-				// let dist = vec3.length(diff);
-				// // stick.scaleY(dist);
-
-				// let u1 = vec3.create(0, 1, 0);
-				// let u2 = vec3.divScalar(diff, dist);
-				// let dot_u1u2 = vec3.dot(u1, u2);
-				// let angle = Math.acos(dot_u1u2);
-				// let axis = vec3.cross(u1, u2);
-				// quad.setRotation((180 * angle) / Math.PI, axis);
 
 				material.update(device, {
 					cameraPosition: camera.position,

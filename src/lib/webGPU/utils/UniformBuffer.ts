@@ -1,9 +1,11 @@
 import { queueBufferWrite } from '../helpers/webGpu';
 
-type DataType = 'f32' | 'vec2' | 'vec3' | 'vec4' | 'mat4';
+type DataType = 'i32' | 'u32' | 'f32' | 'vec2' | 'vec3' | 'vec4' | 'mat4';
 export type UniformBufferParams<T extends string> = Record<T, DataType>;
 
 export const DATA_TYPE_SIZES = {
+	i32: 1,
+	u32: 1,
 	f32: 1,
 	vec2: 2,
 	vec3: 3,

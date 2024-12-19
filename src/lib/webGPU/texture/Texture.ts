@@ -1,38 +1,47 @@
 export type TextureData = BufferSource | SharedArrayBuffer;
 
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
 export type TextureParams = {
 	data: TextureData;
-	width: number;
-	height: number;
-	format: GPUTextureFormat;
+	descriptor: Optional<GPUTextureDescriptor, 'usage'>;
 };
 
 export class Texture {
 	#data: TextureData;
 	#width: number;
-	#height: number;
-	#format: GPUTextureFormat;
+	#height?: number;
+	#depthOrArrayLayers?: number;
+	#descriptor: GPUTextureDescriptor;
 
-	constructor({ data, width, height, format }: TextureParams) {
+	constructor({ data, descriptor }: TextureParams) {
 		this.#data = data;
-		this.#width = width;
-		this.#height = height;
-		this.#format = format;
+
+		this.#descriptor = {
+			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+			...descriptor,
+		};
+
+		if ('width' in descriptor.size) {
+			this.#width = descriptor.size.width;
+			this.#height = descriptor.size.height;
+			this.#depthOrArrayLayers = descriptor.size.depthOrArrayLayers;
+		} else {
+			const [width, height, depthOrArrayLayers] = [...descriptor.size];
+			this.#width = width;
+			this.#height = height;
+			this.#depthOrArrayLayers = depthOrArrayLayers;
+		}
 	}
 
 	load(device: GPUDevice): GPUTexture {
-		const texture = device.createTexture({
-			label: 'Texture',
-			size: [this.#width, this.#height],
-			format: this.#format,
-			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
-		});
+		const texture = device.createTexture(this.#descriptor);
 
 		device.queue.writeTexture(
 			{ texture },
 			this.#data,
-			{ bytesPerRow: this.#width * 4 },
-			{ width: this.#width, height: this.#height }
+			{ bytesPerRow: this.#width, rowsPerImage: this.#height },
+			{ width: this.#width, height: this.#height, depthOrArrayLayers: this.#depthOrArrayLayers }
 		);
 
 		return texture;
