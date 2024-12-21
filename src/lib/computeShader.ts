@@ -35,7 +35,7 @@ export async function compute3DTexture({
 		},
 	});
 
-	const resultSize = width * height * depth * 4;
+	const resultSize = width * height * depth;
 
 	let usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST;
 	const resultBuffer = device.createBuffer({
@@ -84,7 +84,8 @@ export async function compute3DTexture({
 	// Read the results
 	await resultReadBuffer.mapAsync(GPUMapMode.READ);
 
-	const textureResult = new Float32Array(resultReadBuffer.getMappedRange());
+	const textureResult = new Uint8Array(resultReadBuffer.getMappedRange());
+	console.log(textureResult);
 
 	if (log) {
 		for (let z = 0; z < depth; z++) {

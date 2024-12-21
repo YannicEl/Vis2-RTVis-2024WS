@@ -46,8 +46,8 @@
 			console.time();
 			const texture = await compute3DTexture({
 				device,
-				width: 128,
-				height: 128,
+				width: 16,
+				height: 16,
 				depth: 1,
 				atoms,
 				log: true,

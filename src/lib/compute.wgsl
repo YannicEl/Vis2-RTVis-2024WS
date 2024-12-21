@@ -1,4 +1,4 @@
-@group(0) @binding(0) var<storage, read_write> texture: array<f32>;
+@group(0) @binding(0) var<storage, read_write> texture: array<u32>;
 @group(0) @binding(1) var<storage, read> atoms: array<vec3f>;
 
 override workgroup_size: u32;  
