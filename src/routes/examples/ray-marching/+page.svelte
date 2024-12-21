@@ -53,8 +53,8 @@
 		type: 'range',
 		value: 0,
 		min: 0,
-		step: 1,
-		max: 10,
+		step: 0.1,
+		max: 9,
 	});
 
 	const camera = new Camera();
@@ -62,17 +62,26 @@
 	globalState.camera = camera;
 
 	const colorWhite = new ColorMaterial('white');
-	const colorBlue = new ColorMaterial('green');
 	const sphereGeometry = new SphereGeometry({
 		radius: 0.1,
 	});
 
 	const atom1 = new SceneObject(sphereGeometry, colorWhite);
-	const atom2 = new SceneObject(sphereGeometry, colorWhite);
 	atom1.setPosition(vec3.create(0, 0, 0));
-	atom2.setPosition(vec3.create(1, 2, 0));
 
-	const atoms = [atom1, atom2];
+	const atom2 = new SceneObject(sphereGeometry, colorWhite);
+	atom2.setPosition(vec3.create(4, 4, 10));
+
+	const atom3 = new SceneObject(sphereGeometry, colorWhite);
+	atom3.setPosition(vec3.create(1, 1, 0));
+
+	const atom4 = new SceneObject(sphereGeometry, colorWhite);
+	atom4.setPosition(vec3.create(1, 1, 9));
+
+	const atom5 = new SceneObject(sphereGeometry, colorWhite);
+	atom5.setPosition(vec3.create(0, 0, 10));
+
+	const atoms = [atom1, atom2, atom3, atom4, atom5];
 
 	const geometry = new QuadGeometry();
 	const material = new RayMarchingMaterial({
@@ -93,14 +102,15 @@
 
 		for (const atom of atoms) {
 			const [x, y, z] = atom.position;
-			dimension.x.min = Math.min(x, dimension.x.min + radius);
-			dimension.x.max = Math.max(x, dimension.x.max + radius);
 
-			dimension.y.min = Math.min(y, dimension.y.min + radius);
-			dimension.y.max = Math.max(y, dimension.y.max + radius);
+			dimension.x.min = Math.min(x, dimension.x.min); // + radius);
+			dimension.x.max = Math.max(x, dimension.x.max); // + radius);
 
-			dimension.z.min = Math.min(z, dimension.z.min + radius);
-			dimension.z.max = Math.max(z, dimension.z.max + radius);
+			dimension.y.min = Math.min(y, dimension.y.min); // + radius);
+			dimension.y.max = Math.max(y, dimension.y.max); // + radius);
+
+			dimension.z.min = Math.min(z, dimension.z.min); // + radius);
+			dimension.z.max = Math.max(z, dimension.z.max); // + radius);
 		}
 
 		return {
@@ -110,57 +120,48 @@
 		};
 	}
 
-	const boundingBox = calculateBoundingBox(atoms);
-	console.log(boundingBox);
+	const { width, height, depth } = calculateBoundingBox(atoms);
+	console.log({ width, height, depth });
 
-	let width = 5;
-	let height = 7;
-	let depth = 3;
-	const _ = [255, 0, 0, 255]; // red
-	const y = [255, 255, 0, 255]; // yellow
-	const g = [0, 255, 0, 255]; // yellow
-	const b = [0, 0, 255, 255]; // blue
-	const k = [0, 0, 0, 0]; // black
+	const data: number[] = [];
+	const radius = 1;
+	const resolution = 10;
 
-	// prettier-ignore
-	let data = new Uint8Array([
-      _, _, _, _, _,
-      _, y, y, y, _,
-      _, y, _, _, _,
-      _, y, y, _, _,
-      _, y, _, _, _,
-      _, y, _, _, _,
-      _, _, _, _, _,
+	console.time();
+	for (let z = 0; z < depth * resolution; z++) {
+		for (let y = 0; y < height * resolution; y++) {
+			for (let x = 0; x < width * resolution; x++) {
+				let hit = false;
+				for (const atom of atoms) {
+					const distance = vec3.dist(atom.position, vec3.create(x, y, z));
 
-      g, k, k, k, k,
-      k, y, y, y, k,
-      k, y, k, k, k,
-      k, y, y, k, k,
-      k, y, k, k, k,
-      k, y, k, k, k,
-      k, k, k, k, k,
+					if (distance <= radius * resolution) {
+						hit = true;
+						break;
+					}
+				}
 
-      b, b, b, b, b,
-      b, y, y, y, b,
-      b, y, b, b, b,
-      b, y, y, b, b,
-      b, y, b, b, b,
-      b, y, b, b, b,
-      b, b, b, b, b,  
-    ].flat());
-
-	width = 1;
-	height = 1;
-	data = new Uint8Array([50, 125, 255]);
-	depth = 3;
+				if (hit) {
+					data.push(255);
+				} else {
+					data.push(0);
+				}
+			}
+		}
+	}
+	console.timeEnd();
 
 	const texture = new Texture({
-		data,
+		data: new Uint8Array(data),
 		descriptor: {
 			label: 'Ray Marching Texture',
 			format: 'r8unorm',
 			dimension: '3d',
-			size: { width, height, depthOrArrayLayers: depth },
+			size: {
+				width: width * resolution,
+				height: height * resolution,
+				depthOrArrayLayers: depth * resolution,
+			},
 		},
 	});
 
@@ -211,13 +212,6 @@
 				quad.scaleY(nearPlaneHeight);
 			});
 
-			depthControl.onChange((value) => {
-				material.update(device, {
-					depth: value / (depth - 1),
-				});
-				scene.load(device);
-			});
-
 			colorControl.onChange((color) => {
 				material.update(device, {
 					clearColor: color,
@@ -247,6 +241,7 @@
 				material.update(device, {
 					cameraPosition: camera.position,
 					aspectRatio: camera.aspect,
+					depth: (depthControl.value * resolution) / (depth * resolution - 1),
 				});
 				scene.update(deltaTime);
 

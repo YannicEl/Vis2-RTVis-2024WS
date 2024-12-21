@@ -1,6 +1,6 @@
 export type InitWebGPUParmas = {
 	adapterOptions?: GPURequestAdapterOptions;
-	deviceOptions?: GPUDeviceDescriptor;
+	deviceOptions?: GPUDeviceDescriptor | ((adapter: GPUAdapter) => GPUDeviceDescriptor);
 };
 
 export type WebGPU = {
@@ -17,7 +17,9 @@ export async function initWebGPU({
 	const adapter = await navigator.gpu.requestAdapter(adapterOptions);
 	if (!adapter) throw new Error('Error requesting WebGPU adapter');
 
-	const device = await adapter.requestDevice(deviceOptions);
+	const device = await adapter.requestDevice(
+		typeof deviceOptions === 'function' ? deviceOptions(adapter) : deviceOptions
+	);
 	device.lost.then((info) => {
 		console.error(`WebGPU device was lost: ${info.message}`);
 	});

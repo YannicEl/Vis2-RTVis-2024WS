@@ -18,6 +18,7 @@
 			{ label: 'Molecules', value: 'molecules' },
 			{ label: 'Ray marching', value: 'ray-marching' },
 			{ label: 'Rotation', value: 'rotation' },
+			{ label: 'Compute', value: 'compute' },
 		],
 	});
 
@@ -69,17 +70,13 @@
 					step={control.step}
 				/>
 			{:else if control.type === 'text'}
-				<input
-					type={control.type}
-					name={control.name}
-					bind:value={control.value}
-				/>
+				<input type={control.type} name={control.name} bind:value={control.value} />
 			{:else if control.type === 'button'}
 				<button
 					type={control.type}
 					name={control.name}
 					onclick={control.onClick}
-					class="border border-gray-200 bg-white px-2 py-1 rounded"
+					class="rounded border border-gray-200 bg-white py-1 px-2"
 				>
 					{control.label}
 				</button>
