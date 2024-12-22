@@ -6,6 +6,8 @@ export type Compute3DTextureParams = {
 	width: number;
 	height: number;
 	depth: number;
+	radius?: number;
+	scale?: number;
 	atoms: SceneObject[];
 	log?: boolean;
 };
@@ -15,20 +17,32 @@ export async function compute3DTexture({
 	width,
 	height,
 	depth,
+	radius = 1,
+	scale = 1,
 	atoms,
 	log = false,
 }: Compute3DTextureParams): Promise<GPUTexture> {
-	const WORKGROUP_SIZE = 64;
+	width = Math.ceil(width * scale);
+	height = Math.ceil(height * scale);
+	depth = Math.ceil(depth * scale);
+	radius = Math.ceil(radius * scale);
+
+	console.log('compute3DTexture', { width, height, depth });
+
+	atoms = atoms.map((atom) => {
+		atom.setPosition(atom.position.map((value) => value * scale));
+		return atom;
+	});
 
 	const texture = device.createTexture({
-		format: 'rgba8unorm',
+		format: 'rgba8snorm',
 		size: [width, height, depth],
 		dimension: '3d',
 		usage:
 			GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_DST,
 	});
 
-	const dispatchCount: [number, number, number] = [Math.ceil(16 / WORKGROUP_SIZE), height, depth];
+	const dispatchCount = [width, height, depth].map((value) => Math.ceil(value / 4));
 
 	const pipeline = device.createComputePipeline({
 		label: 'compute pipeline',
@@ -36,7 +50,7 @@ export async function compute3DTexture({
 		compute: {
 			module: device.createShaderModule({ code: computeShader }),
 			constants: {
-				workgroup_size: WORKGROUP_SIZE,
+				radius,
 			},
 		},
 	});
@@ -68,7 +82,7 @@ export async function compute3DTexture({
 
 	pass.setPipeline(pipeline);
 	pass.setBindGroup(0, bindGroup);
-	pass.dispatchWorkgroups(...dispatchCount);
+	pass.dispatchWorkgroups(...(dispatchCount as [number, number, number]));
 	pass.end();
 
 	// Finish encoding and submit the commands

@@ -40,13 +40,13 @@
 			atom1.setPosition(vec3.create(0, 0, 0));
 
 			const atom2 = new SceneObject(geometry, material);
-			atom2.setPosition(vec3.create(4, 4, 0));
+			atom2.setPosition(vec3.create(4, 4, 0.5));
 
 			const atom3 = new SceneObject(geometry, material);
-			atom3.setPosition(vec3.create(15, 15, 0));
+			atom3.setPosition(vec3.create(15, 15, 1.5));
 
 			const atom4 = new SceneObject(geometry, material);
-			atom4.setPosition(vec3.create(10, 2, 0));
+			atom4.setPosition(vec3.create(10, 2, 1.9));
 
 			const atoms = [atom1, atom2, atom3, atom4];
 
@@ -55,7 +55,9 @@
 				device,
 				width: 16,
 				height: 16,
-				depth: 1,
+				depth: 2,
+				radius: 2,
+				scale: 128,
 				atoms,
 				log: false,
 			});
@@ -101,7 +103,7 @@
       @group(0) @binding(1) var ourTexture: texture_3d<f32>;
 
       @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
-        let color = textureSample(ourTexture, ourSampler, vec3f(fsInput.texcoord, 1));
+        let color = textureSample(ourTexture, ourSampler, vec3f(fsInput.texcoord, 0));
         return color;
         }
     `,
@@ -120,7 +122,7 @@
 			});
 
 			const sampler = device.createSampler({
-				magFilter: 'nearest',
+				magFilter: 'linear',
 			});
 			const bindGroup = device.createBindGroup({
 				layout: pipeline.getBindGroupLayout(0),
