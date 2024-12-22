@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { initWebGPU } from '$lib/webGPU/helpers/webGpu';
+	import { getWebGPUAdapter, getWebGPUDevice } from '$lib/webGPU/helpers/webGpu';
 	import { onMount } from 'svelte';
 	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
@@ -18,12 +18,19 @@
 
 			console.time('Compute');
 
-			const { device } = await initWebGPU({
-				deviceOptions: (adapter) => ({
-					requiredLimits: {
-						maxStorageBufferBindingSize: adapter.limits.maxStorageBufferBindingSize,
-					},
-				}),
+			const adapter = await getWebGPUAdapter({});
+
+			const hasBGRA8unormStorage = adapter.features.has('bgra8unorm-storage');
+			const requiredFeatures: GPUFeatureName[] = [];
+			if (hasBGRA8unormStorage) {
+				requiredFeatures.push('bgra8unorm-storage');
+			}
+
+			const device = await getWebGPUDevice(adapter, {
+				requiredFeatures,
+				requiredLimits: {
+					maxBufferSize: adapter.limits.maxBufferSize,
+				},
 			});
 
 			const material = new ColorMaterial('white');
@@ -50,12 +57,14 @@
 				height: 16,
 				depth: 1,
 				atoms,
-				log: true,
+				log: false,
 			});
 			console.timeEnd();
 
 			// Get a WebGPU context from the canvas and configure it
-			const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+			const presentationFormat = hasBGRA8unormStorage
+				? navigator.gpu.getPreferredCanvasFormat()
+				: 'rgba8unorm';
 			context.configure({
 				device,
 				format: presentationFormat,
@@ -93,7 +102,7 @@
 
       @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
         let color = textureSample(ourTexture, ourSampler, vec3f(fsInput.texcoord, 1));
-        return vec4f(color.r, color.r, color.r, 1);
+        return color;
         }
     `,
 			});
@@ -110,18 +119,14 @@
 				},
 			});
 
-			const gpuTexture = texture.load(device);
-
 			const sampler = device.createSampler({
-				// addressModeU: 'clamp-to-edge',
-				// addressModeV: 'clamp-to-edge',
 				magFilter: 'nearest',
 			});
 			const bindGroup = device.createBindGroup({
 				layout: pipeline.getBindGroupLayout(0),
 				entries: [
 					{ binding: 0, resource: sampler },
-					{ binding: 1, resource: gpuTexture.createView() },
+					{ binding: 1, resource: texture.createView() },
 				],
 			});
 

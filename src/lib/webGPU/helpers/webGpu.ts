@@ -14,17 +14,37 @@ export async function initWebGPU({
 }: InitWebGPUParmas = {}): Promise<WebGPU> {
 	if (!navigator.gpu) throw new Error('WebGPU not supported');
 
+	const adapter = await getWebGPUAdapter(adapterOptions);
+
+	const device = await getWebGPUDevice(
+		adapter,
+		typeof deviceOptions === 'function' ? deviceOptions(adapter) : deviceOptions
+	);
+
+	return { adapter, device };
+}
+
+export async function getWebGPUAdapter(
+	adapterOptions?: GPURequestAdapterOptions
+): Promise<GPUAdapter> {
+	if (!navigator.gpu) throw new Error('WebGPU not supported');
+
 	const adapter = await navigator.gpu.requestAdapter(adapterOptions);
 	if (!adapter) throw new Error('Error requesting WebGPU adapter');
 
-	const device = await adapter.requestDevice(
-		typeof deviceOptions === 'function' ? deviceOptions(adapter) : deviceOptions
-	);
+	return adapter;
+}
+
+export async function getWebGPUDevice(
+	adapter: GPUAdapter,
+	deviceOptions?: GPUDeviceDescriptor
+): Promise<GPUDevice> {
+	const device = await adapter.requestDevice(deviceOptions);
 	device.lost.then((info) => {
 		console.error(`WebGPU device was lost: ${info.message}`);
 	});
 
-	return { adapter, device };
+	return device;
 }
 
 export function draw(callback: (deltaTime: number) => void): void {
