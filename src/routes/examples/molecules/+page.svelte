@@ -4,9 +4,9 @@
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { Scene } from '$lib/webGPU/Scene';
 	import { loadPDBLocal, loadPDBWeb } from '$lib/mol/pdbLoader';
-	import { Pdb } from 'pdb-parser-js/dist/pdb';
-	import { PdbParser } from 'pdb-parser-js/';
+	import { loadMmcifLocal } from '$lib/mol/mmcifLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
+	import { createMmcifGeometry } from '$lib/mol/mmCifGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
@@ -68,6 +68,13 @@
 		// const PDB = await loadPDBWeb('7GY2');
 		if (!PDB) return;
 		const ballsAndSticks = createPdbGeometry(PDB);
+
+		// const mmcif = await loadMmcifLocal('9c76');
+		// if (!mmcif) return;
+		// console.log('mmcif', mmcif);
+		// const ballsAndSticks = createMmcifGeometry(mmcif.atoms, mmcif.bonds);
+
+		console.log('ballsAndSticks', ballsAndSticks);
 
 		try {
 			device = (await initWebGPU()).device;

@@ -43,7 +43,10 @@ export const createPdbGeometry = (pdb: Pdb) => {
 		// atom serials are 1-indexed 🤮
 		const primaryAtom = atomsSorted[connect.atomSeqNum - 1];
 
+		if (!primaryAtom) console.error('primaryAtom not found', connect.atomSeqNum);
+
 		if (
+			primaryAtom === undefined ||
 			primaryAtom.data === undefined ||
 			primaryAtom.data.x === null ||
 			primaryAtom.data.y === null ||
@@ -91,6 +94,8 @@ export const createPdbGeometry = (pdb: Pdb) => {
 			bonds.push(stick);
 		}
 	}
+
+	console.log('atoms, bonds', atoms, bonds);
 
 	const atomsAndBonds = [...atoms, ...bonds];
 
