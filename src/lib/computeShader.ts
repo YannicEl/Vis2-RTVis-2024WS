@@ -56,9 +56,12 @@ export async function compute3DTexture({
 	});
 
 	let usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST;
-	const atomsBufferData = new Float32Array(atoms.length * 4);
+
+	// In the shader the buffer has the type array<vec3f>.
+	// Each vec3f is 3 bytes long + 1 byte of padding.
+	const atomsBufferData = new Float32Array(atoms.length * 4 - 1);
 	for (let i = 0; i < atoms.length; i++) {
-		atomsBufferData.set(atoms[i].position, i * 4);
+		atomsBufferData.set(atoms[i].position, i * 3 + i);
 	}
 
 	const atomsBuffer = device.createBuffer({
@@ -104,19 +107,6 @@ export async function compute3DTexture({
 	// 		console.table(columns);
 	// 	}
 	// }
-
-	// const texture = new Texture({
-	// 	data: textureResult,
-	// 	descriptor: {
-	// 		format: 'r8unorm',
-	// 		dimension: '3d',
-	// 		size: {
-	// 			width: width,
-	// 			height: height,
-	// 			depthOrArrayLayers: depth,
-	// 		},
-	// 	},
-	// });
 
 	return texture;
 }
