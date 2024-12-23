@@ -56,8 +56,8 @@
 				width: 16,
 				height: 16,
 				depth: 2,
-				radius: 2,
-				scale: 128,
+				radius: 3,
+				scale: 1,
 				atoms,
 				log: false,
 			});
@@ -104,8 +104,14 @@
 
       @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
         let color = textureSample(ourTexture, ourSampler, vec3f(fsInput.texcoord, 0));
-        return color;
+
+        let d = color.r + 0;
+        if(d < 0.5) {
+          return vec4f(0,0,0,0);
+          } else {
+          return vec4f(1,1,1,1);
         }
+      }
     `,
 			});
 
