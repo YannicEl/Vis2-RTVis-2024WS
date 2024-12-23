@@ -1,5 +1,5 @@
 import { PdbParser } from 'pdb-parser-js';
-type pdbFiles = '3iz8' | '8z3k' | 'example';
+type pdbFiles = '3iz8' | '8z3k' | '101m' | 'example';
 
 export const loadPDBLocal = async (fileName: pdbFiles) => {
 	try {

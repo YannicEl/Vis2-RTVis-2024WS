@@ -11,7 +11,12 @@ export const createPdbGeometry = (pdb: Pdb) => {
 		radius: 0.1,
 	});
 
-	const atomsSorted = pdb.coordinate.atoms.sort((a, b) => a.data.serial! - b.data.serial!);
+	console.log('pdb', pdb);
+
+	const pdbAtoms = pdb.coordinate.atoms;
+	const pdbHetAtoms = pdb.coordinate.hetatms;
+
+	const atomsSorted = [...pdbAtoms, ...pdbHetAtoms].sort((a, b) => a.data.serial! - b.data.serial!);
 
 	const atoms = atomsSorted
 		// tutorial
@@ -95,7 +100,7 @@ export const createPdbGeometry = (pdb: Pdb) => {
 		}
 	}
 
-	console.log('atoms, bonds', atoms, bonds);
+	console.log('atoms', atoms.length, 'bonds', bonds.length);
 
 	const atomsAndBonds = [...atoms, ...bonds];
 
