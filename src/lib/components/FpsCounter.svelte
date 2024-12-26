@@ -12,6 +12,8 @@
 <style>
 	div {
 		color: greenyellow;
+		background: black;
+		padding: 0.25rem;
 		font-family: monospace;
 	}
 </style>

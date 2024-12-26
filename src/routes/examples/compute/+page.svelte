@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { getWebGPUAdapter, getWebGPUDevice } from '$lib/webGPU/helpers/webGpu';
+	import {
+		draw,
+		getWebGPUAdapter,
+		getWebGPUDevice,
+		queueBufferWrite,
+	} from '$lib/webGPU/helpers/webGpu';
 	import { onMount } from 'svelte';
 	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
@@ -7,6 +12,9 @@
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 	import shader from './shader.wgsl?raw';
+	import { globalState } from '$lib/globalState.svelte';
+	import { Camera } from '$lib/webGPU/Camera';
+	import { ArcballControls2 } from '$lib/webGPU/controls/ArcballControls2';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -17,9 +25,14 @@
 			const context = canvas.getContext('webgpu');
 			if (!context) return;
 
+			const camera = new Camera();
+			camera.setPosition(vec3.create(0, 0, -16));
+
+			const controls = new ArcballControls2({ eventSource: canvas, camera, distance: -16 });
+
 			console.time('Compute');
 
-			const adapter = await getWebGPUAdapter({});
+			const adapter = await getWebGPUAdapter();
 
 			const hasBGRA8unormStorage = adapter.features.has('bgra8unorm-storage');
 			const requiredFeatures: GPUFeatureName[] = [];
@@ -38,18 +51,18 @@
 			const geometry = new SphereGeometry();
 
 			const atom1 = new SceneObject(geometry, material);
-			atom1.setPosition(vec3.create(10, 8, 0));
+			atom1.setPosition(vec3.create(5, 8, 0));
 
 			const atom2 = new SceneObject(geometry, material);
-			atom2.setPosition(vec3.create(6, 8, 0));
+			atom2.setPosition(vec3.create(10, 8, 0));
 
-			const atom3 = new SceneObject(geometry, material);
-			atom3.setPosition(vec3.create(15, 15, 1.5));
+			// const atom3 = new SceneObject(geometry, material);
+			// atom3.setPosition(vec3.create(15, 15, 1.5));
 
-			const atom4 = new SceneObject(geometry, material);
-			atom4.setPosition(vec3.create(10, 2, 1.9));
+			// const atom4 = new SceneObject(geometry, material);
+			// atom4.setPosition(vec3.create(10, 2, 1.9));
 
-			const atoms = [atom1, atom2, atom3, atom4];
+			const atoms = [atom1, atom2]; //, atom3, atom4];
 
 			console.time();
 			const texture = await compute3DTexture({
@@ -89,6 +102,15 @@
 				},
 			});
 
+			const cameraBuffer = device.createBuffer({
+				label: 'Camera buffer',
+				size: 3 * 4,
+				usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+			});
+			queueBufferWrite(device, cameraBuffer, camera.position);
+
+			console.log(camera.position);
+
 			const sampler = device.createSampler({
 				magFilter: 'linear',
 			});
@@ -97,32 +119,48 @@
 				entries: [
 					{ binding: 0, resource: sampler },
 					{ binding: 1, resource: texture.createView() },
-				],
-			});
-
-			const renderPassDescriptor: GPURenderPassDescriptor = {
-				label: 'our basic canvas renderPass',
-				colorAttachments: [
 					{
-						view: context.getCurrentTexture().createView(),
-						clearValue: [0, 0, 0, 1],
-						loadOp: 'clear',
-						storeOp: 'store',
+						binding: 2,
+						resource: {
+							buffer: cameraBuffer,
+						},
 					},
 				],
-			};
-
-			const encoder = device.createCommandEncoder({
-				label: 'render quad encoder',
 			});
-			const pass = encoder.beginRenderPass(renderPassDescriptor);
-			pass.setPipeline(pipeline);
-			pass.setBindGroup(0, bindGroup);
-			pass.draw(6);
-			pass.end();
 
-			const commandBuffer = encoder.finish();
-			device.queue.submit([commandBuffer]);
+			draw((deltaTime) => {
+				globalState.fps = 1000 / deltaTime;
+
+				controls.update(deltaTime);
+
+				queueBufferWrite(device, cameraBuffer, camera.position);
+
+				const renderPassDescriptor: GPURenderPassDescriptor = {
+					label: 'our basic canvas renderPass',
+					colorAttachments: [
+						{
+							view: context.getCurrentTexture().createView(),
+							clearValue: [0, 0, 0, 1],
+							loadOp: 'clear',
+							storeOp: 'store',
+						},
+					],
+				};
+
+				const encoder = device.createCommandEncoder({
+					label: 'render quad encoder',
+				});
+				const pass = encoder.beginRenderPass(renderPassDescriptor);
+				pass.setPipeline(pipeline);
+				pass.setBindGroup(0, bindGroup);
+				pass.draw(6);
+				pass.end();
+
+				// console.log(camera.position.toString());
+
+				const commandBuffer = encoder.finish();
+				device.queue.submit([commandBuffer]);
+			});
 		} catch (error) {
 			alert(error);
 		}

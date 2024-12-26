@@ -28,11 +28,11 @@ struct VertexOutput {
 
 @group(0) @binding(0) var ourSampler: sampler;
 @group(0) @binding(1) var ourTexture: texture_3d<f32>;
+@group(0) @binding(2) var<uniform> camera_position: vec3f;
 
 @fragment fn fs(
   input: VertexOutput
 ) -> @location(0) vec4f {
-  let camera_position = vec3f(0, 0, -16);
   let ray_origin = camera_position;
   let ray_direction = vec3f(input.texcoord, 1);
 
@@ -60,14 +60,7 @@ fn ray_march(
 
     // hit
     if (distance_to_closest < MINIMUM_HIT_DISTANCE) {
-      let normal = calculate_normal(current_position);
-
-      let light_position = vec3f(2.0, 0, 3.0);
-      let direction_to_light = normalize(current_position - light_position);
-
-      let diffuse_intensity = max(0.0, dot(normal, direction_to_light) + 0.5);
-
-      return vec4f(1, 0, 0, 0) * diffuse_intensity;
+      return vec4f(1, 0, 0, 0);
     }
 
     // miss
@@ -83,30 +76,20 @@ fn ray_march(
 }
 
 fn atoms_SDF(position: vec3f) -> f32 {
+  // TODO: no hardcoded values
   let height: f32 = 16;
   let width: f32 = 16;
-  let depth: f32 = 2;
+  let depth: f32 = 16;
 
-  let sample = textureSample(ourTexture, ourSampler, vec3f(position.x / width, position.y / height, position.z / depth));
   if(
     position.x >= 0 && position.x <= width &&
     position.y >= 0 && position.y <= height &&
     position.z >= 0 && position.z <= depth
   ) {
+    let sample = textureSample(ourTexture, ourSampler, vec3f(position.x / width, position.y / height, position.z / depth));
     return sample.r;
   } else {
+    // TODO should be shortest distance between position and texture cube
     return 1;
   }
-}
-
-fn calculate_normal(point: vec3f) -> vec3f {
-  let small_step = vec3f(0.001, 0.0, 0.0);
-
-  let gradient_x = atoms_SDF(point + small_step.xyy) - atoms_SDF(point - small_step.xyy);
-  let gradient_y = atoms_SDF(point + small_step.yxy) - atoms_SDF(point - small_step.yxy);
-  let gradient_z = atoms_SDF(point + small_step.yyx) - atoms_SDF(point - small_step.yyx);
-
-  let normal = vec3f(gradient_x, gradient_y, gradient_z);
-
-  return normalize(normal);
 }
