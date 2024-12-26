@@ -6,6 +6,7 @@
 	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
+	import shader from './shader.wgsl?raw';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -37,10 +38,10 @@
 			const geometry = new SphereGeometry();
 
 			const atom1 = new SceneObject(geometry, material);
-			atom1.setPosition(vec3.create(0, 0, 0));
+			atom1.setPosition(vec3.create(10, 8, 0));
 
 			const atom2 = new SceneObject(geometry, material);
-			atom2.setPosition(vec3.create(4, 4, 0.5));
+			atom2.setPosition(vec3.create(6, 8, 0));
 
 			const atom3 = new SceneObject(geometry, material);
 			atom3.setPosition(vec3.create(15, 15, 1.5));
@@ -55,9 +56,9 @@
 				device,
 				width: 16,
 				height: 16,
-				depth: 2,
+				depth: 16,
 				radius: 3,
-				scale: 1,
+				scale: 16,
 				atoms,
 				log: false,
 			});
@@ -73,46 +74,7 @@
 			});
 
 			const module = device.createShaderModule({
-				label: 'our hardcoded textured quad shaders',
-				code: `
-      struct OurVertexShaderOutput {
-        @builtin(position) position: vec4f,
-        @location(0) texcoord: vec2f,
-      };
-
-      @vertex fn vs(
-        @builtin(vertex_index) vertexIndex : u32
-      ) -> OurVertexShaderOutput {
-        let pos = array(
-          vec2f(0.0, 0.0),
-          vec2f(1.0, 0.0),
-          vec2f(0.0, 1.0),
-          vec2f(0.0, 1.0),
-          vec2f(1.0, 0.0),
-          vec2f(1.0, 1.0),
-        );
-
-        var vsOutput: OurVertexShaderOutput;
-        let xy = pos[vertexIndex];
-        vsOutput.position = vec4f((xy - 0.5) * 2, 0.0, 1.0);
-        vsOutput.texcoord = vec2f(xy.x, 1.0 - xy.y);
-        return vsOutput;
-      }
-
-      @group(0) @binding(0) var ourSampler: sampler;
-      @group(0) @binding(1) var ourTexture: texture_3d<f32>;
-
-      @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
-        let color = textureSample(ourTexture, ourSampler, vec3f(fsInput.texcoord, 0));
-
-        let d = color.r + 0;
-        if(d < 0.5) {
-          return vec4f(0,0,0,0);
-          } else {
-          return vec4f(1,1,1,1);
-        }
-      }
-    `,
+				code: shader,
 			});
 
 			const pipeline = device.createRenderPipeline({
