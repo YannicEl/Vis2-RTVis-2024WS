@@ -1,10 +1,5 @@
 <script lang="ts">
-	import {
-		draw,
-		getWebGPUAdapter,
-		getWebGPUDevice,
-		queueBufferWrite,
-	} from '$lib/webGPU/helpers/webGpu';
+	import { draw, initWebGPU, queueBufferWrite } from '$lib/webGPU/helpers/webGpu';
 	import { onMount } from 'svelte';
 	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
@@ -32,37 +27,31 @@
 
 			console.time('Compute');
 
-			const adapter = await getWebGPUAdapter();
-
-			const hasBGRA8unormStorage = adapter.features.has('bgra8unorm-storage');
-			const requiredFeatures: GPUFeatureName[] = [];
-			if (hasBGRA8unormStorage) {
-				requiredFeatures.push('bgra8unorm-storage');
-			}
-
-			const device = await getWebGPUDevice(adapter, {
-				requiredFeatures,
-				requiredLimits: {
-					maxBufferSize: adapter.limits.maxBufferSize,
-				},
+			const { device } = await initWebGPU({
+				deviceOptions: (adapter) => ({
+					requiredLimits: { maxBufferSize: adapter.limits.maxBufferSize },
+				}),
 			});
 
 			const material = new ColorMaterial('white');
 			const geometry = new SphereGeometry();
 
 			const atom1 = new SceneObject(geometry, material);
-			atom1.setPosition(vec3.create(5, 8, 0));
+			atom1.setPosition(vec3.create(8, 8, 8));
 
 			const atom2 = new SceneObject(geometry, material);
-			atom2.setPosition(vec3.create(10, 8, 0));
+			atom2.setPosition(vec3.create(0, 0, 8));
 
-			// const atom3 = new SceneObject(geometry, material);
-			// atom3.setPosition(vec3.create(15, 15, 1.5));
+			const atom3 = new SceneObject(geometry, material);
+			atom3.setPosition(vec3.create(15, 0, 8));
 
-			// const atom4 = new SceneObject(geometry, material);
-			// atom4.setPosition(vec3.create(10, 2, 1.9));
+			const atom4 = new SceneObject(geometry, material);
+			atom4.setPosition(vec3.create(0, 15, 8));
 
-			const atoms = [atom1, atom2]; //, atom3, atom4];
+			const atom5 = new SceneObject(geometry, material);
+			atom5.setPosition(vec3.create(15, 15, 8));
+
+			const atoms = [atom1, atom2, atom3, atom4, atom5]; //, atom3, atom4];
 
 			console.time();
 			const texture = await compute3DTexture({
@@ -73,14 +62,11 @@
 				radius: 3,
 				scale: 16,
 				atoms,
-				log: false,
 			});
 			console.timeEnd();
 
 			// Get a WebGPU context from the canvas and configure it
-			const presentationFormat = hasBGRA8unormStorage
-				? navigator.gpu.getPreferredCanvasFormat()
-				: 'rgba8unorm';
+			const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 			context.configure({
 				device,
 				format: presentationFormat,
@@ -118,7 +104,7 @@
 				layout: pipeline.getBindGroupLayout(0),
 				entries: [
 					{ binding: 0, resource: sampler },
-					{ binding: 1, resource: texture.createView() },
+					{ binding: 1, resource: texture.createView(device) },
 					{
 						binding: 2,
 						resource: {

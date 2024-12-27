@@ -99,15 +99,13 @@ export class SceneObject extends Object3D {
 		}
 
 		if (this.#texture) {
-			const gpuTexture = this.#texture.load(device);
-
 			bindGroupDescriptor.entries.push({
 				binding: 2,
-				resource: gpuTexture.createView(),
+				resource: device.createSampler({ magFilter: 'linear' }),
 			});
 			bindGroupDescriptor.entries.push({
 				binding: 3,
-				resource: device.createSampler(),
+				resource: this.#texture.createView(device),
 			});
 		}
 

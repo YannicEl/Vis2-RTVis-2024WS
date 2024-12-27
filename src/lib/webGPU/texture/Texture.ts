@@ -2,21 +2,14 @@ export type TextureData = BufferSource | SharedArrayBuffer;
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-export type TextureParams = {
-	data: TextureData;
-	descriptor: Optional<GPUTextureDescriptor, 'usage'>;
-};
-
 export class Texture {
-	#data: TextureData;
 	#width: number;
 	#height?: number;
 	#depthOrArrayLayers?: number;
 	#descriptor: GPUTextureDescriptor;
+	#loaded: Map<GPUDevice, GPUTexture> = new Map();
 
-	constructor({ data, descriptor }: TextureParams) {
-		this.#data = data;
-
+	constructor(descriptor: Optional<GPUTextureDescriptor, 'usage'>) {
 		this.#descriptor = {
 			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
 			...descriptor,
@@ -35,15 +28,29 @@ export class Texture {
 	}
 
 	load(device: GPUDevice): GPUTexture {
+		if (this.#loaded.has(device)) {
+			return this.#loaded.get(device)!;
+		}
+
 		const texture = device.createTexture(this.#descriptor);
+		this.#loaded.set(device, texture);
+
+		return texture;
+	}
+
+	write(device: GPUDevice, data: TextureData): void {
+		const texture = this.load(device);
 
 		device.queue.writeTexture(
 			{ texture },
-			this.#data,
+			data,
 			{ bytesPerRow: this.#width, rowsPerImage: this.#height },
 			{ width: this.#width, height: this.#height, depthOrArrayLayers: this.#depthOrArrayLayers }
 		);
+	}
 
-		return texture;
+	createView(device: GPUDevice): GPUTextureView {
+		const texture = this.load(device);
+		return texture.createView();
 	}
 }

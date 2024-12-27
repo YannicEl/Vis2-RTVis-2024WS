@@ -1,5 +1,6 @@
 import computeShader from './compute.wgsl?raw';
 import type { SceneObject } from './webGPU/SceneObject';
+import { Texture } from './webGPU/texture/Texture';
 
 export type Compute3DTextureParams = {
 	device: GPUDevice;
@@ -9,7 +10,6 @@ export type Compute3DTextureParams = {
 	radius?: number;
 	scale?: number;
 	atoms: SceneObject[];
-	log?: boolean;
 };
 
 export async function compute3DTexture({
@@ -20,8 +20,7 @@ export async function compute3DTexture({
 	radius = 1,
 	scale = 1,
 	atoms,
-	log = false,
-}: Compute3DTextureParams): Promise<GPUTexture> {
+}: Compute3DTextureParams): Promise<Texture> {
 	width = Math.ceil(width * scale);
 	height = Math.ceil(height * scale);
 	depth = Math.ceil(depth * scale);
@@ -34,7 +33,7 @@ export async function compute3DTexture({
 		return atom;
 	});
 
-	const texture = device.createTexture({
+	const texture = new Texture({
 		format: 'rgba8snorm',
 		size: [width, height, depth],
 		dimension: '3d',
@@ -59,9 +58,9 @@ export async function compute3DTexture({
 
 	// In the shader the buffer has the type array<vec3f>.
 	// Each vec3f is 3 bytes long + 1 byte of padding.
-	const atomsBufferData = new Float32Array(atoms.length * 4 - 1);
+	const atomsBufferData = new Float32Array(atoms.length * 4);
 	for (let i = 0; i < atoms.length; i++) {
-		atomsBufferData.set(atoms[i].position, i * 3 + i);
+		atomsBufferData.set(atoms[i].position, i * 4);
 	}
 
 	const atomsBuffer = device.createBuffer({
@@ -74,7 +73,7 @@ export async function compute3DTexture({
 		label: 'Compute Bind Group',
 		layout: pipeline.getBindGroupLayout(0),
 		entries: [
-			{ binding: 0, resource: texture.createView() },
+			{ binding: 0, resource: texture.createView(device) },
 			{ binding: 1, resource: { buffer: atomsBuffer } },
 		],
 	});
@@ -91,22 +90,6 @@ export async function compute3DTexture({
 	// Finish encoding and submit the commands
 	const commandBuffer = encoder.finish();
 	device.queue.submit([commandBuffer]);
-
-	// if (log) {
-	// 	for (let z = 0; z < depth; z++) {
-	// 		const columns = [];
-	// 		for (let y = 0; y < height; y++) {
-	// 			let row = [];
-	// 			for (let x = 0; x < width; x++) {
-	// 				const pixelIndex = x + width * y + width * height * z;
-	// 				row.push(textureResult[pixelIndex]);
-	// 			}
-
-	// 			columns.push(row);
-	// 		}
-	// 		console.table(columns);
-	// 	}
-	// }
 
 	return texture;
 }

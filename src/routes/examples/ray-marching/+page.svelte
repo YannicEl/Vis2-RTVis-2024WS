@@ -13,21 +13,13 @@
 	import { getSettings } from '$lib/settings.svelte';
 	import { degToRad } from '$lib/webGPU/helpers/helpers';
 	import { vec3 } from 'wgpu-matrix';
-	import { Texture } from '$lib/webGPU/texture/Texture';
 	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
-	import type { Object3D } from '$lib/webGPU/Object3D';
+	import { compute3DTexture } from '$lib/computeShader';
 
 	let canvas = $state<HTMLCanvasElement>();
 
 	const settings = getSettings();
-	const fovControl = settings.addControl({
-		name: 'FOV',
-		type: 'range',
-		value: 60,
-		min: 0,
-		max: 180,
-	});
 
 	const rotationX = settings.addControl({
 		name: 'Rotation X',
@@ -40,143 +32,75 @@
 	const colorControl = settings.addControl({
 		name: 'Clear color',
 		type: 'select',
-		value: 'red',
+		value: 'white',
 		options: [
+			{ label: 'White', value: 'white' },
 			{ label: 'Red', value: 'red' },
 			{ label: 'Green', value: 'green' },
 			{ label: 'Blue', value: 'blue' },
 		],
 	});
 
-	const depthControl = settings.addControl({
-		name: 'Depth',
-		type: 'range',
-		value: 0,
-		min: 0,
-		step: 0.1,
-		max: 9,
-	});
-
-	const camera = new Camera();
-	fovControl.onChange((value) => (camera.fov = value));
-	globalState.camera = camera;
-
-	const colorWhite = new ColorMaterial('white');
-	const sphereGeometry = new SphereGeometry({
-		radius: 0.1,
-	});
-
-	const atom1 = new SceneObject(sphereGeometry, colorWhite);
-	atom1.setPosition(vec3.create(0, 0, 0));
-
-	const atom2 = new SceneObject(sphereGeometry, colorWhite);
-	atom2.setPosition(vec3.create(4, 4, 10));
-
-	const atom3 = new SceneObject(sphereGeometry, colorWhite);
-	atom3.setPosition(vec3.create(1, 1, 0));
-
-	const atom4 = new SceneObject(sphereGeometry, colorWhite);
-	atom4.setPosition(vec3.create(1, 1, 9));
-
-	const atom5 = new SceneObject(sphereGeometry, colorWhite);
-	atom5.setPosition(vec3.create(0, 0, 10));
-
-	const atoms = [atom1, atom2, atom3, atom4, atom5];
-
-	const geometry = new QuadGeometry();
-	const material = new RayMarchingMaterial({
-		clearColor: 'red',
-		fragmentColor: 'white',
-		cameraPosition: camera.position,
-		aspectRatio: camera.aspect,
-		depth: depthControl.value,
-	});
-
-	function calculateBoundingBox(atoms: Object3D[]) {
-		const radius = 1;
-		const dimension = {
-			x: { min: 0, max: 0 },
-			y: { min: 0, max: 0 },
-			z: { min: 0, max: 0 },
-		};
-
-		for (const atom of atoms) {
-			const [x, y, z] = atom.position;
-
-			dimension.x.min = Math.min(x, dimension.x.min); // + radius);
-			dimension.x.max = Math.max(x, dimension.x.max); // + radius);
-
-			dimension.y.min = Math.min(y, dimension.y.min); // + radius);
-			dimension.y.max = Math.max(y, dimension.y.max); // + radius);
-
-			dimension.z.min = Math.min(z, dimension.z.min); // + radius);
-			dimension.z.max = Math.max(z, dimension.z.max); // + radius);
-		}
-
-		return {
-			width: dimension.x.max - dimension.x.min,
-			height: dimension.y.max - dimension.y.min,
-			depth: dimension.z.max - dimension.z.min,
-		};
-	}
-
-	const { width, height, depth } = calculateBoundingBox(atoms);
-	console.log({ width, height, depth });
-
-	const data: number[] = [];
-	const radius = 1;
-	const resolution = 10;
-
-	console.time();
-	for (let z = 0; z < depth * resolution; z++) {
-		for (let y = 0; y < height * resolution; y++) {
-			for (let x = 0; x < width * resolution; x++) {
-				let hit = false;
-				for (const atom of atoms) {
-					const distance = vec3.dist(atom.position, vec3.create(x, y, z));
-
-					if (distance <= radius * resolution) {
-						hit = true;
-						break;
-					}
-				}
-
-				if (hit) {
-					data.push(255);
-				} else {
-					data.push(0);
-				}
-			}
-		}
-	}
-	console.timeEnd();
-
-	const texture = new Texture({
-		data: new Uint8Array(data),
-		descriptor: {
-			label: 'Ray Marching Texture',
-			format: 'r8unorm',
-			dimension: '3d',
-			size: {
-				width: width * resolution,
-				height: height * resolution,
-				depthOrArrayLayers: depth * resolution,
-			},
-		},
-	});
-
-	const quad = new SceneObject(geometry, material, texture);
-
-	const scene = new Scene([quad]);
-
 	onMount(async () => {
-		if (!canvas) return;
-
-		const context = canvas.getContext('webgpu');
-		if (!context) return;
-
 		try {
-			const { device } = await initWebGPU();
+			if (!canvas) return;
+
+			const context = canvas.getContext('webgpu');
+			if (!context) return;
+
+			const camera = new Camera();
+			camera.setPosition(vec3.create(0, 0, -8));
+
+			const controls = new ArcballControls2({ eventSource: canvas, camera, distance: -16 });
+
+			console.time('Compute');
+
+			const { device } = await initWebGPU({
+				deviceOptions: (adapter) => ({
+					requiredLimits: { maxBufferSize: adapter.limits.maxBufferSize },
+				}),
+			});
+
+			const colorMaterial = new ColorMaterial('white');
+			const geometry = new SphereGeometry();
+
+			const atom1 = new SceneObject(geometry, colorMaterial);
+			atom1.setPosition(vec3.create(8, 8, 8));
+
+			const atom2 = new SceneObject(geometry, colorMaterial);
+			atom2.setPosition(vec3.create(0, 0, 8));
+
+			const atom3 = new SceneObject(geometry, colorMaterial);
+			atom3.setPosition(vec3.create(15, 0, 8));
+
+			const atom4 = new SceneObject(geometry, colorMaterial);
+			atom4.setPosition(vec3.create(0, 15, 8));
+
+			const atom5 = new SceneObject(geometry, colorMaterial);
+			atom5.setPosition(vec3.create(15, 15, 8));
+
+			const atoms = [atom1, atom2, atom3, atom4, atom5];
+
+			console.time();
+			const texture = await compute3DTexture({
+				device,
+				width: 16,
+				height: 16,
+				depth: 16,
+				radius: 3,
+				scale: 16,
+				atoms,
+			});
+			console.timeEnd();
+
+			const material = new RayMarchingMaterial({
+				clearColor: 'white',
+				fragmentColor: 'red',
+				aspectRatio: camera.aspect,
+				cameraPosition: camera.position,
+			});
+			const quad = new SceneObject(new QuadGeometry(), material, texture);
+			const scene = new Scene([quad]);
 
 			scene.load(device);
 
@@ -200,17 +124,17 @@
 				},
 			});
 
-			fovControl.onChange((fov) => {
-				camera.fov = fov;
+			// fovControl.onChange((fov) => {
+			// 	camera.fov = fov;
 
-				quad.reset();
+			// 	quad.reset();
 
-				const nearPlaneWidth = camera.near * Math.tan(degToRad(camera.fov / 2)) * camera.aspect * 2;
-				quad.scaleX(nearPlaneWidth);
+			// 	const nearPlaneWidth = camera.near * Math.tan(degToRad(camera.fov / 2)) * camera.aspect * 2;
+			// 	quad.scaleX(nearPlaneWidth);
 
-				const nearPlaneHeight = nearPlaneWidth / camera.aspect;
-				quad.scaleY(nearPlaneHeight);
-			});
+			// 	const nearPlaneHeight = nearPlaneWidth / camera.aspect;
+			// 	quad.scaleY(nearPlaneHeight);
+			// });
 
 			colorControl.onChange((color) => {
 				material.update(device, {
@@ -218,9 +142,6 @@
 				});
 				scene.load(device);
 			});
-
-			const controls = new ArcballControls2({ eventSource: canvas, camera, distance: 2.1 });
-			globalState.contols = controls;
 
 			rotationX.onChange((angle) => {
 				quad.setRotation(angle, vec3.create(1, 0, 0));
@@ -241,7 +162,6 @@
 				material.update(device, {
 					cameraPosition: camera.position,
 					aspectRatio: camera.aspect,
-					depth: (depthControl.value * resolution) / (depth * resolution - 1),
 				});
 				scene.update(deltaTime);
 
