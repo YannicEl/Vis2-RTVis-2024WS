@@ -17,8 +17,14 @@ override radius: f32;
     let atom = atoms[i];
     let distance = distance(vec3f(pixel), atom);
 
-    value = min(value, distance - radius);
+    value = smin(value, distance - radius, 0.5);
   }
 
   textureStore(texture, pixel, vec4f(value, value, value, 1));
+}
+
+// https://iquilezles.org/articles/smin/
+fn smin(a: f32, b: f32, k: f32) -> f32 {
+  let h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+  return mix(b, a, h) - k * h * (1.0 - h);
 }

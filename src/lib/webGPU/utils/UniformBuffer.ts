@@ -28,6 +28,7 @@ export class UniformBuffer<T extends string = any> {
 		}
 
 		if (bufferSize < 16) bufferSize = 16;
+		if (bufferSize < 128) bufferSize = 128;
 		this.value = new Float32Array(bufferSize);
 
 		this.descriptor = {

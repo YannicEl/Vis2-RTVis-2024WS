@@ -23,7 +23,7 @@ export class Camera extends Object3D {
 	public yaw = degToRad(-90);
 	public pitch = degToRad(0);
 
-	constructor({ fov = 60, aspect = 1, near = 1, far = 2000 }: CameraParams = {}) {
+	constructor({ fov = 60, aspect = 1, near = 0.1, far = 2000 }: CameraParams = {}) {
 		super();
 
 		this.fov = fov;

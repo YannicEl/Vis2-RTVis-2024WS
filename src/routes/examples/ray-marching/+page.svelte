@@ -16,6 +16,7 @@
 	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { compute3DTexture } from '$lib/computeShader';
+	import * as THREE from 'three';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -93,11 +94,16 @@
 			});
 			console.timeEnd();
 
+			const threeCamera = new THREE.PerspectiveCamera(60, canvas.width / canvas.height, 0.1, 2000);
+			threeCamera.position.z = 50;
+
 			const material = new RayMarchingMaterial({
 				clearColor: 'white',
 				fragmentColor: 'red',
-				aspectRatio: camera.aspect,
-				cameraPosition: camera.position,
+				aspectRatio: threeCamera.aspect,
+				projectionMatrixInverse: new Float32Array(threeCamera.projectionMatrixInverse.elements),
+				cameraToWorldMatrix: new Float32Array(threeCamera.matrixWorld.elements),
+				cameraPosition: new Float32Array(threeCamera.position),
 			});
 			const quad = new SceneObject(new QuadGeometry(), material, texture);
 			const scene = new Scene([quad]);

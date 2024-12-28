@@ -19,6 +19,7 @@
 			{ label: 'Ray marching', value: 'ray-marching' },
 			{ label: 'Rotation', value: 'rotation' },
 			{ label: 'Compute', value: 'compute' },
+			{ label: 'Three.js', value: 'three' },
 		],
 	});
 

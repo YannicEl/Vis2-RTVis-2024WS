@@ -1,4 +1,4 @@
-import { type Vec4 } from 'wgpu-matrix';
+import { type Mat4, type Vec4 } from 'wgpu-matrix';
 import type { CssColor } from '../color/Color';
 import { Color } from '../color/Color';
 import rayMarchingShader from '../shader/ray_marching.wgsl?raw';
@@ -9,6 +9,8 @@ export type RayMarchingMaterialParams = {
 	fragmentColor: CssColor;
 	clearColor: CssColor;
 	cameraPosition: Vec4;
+	projectionMatrixInverse: Mat4;
+	cameraToWorldMatrix: Mat4;
 	aspectRatio: number;
 };
 
@@ -26,6 +28,8 @@ export class RayMarchingMaterial extends Material {
 				clearColor: 'vec4',
 				fragmentColor: 'vec4',
 				cameraPosition: 'vec3',
+				projectionMatrixInverse: 'mat4',
+				cameraToWorldMatrix: 'mat4',
 				aspectRatio: 'f32',
 			},
 			'Ray Marching Material Buffer'
@@ -55,7 +59,14 @@ export class RayMarchingMaterial extends Material {
 
 	update(
 		device: GPUDevice,
-		{ clearColor, fragmentColor, cameraPosition, aspectRatio }: Partial<RayMarchingMaterialParams>
+		{
+			clearColor,
+			fragmentColor,
+			cameraPosition,
+			projectionMatrixInverse,
+			cameraToWorldMatrix,
+			aspectRatio,
+		}: Partial<RayMarchingMaterialParams>
 	) {
 		if (this.#buffer) {
 			if (clearColor) this.#buffer.set({ clearColor: Color.fromCssString(clearColor).value });
@@ -63,7 +74,8 @@ export class RayMarchingMaterial extends Material {
 				this.#buffer.set({ fragmentColor: Color.fromCssString(fragmentColor).value });
 			if (cameraPosition) this.#buffer.set({ cameraPosition });
 			if (aspectRatio) this.#buffer.set({ aspectRatio: [aspectRatio] });
-
+			if (projectionMatrixInverse) this.#buffer.set({ projectionMatrixInverse });
+			if (cameraToWorldMatrix) this.#buffer.set({ cameraToWorldMatrix });
 			this.#buffer.write(device);
 		}
 	}
