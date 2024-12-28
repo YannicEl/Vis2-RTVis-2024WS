@@ -9,9 +9,9 @@ export type RayMarchingMaterialParams = {
 	fragmentColor: CssColor;
 	clearColor: CssColor;
 	cameraPosition: Vec4;
-	projectionMatrixInverse: Mat4;
-	cameraToWorldMatrix: Mat4;
 	aspectRatio: number;
+	inverseProjectionMatrix: Mat4;
+	cameraToWorldMatrix: Mat4;
 };
 
 export class RayMarchingMaterial extends Material {
@@ -22,15 +22,17 @@ export class RayMarchingMaterial extends Material {
 		fragmentColor,
 		cameraPosition,
 		aspectRatio,
+		inverseProjectionMatrix,
+		cameraToWorldMatrix,
 	}: RayMarchingMaterialParams) {
 		const buffer = new UniformBuffer(
 			{
-				clearColor: 'vec4',
 				fragmentColor: 'vec4',
+				clearColor: 'vec4',
 				cameraPosition: 'vec3',
-				projectionMatrixInverse: 'mat4',
-				cameraToWorldMatrix: 'mat4',
 				aspectRatio: 'f32',
+				inverseProjectionMatrix: 'mat4',
+				cameraToWorldMatrix: 'mat4',
 			},
 			'Ray Marching Material Buffer'
 		);
@@ -40,6 +42,8 @@ export class RayMarchingMaterial extends Material {
 			fragmentColor: Color.fromCssString(fragmentColor).value,
 			cameraPosition,
 			aspectRatio: [aspectRatio],
+			inverseProjectionMatrix,
+			cameraToWorldMatrix,
 		});
 
 		super({
@@ -63,9 +67,9 @@ export class RayMarchingMaterial extends Material {
 			clearColor,
 			fragmentColor,
 			cameraPosition,
-			projectionMatrixInverse,
-			cameraToWorldMatrix,
 			aspectRatio,
+			inverseProjectionMatrix,
+			cameraToWorldMatrix,
 		}: Partial<RayMarchingMaterialParams>
 	) {
 		if (this.#buffer) {
@@ -74,8 +78,9 @@ export class RayMarchingMaterial extends Material {
 				this.#buffer.set({ fragmentColor: Color.fromCssString(fragmentColor).value });
 			if (cameraPosition) this.#buffer.set({ cameraPosition });
 			if (aspectRatio) this.#buffer.set({ aspectRatio: [aspectRatio] });
-			if (projectionMatrixInverse) this.#buffer.set({ projectionMatrixInverse });
+			if (inverseProjectionMatrix) this.#buffer.set({ inverseProjectionMatrix });
 			if (cameraToWorldMatrix) this.#buffer.set({ cameraToWorldMatrix });
+
 			this.#buffer.write(device);
 		}
 	}

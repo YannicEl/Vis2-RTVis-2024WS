@@ -13,10 +13,6 @@
 		// Create a scene
 		const scene = new THREE.Scene();
 
-		const myCamera = new Camera({
-			aspect: canvas.width / canvas.height,
-		});
-
 		// Create a camera
 		const camera = new THREE.PerspectiveCamera(
 			60,
@@ -24,13 +20,7 @@
 			0.1,
 			2000
 		);
-
-		console.log('old old', mat4.inverse(myCamera.projectionMatrix));
-		console.log('new camera', camera.projectionMatrixInverse);
-
 		camera.position.z = 5;
-
-		console.log(camera);
 
 		// Create a renderer
 		const renderer = new THREE.WebGLRenderer({
@@ -201,8 +191,11 @@ void main() {
     rd = (u_camToWorldMat * vec4(rd, 0)).xyz;
     rd = normalize(rd);
 
-    // gl_FragColor = vec4(rd.rgb, 1);
     // gl_FragColor = vec4(uv, 0, 1);
+    // gl_FragColor = vec4(rd, 1);
+    // gl_FragColor = vec4(ro, 1);
+    // gl_FragColor = vec4(u_camPos, 1);
+    // gl_FragColor = u_camToWorldMat[3];
     
     // Ray marching and find total distance travelled
     float disTravelled = rayMarch(ro, rd); // use normalized ray
