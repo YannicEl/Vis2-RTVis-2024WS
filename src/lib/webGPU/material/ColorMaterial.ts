@@ -1,6 +1,6 @@
 import type { CssColor } from '../color/Color';
 import { Color } from '../color/Color';
-import colorSchader from '../shader/color.wgsl?raw';
+import colorShader from '../shader/color.wgsl?raw';
 import { UniformBuffer } from '../utils/UniformBuffer';
 import { Material } from './Material';
 
@@ -18,11 +18,11 @@ export class ColorMaterial extends Material {
 		super({
 			vertexShader: {
 				label: 'Color Vertex Shader',
-				code: colorSchader,
+				code: colorShader,
 			},
 			fragmentShader: {
 				label: 'Color Fragment Shader',
-				code: colorSchader,
+				code: colorShader,
 			},
 			uniformBuffer: buffer,
 		});
