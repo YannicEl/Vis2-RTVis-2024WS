@@ -3,7 +3,6 @@ struct OurVertexShaderOutput {
     @location(0) texcoord : vec2f,
 };
 
-
 @vertex fn vs(
 @builtin(vertex_index) vertexIndex : u32
 ) -> OurVertexShaderOutput {

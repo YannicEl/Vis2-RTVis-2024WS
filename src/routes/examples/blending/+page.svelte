@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import shaderRed from './red.wgsl?raw';
-	import shaderTexture from './renderTexture.wgsl?raw';
+	import renderTexture from './renderTexture.wgsl?raw';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -97,7 +97,7 @@
 		// RENDER PASS 2
 
 		const module2 = device.createShaderModule({
-			code: shaderTexture,
+			code: renderTexture,
 		});
 
 		const pipeline2 = device.createRenderPipeline({
@@ -116,42 +116,45 @@
 
 		const sampler = device.createSampler();
 		const bindGroup2 = device.createBindGroup({
+			label: 'BIND GROUPO 2',
 			layout: pipeline2.getBindGroupLayout(0),
 			entries: [
-				{ binding: 0, resource: sampler },
-				{ binding: 1, resource: texture.createView() },
+				// { binding: 0, resource: sampler },
+				// { binding: 1, resource: texture.createView() },
 			],
 		});
 
-		const renderPassDescriptor2 = {
-			label: 'our basic canvas renderPass',
-			colorAttachments: [
-				{
-					// view: <- to be filled out when we render
-					clearValue: [0.3, 0.3, 0.3, 1],
-					loadOp: 'clear',
-					storeOp: 'store',
-				},
-			],
-		};
+		// const renderPassDescriptor2 = {
+		// 	label: 'our basic canvas renderPass',
+		// 	colorAttachments: [
+		// 		{
+		// 			// view: <- to be filled out when we render
+		// 			clearValue: [0.3, 0.3, 0.3, 1],
+		// 			loadOp: 'clear',
+		// 			storeOp: 'store',
+		// 		},
+		// 	],
+		// };
 
-		function render2() {
-			// Get the current texture from the canvas context and
-			// set it as the texture to render to.
-			renderPassDescriptor2.colorAttachments[0].view = context.getCurrentTexture().createView();
+		// function render2() {
+		// 	// Get the current texture from the canvas context and
+		// 	// set it as the texture to render to.
+		// 	renderPassDescriptor2.colorAttachments[0].view = context.getCurrentTexture().createView();
 
-			const encoder = device.createCommandEncoder({
-				label: 'render quad encoder',
-			});
-			const pass = encoder.beginRenderPass(renderPassDescriptor2);
-			pass.setPipeline(pipeline2);
-			pass.setBindGroup(0, bindGroup2);
-			pass.draw(6); // call our vertex shader 6 times
-			pass.end();
+		// 	const encoder = device.createCommandEncoder({
+		// 		label: 'render quad encoder',
+		// 	});
+		// 	const pass = encoder.beginRenderPass(renderPassDescriptor2);
+		// 	pass.setPipeline(pipeline2);
+		// 	pass.setBindGroup(0, bindGroup2);
+		// 	pass.draw(6); // call our vertex shader 6 times
+		// 	pass.end();
 
-			const commandBuffer = encoder.finish();
-			device.queue.submit([commandBuffer]);
-		}
+		// 	const commandBuffer = encoder.finish();
+		// 	device.queue.submit([commandBuffer]);
+		// }
+
+		// render2();
 	});
 </script>
 
