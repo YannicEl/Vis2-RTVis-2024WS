@@ -48,8 +48,6 @@
 
 			// const controls = new ArcballControls2({ eventSource: canvas, camera, distance: -16 });
 
-			console.time('Compute');
-
 			const { device } = await initWebGPU({
 				deviceOptions: (adapter) => ({
 					requiredLimits: { maxBufferSize: adapter.limits.maxBufferSize },
@@ -111,28 +109,32 @@
 				return (to - from) * ((value - min) / (max - min)) + from;
 			}
 
+			const width = 128;
+			const height = 128;
+			const depth = 128;
+
 			for (let i = 0; i < atoms_2.length; i++) {
 				const atom = atoms_2[i];
 				const [x, y, z] = atom.position;
 
 				atom.position = vec3.create(
-					normalize(x, dimensions.width.min, dimensions.width.max, 0, 16),
-					normalize(y, dimensions.height.min, dimensions.height.max, 0, 16),
-					normalize(z, dimensions.depth.min, dimensions.depth.max, 0, 16)
+					normalize(x, dimensions.width.min, dimensions.width.max, 0, width),
+					normalize(y, dimensions.height.min, dimensions.height.max, 0, height),
+					normalize(z, dimensions.depth.min, dimensions.depth.max, 0, depth)
 				);
 			}
 
-			console.time();
+			console.time('Compute SDF Texture');
 			const texture = await compute3DTexture({
 				device,
-				width: 16,
-				height: 16,
-				depth: 16,
-				radius: 0.25,
-				scale: 32,
+				width,
+				height,
+				depth,
+				radius: 4,
+				scale: 5,
 				atoms: atoms_2,
 			});
-			console.timeEnd();
+			console.timeEnd('Compute SDF Texture');
 
 			const threeCamera = new THREE.PerspectiveCamera(
 				60,
@@ -140,7 +142,7 @@
 				0.1,
 				2000
 			);
-			threeCamera.position.z = 30;
+			threeCamera.position.z = 80;
 
 			const controls = new OrbitControls(threeCamera, canvas);
 			controls.minDistance = 0;

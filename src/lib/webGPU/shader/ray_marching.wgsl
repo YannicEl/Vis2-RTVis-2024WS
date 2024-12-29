@@ -49,12 +49,11 @@ fn fragment(
   ray_direction = normalize(ray_direction);
 
   return ray_march(ray_origin, ray_direction);
-
 }
 
-const NUMBER_OF_STEPS = 100;
+const NUMBER_OF_STEPS = 1000;
 const MINIMUM_HIT_DISTANCE = 0.001;
-const MAXIMUM_TRACE_DISTANCE = 1000.0;
+const MAXIMUM_TRACE_DISTANCE = 1000;
 
 // https://michaelwalczyk.com/blog-ray-marching.html
 fn ray_march(
@@ -91,9 +90,9 @@ fn ray_march(
 
 fn atoms_SDF(position: vec3f) -> f32 {
   // TODO: no hardcoded values
-  let height: f32 = 16;
-  let width: f32 = 16;
-  let depth: f32 = 16;
+  let height: f32 = 64;
+  let width: f32 = 64;
+  let depth: f32 = 64;
 
   if(
     position.x >= -width && position.x <= width &&
