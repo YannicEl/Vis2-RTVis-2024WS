@@ -64,15 +64,9 @@
 			usage:
 				GPUTextureUsage.TEXTURE_BINDING |
 				GPUTextureUsage.COPY_DST |
-				GPUTextureUsage.RENDER_ATTACHMENT,
+				GPUTextureUsage.RENDER_ATTACHMENT |
+				GPUTextureUsage.COPY_SRC,
 		});
-
-		console.log('texture', texture.createView());
-		console.log(
-			'context.getCurrentTexture().createView()',
-			context.getCurrentTexture().createView()
-		);
-		console.log('presentationFormat', presentationFormat);
 
 		function render() {
 			// Get the current texture from the canvas context and
@@ -98,6 +92,7 @@
 
 		const module2 = device.createShaderModule({
 			code: renderTexture,
+			label: 'renderTexture shader code',
 		});
 
 		const pipeline2 = device.createRenderPipeline({
@@ -119,42 +114,36 @@
 			label: 'BIND GROUPO 2',
 			layout: pipeline2.getBindGroupLayout(0),
 			entries: [
-				// { binding: 0, resource: sampler },
-				// { binding: 1, resource: texture.createView() },
+				{ binding: 0, resource: sampler },
+				{ binding: 1, resource: texture.createView() },
 			],
 		});
 
-		// const renderPassDescriptor2 = {
-		// 	label: 'our basic canvas renderPass',
-		// 	colorAttachments: [
-		// 		{
-		// 			// view: <- to be filled out when we render
-		// 			clearValue: [0.3, 0.3, 0.3, 1],
-		// 			loadOp: 'clear',
-		// 			storeOp: 'store',
-		// 		},
-		// 	],
-		// };
+		function render2() {
+			const encoder = device.createCommandEncoder({
+				label: 'render quad encoder',
+			});
+			const pass = encoder.beginRenderPass({
+				label: 'our basic canvas renderPass',
+				colorAttachments: [
+					{
+						view: context.getCurrentTexture().createView(),
+						clearValue: [0.3, 0.3, 0.3, 1],
+						loadOp: 'clear',
+						storeOp: 'store',
+					},
+				],
+			});
+			pass.setPipeline(pipeline2);
+			pass.setBindGroup(0, bindGroup2);
+			pass.draw(6); // call our vertex shader 6 times
+			pass.end();
 
-		// function render2() {
-		// 	// Get the current texture from the canvas context and
-		// 	// set it as the texture to render to.
-		// 	renderPassDescriptor2.colorAttachments[0].view = context.getCurrentTexture().createView();
+			const commandBuffer = encoder.finish();
+			device.queue.submit([commandBuffer]);
+		}
 
-		// 	const encoder = device.createCommandEncoder({
-		// 		label: 'render quad encoder',
-		// 	});
-		// 	const pass = encoder.beginRenderPass(renderPassDescriptor2);
-		// 	pass.setPipeline(pipeline2);
-		// 	pass.setBindGroup(0, bindGroup2);
-		// 	pass.draw(6); // call our vertex shader 6 times
-		// 	pass.end();
-
-		// 	const commandBuffer = encoder.finish();
-		// 	device.queue.submit([commandBuffer]);
-		// }
-
-		// render2();
+		render2();
 	});
 </script>
 
