@@ -45,12 +45,12 @@ export class Renderer {
 		});
 	}
 
-	render(scene: Scene, camera: Camera): void {
+	render(scene: Scene, camera: Camera, view?: GPUTextureView): void {
 		const commandEncoder = this.#device.createCommandEncoder();
 		const renderPassDescriptor: GPURenderPassDescriptor = {
 			colorAttachments: [
 				{
-					view: this.#context.getCurrentTexture().createView(),
+					view: view ? view : this.#context.getCurrentTexture().createView(),
 					clearValue: this.#clearColor.value,
 					loadOp: 'clear',
 					storeOp: 'store',
