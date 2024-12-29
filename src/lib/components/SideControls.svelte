@@ -20,7 +20,6 @@
 			{ label: 'Rotation', value: 'rotation' },
 			{ label: 'Compute', value: 'compute' },
 			{ label: 'Blending', value: 'blending' },
-			{ label: 'Blending 2', value: 'blending-2' },
 			{ label: 'Three.js', value: 'three' },
 		],
 	});
