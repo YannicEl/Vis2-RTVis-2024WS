@@ -11,15 +11,14 @@
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
 	import { getSettings } from '$lib/settings.svelte';
-	import { degToRad } from '$lib/webGPU/helpers/helpers';
 	import { mat4, vec3 } from 'wgpu-matrix';
 	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { compute3DTexture } from '$lib/computeShader';
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-	import { UniformBuffer } from '$lib/webGPU/utils/UniformBuffer';
-	import { log } from 'three/tsl';
+	import { loadPDBLocal } from '$lib/mol/pdbLoader';
+	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -61,10 +60,10 @@
 			const geometry = new SphereGeometry();
 
 			const atom1 = new SceneObject(geometry, colorMaterial);
-			atom1.setPosition(vec3.create(5, 7, 7));
+			atom1.setPosition(vec3.create(7.5, 7.5, 7.5));
 
 			const atom2 = new SceneObject(geometry, colorMaterial);
-			atom2.setPosition(vec3.create(10, 7, 7));
+			atom2.setPosition(vec3.create(11, 7.5, 7.5));
 
 			const atom3 = new SceneObject(geometry, colorMaterial);
 			atom3.setPosition(vec3.create(15, 0, 8));
@@ -77,15 +76,61 @@
 
 			const atoms = [atom1, atom2]; //, atom2, atom3, atom4, atom5];
 
+			const PDB = await loadPDBLocal('example');
+			if (!PDB) return;
+			const atoms_2 = createPdbGeometry(PDB);
+
+			let dimensions = {
+				width: { min: 0, max: 0 },
+				height: { min: 0, max: 0 },
+				depth: { min: 0, max: 0 },
+			};
+
+			const padding = 2;
+			for (let i = 0; i < atoms_2.length; i++) {
+				const atom = atoms_2[i];
+				const [x, y, z] = atom.position;
+
+				dimensions.width.min = Math.min(dimensions.width.min, x - padding);
+				dimensions.width.max = Math.max(dimensions.width.max, x + padding);
+
+				dimensions.height.min = Math.min(dimensions.height.min, y - padding);
+				dimensions.height.max = Math.max(dimensions.height.max, y + padding);
+
+				dimensions.depth.min = Math.min(dimensions.depth.min, z - padding);
+				dimensions.depth.max = Math.max(dimensions.depth.max, z + padding);
+			}
+
+			function normalize(
+				value: number,
+				min: number,
+				max: number,
+				from: number,
+				to: number
+			): number {
+				return (to - from) * ((value - min) / (max - min)) + from;
+			}
+
+			for (let i = 0; i < atoms_2.length; i++) {
+				const atom = atoms_2[i];
+				const [x, y, z] = atom.position;
+
+				atom.position = vec3.create(
+					normalize(x, dimensions.width.min, dimensions.width.max, 0, 16),
+					normalize(y, dimensions.height.min, dimensions.height.max, 0, 16),
+					normalize(z, dimensions.depth.min, dimensions.depth.max, 0, 16)
+				);
+			}
+
 			console.time();
 			const texture = await compute3DTexture({
 				device,
 				width: 16,
 				height: 16,
 				depth: 16,
-				radius: 3,
-				scale: 16,
-				atoms,
+				radius: 0.25,
+				scale: 32,
+				atoms: atoms_2,
 			});
 			console.timeEnd();
 
@@ -95,7 +140,7 @@
 				0.1,
 				2000
 			);
-			threeCamera.position.z = 50;
+			threeCamera.position.z = 30;
 
 			const controls = new OrbitControls(threeCamera, canvas);
 			controls.minDistance = 0;

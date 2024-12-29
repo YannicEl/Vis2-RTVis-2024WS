@@ -10,8 +10,8 @@ struct Uniforms {
 }
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
-@group(0) @binding(2) var ourSampler: sampler;
-@group(0) @binding(3) var ourTexture: texture_3d<f32>;
+@group(0) @binding(2) var sdf_sampler: sampler;
+@group(0) @binding(3) var sdf_texture: texture_3d<f32>;
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
@@ -25,7 +25,6 @@ struct VertexInput {
 @vertex
 fn vertex(
   input: VertexInput,
-  @builtin(vertex_index) vertexIndex : u32
 ) -> VertexOutput {
   var output: VertexOutput;
 
@@ -97,14 +96,23 @@ fn atoms_SDF(position: vec3f) -> f32 {
   let depth: f32 = 16;
 
   if(
-    position.x >= 0 && position.x <= width &&
-    position.y >= 0 && position.y <= height &&
-    position.z >= 0 && position.z <= depth
+    position.x >= -width && position.x <= width &&
+    position.y >= -height && position.y <= height &&
+    position.z >= -depth && position.z <= depth
   ) {
-    let sample = textureSample(ourTexture, ourSampler, vec3f(position.x / width, position.y / height, position.z / depth));
+    let pixel = vec3f(
+      normalize_lol(position.x, -width, width), 
+      normalize_lol(position.y, -height, height), 
+      normalize_lol(position.z, -depth, depth),
+    );
+    let sample = textureSample(sdf_texture, sdf_sampler, pixel);
     return sample.r;
   } else {
     // TODO should be shortest distance between position and texture cube
     return 1;
   }
+}
+
+fn normalize_lol(value: f32, min: f32, max: f32) -> f32 {
+  return (value - min) / (max - min);
 }

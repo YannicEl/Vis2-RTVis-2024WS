@@ -50,11 +50,10 @@ export async function compute3DTexture({
 			module: device.createShaderModule({ code: computeShader }),
 			constants: {
 				radius,
+				scale,
 			},
 		},
 	});
-
-	let usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST;
 
 	// In the shader the buffer has the type array<vec3f>.
 	// Each vec3f is 3 bytes long + 1 byte of padding.
@@ -65,7 +64,7 @@ export async function compute3DTexture({
 
 	const atomsBuffer = device.createBuffer({
 		size: atomsBufferData.byteLength,
-		usage,
+		usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
 	});
 	device.queue.writeBuffer(atomsBuffer, 0, atomsBufferData);
 

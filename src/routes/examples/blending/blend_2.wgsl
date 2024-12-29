@@ -10,7 +10,6 @@ struct VertexOutput {
 @vertex
 fn vertex(
 input : VertexInput,
-@builtin(vertex_index) vertexIndex : u32
 ) -> VertexOutput {
   var output : VertexOutput;
 
