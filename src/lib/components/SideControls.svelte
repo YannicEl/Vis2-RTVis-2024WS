@@ -18,7 +18,6 @@
 			{ label: 'Molecules', value: 'molecules' },
 			{ label: 'Ray marching', value: 'ray-marching' },
 			{ label: 'Rotation', value: 'rotation' },
-			{ label: 'Compute', value: 'compute' },
 			{ label: 'Blending', value: 'blending' },
 			{ label: 'Three.js', value: 'three' },
 		],
