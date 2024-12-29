@@ -1,13 +1,17 @@
 diagnostic(off, derivative_uniformity);
 
-// https://michaelwalczyk.com/blog-ray-marching.html
-
-struct VertexUniform {
-  viewProjectionMatrix: mat4x4f,
-  modelMatrix: mat4x4f,
+struct Uniforms {
+  fragmentColor: vec4f,
+  clearColor: vec4f,
+  cameraPosition: vec3f,
+  aspectRatio: f32,
+  inverseProjectionMatrix: mat4x4f,
+  cameraToWorldMatrix: mat4x4f,
 }
 
-@group(0) @binding(0) var<uniform> vertexUniform: VertexUniform;
+@group(0) @binding(1) var<uniform> uniforms: Uniforms;
+@group(0) @binding(2) var ourSampler: sampler;
+@group(0) @binding(3) var ourTexture: texture_3d<f32>;
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
@@ -25,37 +29,24 @@ fn vertex(
 ) -> VertexOutput {
   var output: VertexOutput;
 
-  let lol = vertexUniform.viewProjectionMatrix * vertexUniform.modelMatrix;
-
   output.position = input.position;
   output.texcoord = vec2f((input.position.x + 1) / 2, (input.position.y + 1) / 2);
-  output.texcoord.x *= fragmentUniform.aspectRatio;
+  output.texcoord.x *= uniforms.aspectRatio;
 
   return output;
 }
 
 // -------------- //
 
-struct FragmentUniform {
-  fragmentColor: vec4f,
-  clearColor: vec4f,
-  cameraPosition: vec3f,
-  aspectRatio: f32,
-  inverseProjectionMatrix: mat4x4f,
-  cameraToWorldMatrix: mat4x4f,
-}
-
-@group(0) @binding(1) var<uniform> fragmentUniform: FragmentUniform;
-@group(0) @binding(2) var ourSampler: sampler;
-@group(0) @binding(3) var ourTexture: texture_3d<f32>;
-
 @fragment
 fn fragment(
   input: VertexOutput
 ) -> @location(0) vec4f {
-  let ray_origin = fragmentUniform.cameraPosition;
-  var ray_direction =  (fragmentUniform.inverseProjectionMatrix * vec4f(input.texcoord * 2. - 1., 0, 1)).xyz;
-  ray_direction = (fragmentUniform.cameraToWorldMatrix * vec4f(ray_direction, 0)).xyz;
+  let ray_origin = uniforms.cameraPosition;
+
+  // the following three lines are from: https://codepen.io/NabilNYMansour/pen/JjqoLJe?editors=0010
+  var ray_direction =  (uniforms.inverseProjectionMatrix * vec4f(input.texcoord * 2. - 1., 0, 1)).xyz;
+  ray_direction = (uniforms.cameraToWorldMatrix * vec4f(ray_direction, 0)).xyz;
   ray_direction = normalize(ray_direction);
 
   return ray_march(ray_origin, ray_direction);
@@ -66,7 +57,7 @@ const NUMBER_OF_STEPS = 100;
 const MINIMUM_HIT_DISTANCE = 0.001;
 const MAXIMUM_TRACE_DISTANCE = 1000.0;
 
-
+// https://michaelwalczyk.com/blog-ray-marching.html
 fn ray_march(
   ray_origin: vec3f, 
   ray_direction: vec3f,
@@ -84,7 +75,7 @@ fn ray_march(
 
     // hit
     if (distance_to_closest < MINIMUM_HIT_DISTANCE) {
-      return fragmentUniform.fragmentColor;
+      return uniforms.fragmentColor;
     }
 
     // miss
@@ -96,7 +87,7 @@ fn ray_march(
     total_distance_traveled += distance_to_closest;
   }
 
-  return fragmentUniform.clearColor;
+  return uniforms.clearColor;
 }
 
 fn atoms_SDF(position: vec3f) -> f32 {

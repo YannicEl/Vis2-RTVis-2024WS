@@ -45,7 +45,10 @@ export class Renderer {
 		});
 	}
 
-	render(scene: Scene, camera: Camera, view?: GPUTextureView): void {
+	render(
+		scene: Scene,
+		{ camera, view }: Partial<{ camera: Camera; view: GPUTextureView }> = {}
+	): void {
 		const commandEncoder = this.#device.createCommandEncoder();
 		const renderPassDescriptor: GPURenderPassDescriptor = {
 			colorAttachments: [

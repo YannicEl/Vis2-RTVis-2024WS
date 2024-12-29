@@ -35,18 +35,17 @@
 		const scene2 = getScene2(texture);
 
 		const renderer = new Renderer({ context, device, clearColor: 'white' });
-		const camera = new Camera();
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
 
-			renderer.render(scene1, camera, texture.createView(device));
-			renderer.render(scene2, camera);
+			renderer.render(scene1, { view: texture.createView(device) });
+			renderer.render(scene2);
 		});
 
 		function getScene1(): Scene {
 			const geometry = new QuadGeometry();
-			const material = new ShaderMaterial(shader_1);
+			const material = new ShaderMaterial(shader_1, { requiresModelUniforms: false });
 			const quad = new SceneObject(geometry, material);
 			const scene = new Scene([quad]);
 			scene.load(device);
@@ -56,7 +55,7 @@
 
 		function getScene2(texture: Texture): Scene {
 			const geometry = new QuadGeometry();
-			const material = new ShaderMaterial(shader_2);
+			const material = new ShaderMaterial(shader_2, { requiresModelUniforms: false });
 			const quad = new SceneObject(geometry, material, texture);
 			const scene = new Scene([quad]);
 			scene.load(device);

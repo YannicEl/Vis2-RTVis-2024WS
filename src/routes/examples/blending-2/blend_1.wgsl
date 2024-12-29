@@ -1,10 +1,3 @@
-struct VertexUniform {
-  viewProjectionMatrix: mat4x4f,
-  modelMatrix: mat4x4f,
-}
-
-@group(0) @binding(0) var<uniform> vertexUniform: VertexUniform;
-
 struct VertexInput {
   @location(0) position: vec4f,
 }
@@ -20,9 +13,6 @@ fn vertex(
   @builtin(vertex_index) vertexIndex : u32
 ) -> VertexOutput {
   var output: VertexOutput;
-
-  // Die Zeile ist wichtig sonst geht es nicht. Man muss viewProjectionMatrix und modelMatrix irgendwo verwenden.
-  let lol = vertexUniform.viewProjectionMatrix * vertexUniform.modelMatrix;
 
   output.position = input.position;
   output.texcoord = vec2f((input.position.x + 1) / 2, (input.position.y + 1) / 2);

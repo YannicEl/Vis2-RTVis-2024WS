@@ -19,8 +19,8 @@ export class Scene {
 		}
 	}
 
-	render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera: Camera): void {
-		const { viewProjectionMatrix } = camera;
+	render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera?: Camera): void {
+		const { viewProjectionMatrix } = camera ?? {};
 
 		for (const child of this.#children) {
 			child.render(device, passEncoder, viewProjectionMatrix);

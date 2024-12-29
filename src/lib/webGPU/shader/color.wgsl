@@ -1,9 +1,14 @@
-struct VertexUniform {
+struct ModelUniforms {
   viewProjectionMatrix: mat4x4f,
   modelMatrix: mat4x4f,
 }
 
-@group(0) @binding(0) var<uniform> vertexUniform: VertexUniform;
+struct Uniforms {
+  color: vec4f
+}
+
+@group(0) @binding(0) var<uniform> modelUniforms: ModelUniforms;
+@group(0) @binding(1) var<uniform> uniforms: Uniforms;
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
@@ -19,18 +24,16 @@ fn vertex(
 ) -> VertexOutput {
   var output: VertexOutput;
   
-  output.position = vertexUniform.viewProjectionMatrix * vertexUniform.modelMatrix * input.position;
+  output.position = modelUniforms.viewProjectionMatrix * modelUniforms.modelMatrix * input.position;
 
   return output;
 }
 
 // -------------- //
 
-@group(0) @binding(1) var<uniform> color: vec4f;
-
 @fragment
 fn fragment(
   input: VertexOutput
 ) -> @location(0) vec4f {
-  return color;
+  return uniforms.color;
 }

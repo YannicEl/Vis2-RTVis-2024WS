@@ -9,6 +9,7 @@ export type MaterialParams = {
 	vertexShader: GPUShaderModuleDescriptor;
 	fragmentShader: GPUShaderModuleDescriptor;
 	uniformBuffer?: UniformBuffer;
+	requiresModelUniforms?: boolean;
 };
 
 export abstract class Material {
@@ -17,10 +18,18 @@ export abstract class Material {
 
 	#uniformBuffer?: UniformBuffer;
 
-	constructor({ vertexShader, fragmentShader, uniformBuffer }: MaterialParams) {
+	requiresModelUniforms: boolean;
+
+	constructor({
+		vertexShader,
+		fragmentShader,
+		uniformBuffer,
+		requiresModelUniforms = true,
+	}: MaterialParams) {
 		this.#vertexShader = vertexShader;
 		this.#fragmentShader = fragmentShader;
 		this.#uniformBuffer = uniformBuffer;
+		this.requiresModelUniforms = requiresModelUniforms;
 	}
 
 	load(device: GPUDevice) {

@@ -56,6 +56,7 @@ export class RayMarchingMaterial extends Material {
 				code: rayMarchingShader,
 			},
 			uniformBuffer: buffer,
+			requiresModelUniforms: false,
 		});
 
 		this.#buffer = buffer;

@@ -49,6 +49,8 @@ export class UniformBuffer<T extends string = any> {
 
 	set(values: Partial<Record<T, ArrayLike<number>>>) {
 		for (const key in values) {
+			if (!(key in this.offsets)) continue;
+
 			const value = values[key];
 			if (value) {
 				this.value.set(value, this.offsets[key]);

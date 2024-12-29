@@ -38,7 +38,7 @@
 			const atom_a1 = new SceneObject(sphereGeometry, colorWhite);
 			const atom_a2 = new SceneObject(sphereGeometry, colorWhite);
 			const stick_a = new SceneObject(cylinderGeometry, colorBlue);
-			
+
 			const atom_b1 = new SceneObject(sphereGeometry, colorWhite);
 			const atom_b2 = new SceneObject(sphereGeometry, colorWhite);
 			const stick_b = new SceneObject(cylinderGeometry, colorBlue);
@@ -62,8 +62,8 @@
 				let dot_u1u2 = vec3.dot(u1, u2);
 				let angle = Math.acos(dot_u1u2);
 				let axis = vec3.cross(u1, u2);
-				stick.setRotation(180 * angle / Math.PI, axis);
-				
+				stick.setRotation((180 * angle) / Math.PI, axis);
+
 				stick.translate(vec3.divScalar(vec3.add(atom1.position, atom2.position), 2));
 			};
 
@@ -140,7 +140,7 @@
 
 				controls.update(deltaTime);
 
-				renderer.render(scene, camera);
+				renderer.render(scene, { camera });
 			});
 		} catch (error) {
 			alert(error);

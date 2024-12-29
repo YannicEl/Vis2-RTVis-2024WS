@@ -154,7 +154,7 @@
 
 				controls.update(deltaTime);
 
-				renderer.render(scene, camera);
+				renderer.render(scene, { camera });
 			});
 		} catch (error) {
 			alert(error);

@@ -13,7 +13,7 @@ export class SceneObject extends Object3D {
 	#pipeline?: GPURenderPipeline;
 	#uniformBindGroup?: GPUBindGroup;
 
-	#vertexUniformBuffer: UniformBuffer<'viewProjectionMatrix' | 'modelMatrix'>;
+	#modelUniformBuffer?: UniformBuffer<'viewProjectionMatrix' | 'modelMatrix'>;
 
 	constructor(geometry: Geometry, material: Material, texture?: Texture) {
 		super();
@@ -21,27 +21,29 @@ export class SceneObject extends Object3D {
 		this.#geometry = geometry;
 		this.#material = material;
 		this.#texture = texture;
-		this.#vertexUniformBuffer = new UniformBuffer(
-			{
-				viewProjectionMatrix: 'mat4',
-				modelMatrix: 'mat4',
-			},
-			'SceneObject Vertex Uniform Buffer'
-		);
+
+		if (material.requiresModelUniforms) {
+			this.#modelUniformBuffer = new UniformBuffer(
+				{
+					viewProjectionMatrix: 'mat4',
+					modelMatrix: 'mat4',
+				},
+				'SceneObject Model Uniform Buffer'
+			);
+		}
 	}
 
 	load(device: GPUDevice): void {
 		const { vertexShaderModule, fragmentShaderModule, uniformBuffer } = this.#material.load(device);
 		this.#geometry.load(device);
 
-		this.#vertexUniformBuffer.load(device);
+		this.#modelUniformBuffer?.load(device);
 
 		this.#pipeline = device.createRenderPipeline({
 			label: 'SceneObject Render Pipeline',
 			layout: 'auto',
 			vertex: {
 				module: vertexShaderModule,
-				entryPoint: 'vertex',
 				buffers: [
 					{
 						arrayStride: 4 * 3,
@@ -58,7 +60,6 @@ export class SceneObject extends Object3D {
 			},
 			fragment: {
 				module: fragmentShaderModule,
-				entryPoint: 'fragment',
 				targets: [
 					{
 						format: navigator.gpu.getPreferredCanvasFormat(),
@@ -76,21 +77,19 @@ export class SceneObject extends Object3D {
 			},
 		});
 
-		const bindGroupDescriptor = {
-			label: 'Uniform Bind Group',
-			layout: this.#pipeline.getBindGroupLayout(0),
-			entries: [
-				{
-					binding: 0,
-					resource: {
-						buffer: this.#vertexUniformBuffer.buffer!,
-					},
+		const entries: GPUBindGroupEntry[] = [];
+
+		if (this.#modelUniformBuffer?.buffer) {
+			entries.push({
+				binding: 0,
+				resource: {
+					buffer: this.#modelUniformBuffer.buffer,
 				},
-			],
-		} satisfies GPUBindGroupDescriptor;
+			});
+		}
 
 		if (uniformBuffer?.buffer) {
-			bindGroupDescriptor.entries.push({
+			entries.push({
 				binding: 1,
 				resource: {
 					buffer: uniformBuffer.buffer,
@@ -99,37 +98,48 @@ export class SceneObject extends Object3D {
 		}
 
 		if (this.#texture) {
-			bindGroupDescriptor.entries.push({
+			entries.push({
 				binding: 2,
 				resource: device.createSampler({ magFilter: 'linear' }),
 			});
-			bindGroupDescriptor.entries.push({
+			entries.push({
 				binding: 3,
 				resource: this.#texture.createView(device),
 			});
 		}
+
+		const emptyBindGroupLayout = device.createBindGroupLayout({
+			entries: [],
+		});
+
+		const bindGroupDescriptor: GPUBindGroupDescriptor = {
+			label: 'Uniform Bind Group',
+			layout: entries.length ? this.#pipeline.getBindGroupLayout(0) : emptyBindGroupLayout,
+			entries,
+		};
 
 		this.#uniformBindGroup = device.createBindGroup(bindGroupDescriptor);
 	}
 
 	update(deltaTime: number): void {}
 
-	render(device: GPUDevice, encoder: GPURenderPassEncoder, viewProjectionMatrix: Mat4): void {
+	render(device: GPUDevice, encoder: GPURenderPassEncoder, viewProjectionMatrix?: Mat4): void {
 		if (
 			!this.#pipeline ||
 			!this.#uniformBindGroup ||
-			!this.#vertexUniformBuffer ||
 			!this.#geometry.vertexBuffer ||
 			!this.#geometry.indexBuffer
 		) {
 			throw new Error('SceneObject not loaded');
 		}
 
-		this.#vertexUniformBuffer.set({
-			viewProjectionMatrix: viewProjectionMatrix,
-			modelMatrix: this.modelMatrix,
-		});
-		this.#vertexUniformBuffer.write(device);
+		if (this.#modelUniformBuffer) {
+			this.#modelUniformBuffer.set({
+				viewProjectionMatrix: viewProjectionMatrix,
+				modelMatrix: this.modelMatrix,
+			});
+			this.#modelUniformBuffer.write(device);
+		}
 
 		encoder.setPipeline(this.#pipeline);
 		encoder.setBindGroup(0, this.#uniformBindGroup);
