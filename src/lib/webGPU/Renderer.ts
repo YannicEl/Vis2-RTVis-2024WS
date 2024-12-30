@@ -27,7 +27,7 @@ export class Renderer {
 		context.configure({
 			device,
 			format: presentationFormat,
-			alphaMode: 'opaque',
+			alphaMode: 'premultiplied',
 		});
 
 		if (typeof clearColor === 'string') {

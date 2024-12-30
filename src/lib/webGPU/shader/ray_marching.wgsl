@@ -73,7 +73,14 @@ fn ray_march(
 
     // hit
     if (distance_to_closest < MINIMUM_HIT_DISTANCE) {
-      return uniforms.fragmentColor;
+      // pre-multiply alpha to the color. https://stackoverflow.com/a/12290551
+      // let alpha = 1.0 - total_distance_traveled / MAXIMUM_TRACE_DISTANCE;
+
+
+      let alpha = 0.5;
+      let color = vec4f(uniforms.fragmentColor.r * alpha, uniforms.fragmentColor.g * alpha, uniforms.fragmentColor.b * alpha, alpha);
+      return color;
+      // return uniforms.fragmentColor;
     }
 
     // miss
