@@ -12,39 +12,31 @@ export type RayMarchingMaterialParams = {
 	aspectRatio: number;
 	inverseProjectionMatrix: Mat4;
 	cameraToWorldMatrix: Mat4;
+	numberOfSteps: number;
+	minimumHitDistance: number;
+	maximumTraceDistance: number;
 };
 
 export class RayMarchingMaterial extends Material {
 	#buffer?: UniformBuffer<keyof RayMarchingMaterialParams>;
 
-	constructor({
-		clearColor,
-		fragmentColor,
-		cameraPosition,
-		aspectRatio,
-		inverseProjectionMatrix,
-		cameraToWorldMatrix,
-	}: RayMarchingMaterialParams) {
+	constructor(params: RayMarchingMaterialParams) {
 		const buffer = new UniformBuffer(
 			{
 				fragmentColor: 'vec4',
 				clearColor: 'vec4',
 				cameraPosition: 'vec3',
-				aspectRatio: 'f32',
 				inverseProjectionMatrix: 'mat4',
 				cameraToWorldMatrix: 'mat4',
+				aspectRatio: 'f32',
+				numberOfSteps: 'i32',
+				minimumHitDistance: 'f32',
+				maximumTraceDistance: 'f32',
 			},
 			'Ray Marching Material Buffer'
 		);
 
-		buffer.set({
-			clearColor: Color.fromCssString(clearColor).value,
-			fragmentColor: Color.fromCssString(fragmentColor).value,
-			cameraPosition,
-			aspectRatio: [aspectRatio],
-			inverseProjectionMatrix,
-			cameraToWorldMatrix,
-		});
+		console.log(buffer.value);
 
 		super({
 			vertexShader: {
@@ -60,29 +52,29 @@ export class RayMarchingMaterial extends Material {
 		});
 
 		this.#buffer = buffer;
+		this.updateBufferValues(params);
 	}
 
-	update(
-		device: GPUDevice,
-		{
-			clearColor,
-			fragmentColor,
-			cameraPosition,
-			aspectRatio,
-			inverseProjectionMatrix,
-			cameraToWorldMatrix,
-		}: Partial<RayMarchingMaterialParams>
-	) {
-		if (this.#buffer) {
-			if (clearColor) this.#buffer.set({ clearColor: Color.fromCssString(clearColor).value });
-			if (fragmentColor)
-				this.#buffer.set({ fragmentColor: Color.fromCssString(fragmentColor).value });
-			if (cameraPosition) this.#buffer.set({ cameraPosition });
-			if (aspectRatio) this.#buffer.set({ aspectRatio: [aspectRatio] });
-			if (inverseProjectionMatrix) this.#buffer.set({ inverseProjectionMatrix });
-			if (cameraToWorldMatrix) this.#buffer.set({ cameraToWorldMatrix });
+	private updateBufferValues(params: Partial<RayMarchingMaterialParams>): void {
+		if (!this.#buffer) return;
+		Object.entries(params).forEach(([key, value]) => {
+			let newValue: ArrayLike<number>;
+			if (typeof value === 'string') {
+				newValue = Color.fromCssString(value).value;
+			} else if (typeof value === 'number') {
+				newValue = [value];
+			} else {
+				newValue = value;
+			}
 
-			this.#buffer.write(device);
-		}
+			this.#buffer?.set({ [key]: newValue });
+		});
+	}
+
+	update(device: GPUDevice, params: Partial<RayMarchingMaterialParams>) {
+		if (!this.#buffer) return;
+		this.updateBufferValues(params);
+
+		this.#buffer.write(device);
 	}
 }

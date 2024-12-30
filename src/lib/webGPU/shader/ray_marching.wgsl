@@ -4,9 +4,12 @@ struct Uniforms {
   fragmentColor: vec4f,
   clearColor: vec4f,
   cameraPosition: vec3f,
-  aspectRatio: f32,
   inverseProjectionMatrix: mat4x4f,
   cameraToWorldMatrix: mat4x4f,
+  aspectRatio: f32,
+  numberOfSteps: i32,
+  minimumHitDistance: f32,
+  maximumTraceDistance: f32,
 }
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
@@ -51,9 +54,6 @@ fn fragment(
   return ray_march(ray_origin, ray_direction);
 }
 
-const NUMBER_OF_STEPS = 1000;
-const MINIMUM_HIT_DISTANCE = 0.001;
-const MAXIMUM_TRACE_DISTANCE = 1000;
 
 // https://michaelwalczyk.com/blog-ray-marching.html
 fn ray_march(
@@ -62,7 +62,7 @@ fn ray_march(
 ) -> vec4f {
   var total_distance_traveled = 0.0;
 
-  for (var i = 0; i < NUMBER_OF_STEPS; i++) {
+  for (var i = 0; i < uniforms.numberOfSteps; i++) {
     // Calculate our current position along the ray
     let current_position = ray_origin + total_distance_traveled * ray_direction;
 
@@ -72,9 +72,9 @@ fn ray_march(
     let distance_to_closest: f32 = atoms_SDF(current_position);
 
     // hit
-    if (distance_to_closest < MINIMUM_HIT_DISTANCE) {
+    if (distance_to_closest < uniforms.minimumHitDistance) {
       // pre-multiply alpha to the color. https://stackoverflow.com/a/12290551
-      // let alpha = 1.0 - total_distance_traveled / MAXIMUM_TRACE_DISTANCE;
+      // let alpha = 1.0 - total_distance_traveled / maximumTraceDistance;
 
 
       let alpha = 0.5;
@@ -84,7 +84,7 @@ fn ray_march(
     }
 
     // miss
-    if (total_distance_traveled > MAXIMUM_TRACE_DISTANCE) {
+    if (total_distance_traveled > uniforms.maximumTraceDistance) {
       break;
     }
 

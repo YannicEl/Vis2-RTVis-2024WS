@@ -36,10 +36,7 @@ export abstract class Material {
 		const vertexShaderModule = device.createShaderModule(this.#vertexShader);
 		const fragmentShaderModule = device.createShaderModule(this.#fragmentShader);
 
-		if (this.#uniformBuffer) {
-			this.#uniformBuffer.load(device);
-			this.#uniformBuffer.write(device);
-		}
+		if (this.#uniformBuffer) this.#uniformBuffer.write(device);
 
 		return {
 			vertexShaderModule,

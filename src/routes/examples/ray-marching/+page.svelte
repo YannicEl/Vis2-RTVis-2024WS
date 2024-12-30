@@ -131,7 +131,7 @@
 				height,
 				depth,
 				radius: 4,
-				scale: 5,
+				scale: 3,
 				atoms: atoms_2,
 			});
 			console.timeEnd('Compute SDF Texture');
@@ -159,6 +159,9 @@
 				),
 				inverseProjectionMatrix: mat4.create(...threeCamera.projectionMatrixInverse.elements),
 				cameraToWorldMatrix: mat4.create(...threeCamera.matrixWorld.elements),
+				numberOfSteps: 1000,
+				minimumHitDistance: 0.001,
+				maximumTraceDistance: 1000,
 			});
 
 			const quad = new SceneObject(new QuadGeometry(), material, texture);

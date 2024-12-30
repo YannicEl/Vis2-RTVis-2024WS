@@ -1,10 +1,11 @@
 import { queueBufferWrite } from '../helpers/webGpu';
 
-type DataType = 'f32' | 'vec3' | 'vec4' | 'mat4';
+type DataType = 'i32' | 'f32' | 'vec3' | 'vec4' | 'mat4';
 export type UniformBufferParams<T extends string> = Record<T, DataType>;
 
 export const DATA_TYPE_SIZES: Record<DataType, { size: number; align?: number }> = {
 	f32: { size: 4 },
+	i32: { size: 4 },
 	vec3: { size: 12, align: 16 },
 	vec4: { size: 16 },
 	mat4: { size: 64, align: 16 },
@@ -36,8 +37,6 @@ export class UniformBuffer<T extends string = any> {
 
 		let bufferSize = currentOffset / 4;
 
-		// if (bufferSize * 4 < 16) bufferSize = 4;
-		// if (bufferSize > 16 && bufferSize < 128) bufferSize = 128;
 		this.value = new Float32Array(bufferSize);
 
 		this.descriptor = {
@@ -58,12 +57,13 @@ export class UniformBuffer<T extends string = any> {
 		}
 	}
 
-	load(device: GPUDevice) {
+	load(device: GPUDevice): GPUBuffer {
 		this.buffer = device.createBuffer(this.descriptor);
+		return this.buffer;
 	}
 
 	write(device: GPUDevice) {
-		if (!this.buffer) throw new Error('Buffer not loaded');
-		queueBufferWrite(device, this.buffer, this.value);
+		const buffer = this.buffer ? this.buffer : this.load(device);
+		queueBufferWrite(device, buffer, this.value);
 	}
 }
