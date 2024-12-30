@@ -9,10 +9,28 @@
 	import { Texture } from '$lib/webGPU/texture/Texture';
 	import { Scene } from '$lib/webGPU/Scene';
 	import { Renderer } from '$lib/webGPU/Renderer';
-	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
+	import { loadPDBLocal, loadPDBWeb } from '$lib/mol/pdbLoader';
+	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
+	import { Camera } from '$lib/webGPU/Camera';
+	import { autoResizeCanvas } from '$lib/resizeableCanvas';
+	import { getSettings } from '$lib/settings.svelte';
+	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 
 	let canvas = $state<HTMLCanvasElement>();
+
+	const settings = getSettings();
+	const fovControl = settings.addControl({
+		name: 'FOV',
+		type: 'range',
+		value: 60,
+		min: 0,
+		max: 180,
+	});
+	fovControl.onChange((value) => (camera.fov = value));
+
+	const camera = new Camera();
+	globalState.camera = camera;
 
 	onMount(async () => {
 		if (!canvas) return;
@@ -31,23 +49,42 @@
 				GPUTextureUsage.RENDER_ATTACHMENT,
 		});
 
-		const scene1 = getScene1();
+		const sceneMolecules = await getSceneMolecules();
+		if (!sceneMolecules) {
+			console.error('Failed to load sceneMolecules');
+			return;
+		}
+
 		const scene2 = getScene2(texture);
 
-		const renderer = new Renderer({ context, device, clearColor: 'white' });
+		const renderer = new Renderer({ context, device, clearColor: 'black' });
+
+		autoResizeCanvas({
+			canvas,
+			device,
+			onResize: (canvas) => {
+				camera.aspect = canvas.clientWidth / canvas.clientHeight;
+				renderer.onCanvasResized(canvas.width, canvas.height);
+			},
+		});
+
+		const controls = new ArcballControls({ eventSource: canvas, camera });
+		globalState.contols = controls;
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
 
-			renderer.render(scene1, { view: texture.createView(device) });
+			// renderer.render(sceneMolecules, { camera });
+			renderer.render(sceneMolecules, { view: texture.createView(device), camera: camera });
 			renderer.render(scene2);
 		});
 
-		function getScene1(): Scene {
-			const geometry = new QuadGeometry();
-			const material = new ShaderMaterial(shader_1, { requiresModelUniforms: false });
-			const quad = new SceneObject(geometry, material);
-			const scene = new Scene([quad]);
+		async function getSceneMolecules() {
+			const PDB = await loadPDBLocal('example');
+			if (!PDB) return;
+			const ballsAndSticks = createPdbGeometry(PDB);
+
+			const scene = new Scene(ballsAndSticks);
 			scene.load(device);
 
 			return scene;
