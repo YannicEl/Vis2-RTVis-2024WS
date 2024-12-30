@@ -29,5 +29,11 @@ fn fragment(
 input : VertexOutput
 ) -> @location(0) vec4f {
   let sample = textureSample(ourTexture, ourSampler, input.texcoord);
+
+  // background "removal"
+  if (sample.r == 0.0 && sample.g == 0.0 && sample.b == 0.0) {
+    return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+  }
+
   return mix(sample, vec4f(0, 0, 1, 1), 0.5);
 }

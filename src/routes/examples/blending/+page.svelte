@@ -3,7 +3,7 @@
 	import { ShaderMaterial } from '$lib/webGPU/material/ShaderMaterial';
 	import { onMount } from 'svelte';
 	import shader_1 from './blend_1.wgsl?raw';
-	import shader_2 from './blend_2.wgsl?raw';
+	import shader_2 from './copyPass.wgsl?raw';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { Texture } from '$lib/webGPU/texture/Texture';
@@ -57,7 +57,9 @@
 			return;
 		}
 
-		const scene2 = getScene2(texture);
+		// TODO: insert more render passes here
+
+		const sceneCopyPass = getSceneCopyPass(texture);
 
 		const renderer = new Renderer({ context, device, clearColor: 'black' });
 
@@ -84,10 +86,11 @@
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
+			controls.update(deltaTime);
 
 			// renderer.render(sceneMolecules, { camera });
 			renderer.render(sceneMolecules, { view: texture.createView(device), camera: camera });
-			renderer.render(scene2);
+			renderer.render(sceneCopyPass, { camera });
 		});
 
 		async function getSceneMolecules() {
@@ -101,7 +104,7 @@
 			return scene;
 		}
 
-		function getScene2(texture: Texture): Scene {
+		function getSceneCopyPass(texture: Texture): Scene {
 			const geometry = new QuadGeometry();
 			const material = new ShaderMaterial(shader_2, { requiresModelUniforms: false });
 			const quad = new SceneObject(geometry, material, texture);
