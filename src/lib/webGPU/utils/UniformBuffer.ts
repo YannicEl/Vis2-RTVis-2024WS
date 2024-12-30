@@ -3,25 +3,30 @@ import { queueBufferWrite } from '../helpers/webGpu';
 type DataType = 'i32' | 'f32' | 'vec3' | 'vec4' | 'mat4';
 export type UniformBufferParams<T extends string> = Record<T, DataType>;
 
-export const DATA_TYPE_SIZES: Record<DataType, { size: number; align?: number }> = {
-	f32: { size: 4 },
-	i32: { size: 4 },
-	vec3: { size: 12, align: 16 },
-	vec4: { size: 16 },
-	mat4: { size: 64, align: 16 },
+type TypedArrayConstructor = Float32ArrayConstructor | Int32ArrayConstructor;
+
+export const DATA_TYPE_SIZES: Record<
+	DataType,
+	{ size: number; type: TypedArrayConstructor; align?: number }
+> = {
+	f32: { size: 4, type: Float32Array },
+	i32: { size: 4, type: Int32Array },
+	vec3: { size: 12, align: 16, type: Float32Array },
+	vec4: { size: 16, type: Float32Array },
+	mat4: { size: 64, align: 16, type: Float32Array },
 } as const;
 
 export class UniformBuffer<T extends string = any> {
 	descriptor: GPUBufferDescriptor;
-	value: Float32Array;
+	value: ArrayBuffer;
 	buffer?: GPUBuffer;
 
-	offsets = {} as Record<T, number>;
+	offsets = {} as Record<T, { type: TypedArrayConstructor; byteOffset: number; length: number }>;
 
 	constructor(params: UniformBufferParams<T>, label?: string) {
 		let currentOffset = 0;
 		for (const key in params) {
-			const { size, align } = DATA_TYPE_SIZES[params[key]];
+			const { size, align, type } = DATA_TYPE_SIZES[params[key]];
 
 			let padding = 0;
 			if (align) {
@@ -31,13 +36,15 @@ export class UniformBuffer<T extends string = any> {
 				}
 			}
 
-			this.offsets[key] = (currentOffset + padding) / 4;
+			this.offsets[key] = {
+				type,
+				byteOffset: currentOffset + padding,
+				length: size / 4,
+			};
 			currentOffset += size + padding;
 		}
 
-		let bufferSize = currentOffset / 4;
-
-		this.value = new Float32Array(bufferSize);
+		this.value = new ArrayBuffer(currentOffset);
 
 		this.descriptor = {
 			label,
@@ -48,11 +55,11 @@ export class UniformBuffer<T extends string = any> {
 
 	set(values: Partial<Record<T, ArrayLike<number>>>) {
 		for (const key in values) {
-			if (!(key in this.offsets)) continue;
-
 			const value = values[key];
 			if (value) {
-				this.value.set(value, this.offsets[key]);
+				const { type, byteOffset, length } = this.offsets[key];
+				const view = new type(this.value, byteOffset, length);
+				view.set(value);
 			}
 		}
 	}

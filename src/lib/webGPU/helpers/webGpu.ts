@@ -61,10 +61,6 @@ export function draw(callback: (deltaTime: number) => void): void {
 	window.requestAnimationFrame((now) => onFrame(0, now));
 }
 
-export const queueBufferWrite = (
-	device: GPUDevice,
-	buffer: GPUBuffer,
-	data: Float32Array
-): void => {
-	device.queue.writeBuffer(buffer, 0, data.buffer, data.byteOffset, data.byteLength);
+export const queueBufferWrite = (device: GPUDevice, buffer: GPUBuffer, data: ArrayBuffer): void => {
+	device.queue.writeBuffer(buffer, 0, data);
 };
