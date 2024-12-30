@@ -78,7 +78,7 @@ fn ray_march(
 
 
       let alpha = 0.5;
-      let color = vec4f(uniforms.fragmentColor.r * alpha, uniforms.fragmentColor.g * alpha, uniforms.fragmentColor.b * alpha, alpha);
+      let color = vec4f(uniforms.fragmentColor.rgb * alpha, alpha);
       return color;
       // return uniforms.fragmentColor;
     }
