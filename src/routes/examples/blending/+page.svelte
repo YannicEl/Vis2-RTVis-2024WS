@@ -32,6 +32,8 @@
 	const camera = new Camera();
 	globalState.camera = camera;
 
+	let texture: Texture;
+
 	onMount(async () => {
 		if (!canvas) return;
 
@@ -40,7 +42,7 @@
 
 		const { device } = await initWebGPU();
 
-		const texture = new Texture({
+		texture = new Texture({
 			format: 'bgra8unorm',
 			size: [canvas.width, canvas.height],
 			usage:
@@ -65,6 +67,15 @@
 			onResize: (canvas) => {
 				camera.aspect = canvas.clientWidth / canvas.clientHeight;
 				renderer.onCanvasResized(canvas.width, canvas.height);
+
+				texture = new Texture({
+					format: 'bgra8unorm',
+					size: [canvas.width, canvas.height],
+					usage:
+						GPUTextureUsage.TEXTURE_BINDING |
+						GPUTextureUsage.COPY_DST |
+						GPUTextureUsage.RENDER_ATTACHMENT,
+				});
 			},
 		});
 
