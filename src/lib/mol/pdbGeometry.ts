@@ -10,6 +10,7 @@ export const createPdbGeometry = (pdb: Pdb) => {
 	const geometry = new SphereGeometry({
 		radius: 0.1,
 	});
+	const materials = new Map<string, ColorMaterial>();
 
 	console.log('pdb', pdb);
 
@@ -31,9 +32,14 @@ export const createPdbGeometry = (pdb: Pdb) => {
 				return null;
 
 			const element = atom.data.element!;
-			const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
 
-			const material = new ColorMaterial(color);
+			const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
+			let material = materials.get(color);
+			if (!material) {
+				material = new ColorMaterial(color);
+				materials.set(color, material);
+			}
+
 			const sphere = new SceneObject(geometry, material);
 
 			sphere.setPosition(vec3.create(atom.data.x, atom.data.y, atom.data.z));
@@ -41,6 +47,8 @@ export const createPdbGeometry = (pdb: Pdb) => {
 			return sphere;
 		})
 		.filter(Boolean) as SceneObject[];
+
+	console.log(materials);
 
 	const bonds: SceneObject[] = [];
 	for (let i = 0; i < pdb.connectivity.conects.length - 1; i++) {
