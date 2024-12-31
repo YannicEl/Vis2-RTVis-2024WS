@@ -6,7 +6,6 @@ struct Uniforms {
   cameraPosition: vec3f,
   projectionMatrixInverse: mat4x4f,
   viewMatrixInverse: mat4x4f,
-  aspectRatio: f32,
   numberOfSteps: i32,
   minimumHitDistance: f32,
   maximumTraceDistance: f32,
@@ -18,7 +17,7 @@ struct Uniforms {
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
-  @location(0) texcoord: vec2f,
+  @location(0) uv: vec2f,
 }
 
 struct VertexInput {
@@ -32,9 +31,7 @@ fn vertex(
   var output: VertexOutput;
 
   output.position = input.position;
-  output.texcoord = vec2f((input.position.x + 1) / 2, (input.position.y + 1) / 2);
-  output.texcoord.x *= uniforms.aspectRatio;
-
+  output.uv = vec2f((input.position.x + 1) / 2, (input.position.y + 1) / 2);
   return output;
 }
 
@@ -47,7 +44,7 @@ fn fragment(
   let ray_origin = uniforms.cameraPosition;
 
   // the following three lines are from: https://codepen.io/NabilNYMansour/pen/JjqoLJe?editors=0010
-  var ray_direction =  (uniforms.projectionMatrixInverse * vec4f(input.texcoord * 2. - 1., 0, 1)).xyz;
+  var ray_direction =  (uniforms.projectionMatrixInverse * vec4f(input.uv * 2 - 1, 0, 1)).xyz;
   ray_direction = (uniforms.viewMatrixInverse * vec4f(ray_direction, 0)).xyz;
   ray_direction = normalize(ray_direction);
 

@@ -9,7 +9,6 @@ export type RayMarchingMaterialParams = {
 	fragmentColor: CssColor;
 	clearColor: CssColor;
 	cameraPosition: Vec4;
-	aspectRatio: number;
 	projectionMatrixInverse: Mat4;
 	viewMatrixInverse: Mat4;
 	numberOfSteps: number;
@@ -34,7 +33,6 @@ export class RayMarchingMaterial extends Material {
 				cameraPosition: 'vec3',
 				projectionMatrixInverse: 'mat4',
 				viewMatrixInverse: 'mat4',
-				aspectRatio: 'f32',
 				numberOfSteps: 'i32',
 				minimumHitDistance: 'f32',
 				maximumTraceDistance: 'f32',

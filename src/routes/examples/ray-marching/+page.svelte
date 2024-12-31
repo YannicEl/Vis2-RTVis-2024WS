@@ -114,7 +114,6 @@
 			const material = new RayMarchingMaterial({
 				clearColor: 'white',
 				fragmentColor: 'red',
-				aspectRatio: camera.aspect,
 				cameraPosition: camera.position,
 				projectionMatrixInverse: camera.projectionMatrixInverse,
 				viewMatrixInverse: camera.viewMatrixInverse,
@@ -151,7 +150,6 @@
 				controls.update(deltaTime);
 
 				material.update(device, {
-					aspectRatio: camera.aspect,
 					cameraPosition: camera.position,
 					projectionMatrixInverse: camera.projectionMatrixInverse,
 					viewMatrixInverse: camera.viewMatrixInverse,

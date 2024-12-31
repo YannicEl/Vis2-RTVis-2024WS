@@ -44,7 +44,8 @@ export class UniformBuffer<T extends string = any> {
 			currentOffset += size + padding;
 		}
 
-		this.value = new ArrayBuffer(currentOffset);
+		const byteLength = currentOffset + (16 - (currentOffset % 16));
+		this.value = new ArrayBuffer(byteLength);
 
 		this.descriptor = {
 			label,
