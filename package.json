@@ -19,7 +19,6 @@
 		"@sveltejs/kit": "2.15.1",
 		"@sveltejs/vite-plugin-svelte": "5.0.3",
 		"@tailwindcss/vite": "4.0.0-alpha.27",
-		"@types/three": "0.171.0",
 		"@webgpu/types": "0.1.52",
 		"prettier": "3.4.2",
 		"prettier-plugin-organize-imports": "4.1.0",
@@ -35,7 +34,6 @@
 	},
 	"dependencies": {
 		"pdb-parser-js": "0.0.5",
-		"three": "0.172.0",
 		"wgpu-matrix": "3.3.0"
 	}
 }

@@ -10,8 +10,8 @@ export type RayMarchingMaterialParams = {
 	clearColor: CssColor;
 	cameraPosition: Vec4;
 	aspectRatio: number;
-	inverseProjectionMatrix: Mat4;
-	cameraToWorldMatrix: Mat4;
+	projectionMatrixInverse: Mat4;
+	viewMatrixInverse: Mat4;
 	numberOfSteps: number;
 	minimumHitDistance: number;
 	maximumTraceDistance: number;
@@ -26,8 +26,8 @@ export class RayMarchingMaterial extends Material {
 				fragmentColor: 'vec4',
 				clearColor: 'vec4',
 				cameraPosition: 'vec3',
-				inverseProjectionMatrix: 'mat4',
-				cameraToWorldMatrix: 'mat4',
+				projectionMatrixInverse: 'mat4',
+				viewMatrixInverse: 'mat4',
 				aspectRatio: 'f32',
 				numberOfSteps: 'i32',
 				minimumHitDistance: 'f32',
@@ -35,8 +35,6 @@ export class RayMarchingMaterial extends Material {
 			},
 			'Ray Marching Material Buffer'
 		);
-
-		console.log(buffer.value);
 
 		super({
 			vertexShader: {

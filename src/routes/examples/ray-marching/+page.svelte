@@ -5,18 +5,14 @@
 	import { Scene } from '$lib/webGPU/Scene';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { onMount } from 'svelte';
-	import { ArcballControls2 } from '$lib/webGPU/controls/ArcballControls2';
+	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
 	import { getSettings } from '$lib/settings.svelte';
-	import { mat4, vec3 } from 'wgpu-matrix';
-	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
-	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
+	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
-	import * as THREE from 'three';
-	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 
@@ -44,35 +40,14 @@
 			if (!context) return;
 
 			const camera = new Camera();
-			camera.setPosition(vec3.create(0, 0, -8));
 
-			// const controls = new ArcballControls2({ eventSource: canvas, camera, distance: -16 });
+			const controls = new ArcballControls({ eventSource: canvas, camera, distance: 80 });
 
 			const { device } = await initWebGPU({
 				deviceOptions: (adapter) => ({
 					requiredLimits: { maxBufferSize: adapter.limits.maxBufferSize },
 				}),
 			});
-
-			const colorMaterial = new ColorMaterial('white');
-			const geometry = new SphereGeometry();
-
-			const atom1 = new SceneObject(geometry, colorMaterial);
-			atom1.setPosition(vec3.create(7.5, 7.5, 7.5));
-
-			const atom2 = new SceneObject(geometry, colorMaterial);
-			atom2.setPosition(vec3.create(11, 7.5, 7.5));
-
-			const atom3 = new SceneObject(geometry, colorMaterial);
-			atom3.setPosition(vec3.create(15, 0, 8));
-
-			const atom4 = new SceneObject(geometry, colorMaterial);
-			atom4.setPosition(vec3.create(0, 15, 8));
-
-			const atom5 = new SceneObject(geometry, colorMaterial);
-			atom5.setPosition(vec3.create(15, 15, 8));
-
-			const atoms = [atom1, atom2]; //, atom2, atom3, atom4, atom5];
 
 			const PDB = await loadPDBLocal('example');
 			if (!PDB) return;
@@ -131,34 +106,18 @@
 				height,
 				depth,
 				radius: 4,
-				scale: 3,
+				scale: 4,
 				atoms: atoms_2,
 			});
 			console.timeEnd('Compute SDF Texture');
 
-			const threeCamera = new THREE.PerspectiveCamera(
-				60,
-				window.innerWidth / window.innerHeight,
-				0.1,
-				2000
-			);
-			threeCamera.position.z = 80;
-
-			const controls = new OrbitControls(threeCamera, canvas);
-			controls.minDistance = 0;
-			controls.enableDamping = true;
-
 			const material = new RayMarchingMaterial({
 				clearColor: 'white',
 				fragmentColor: 'red',
-				aspectRatio: threeCamera.aspect,
-				cameraPosition: vec3.create(
-					threeCamera.position.x,
-					threeCamera.position.y,
-					threeCamera.position.z
-				),
-				inverseProjectionMatrix: mat4.create(...threeCamera.projectionMatrixInverse.elements),
-				cameraToWorldMatrix: mat4.create(...threeCamera.matrixWorld.elements),
+				aspectRatio: camera.aspect,
+				cameraPosition: camera.position,
+				projectionMatrixInverse: camera.projectionMatrixInverse,
+				viewMatrixInverse: camera.viewMatrixInverse,
 				numberOfSteps: 1000,
 				minimumHitDistance: 0.001,
 				maximumTraceDistance: 1000,
@@ -175,7 +134,7 @@
 				canvas,
 				device,
 				onResize: (canvas) => {
-					threeCamera.aspect = canvas.clientWidth / canvas.clientHeight;
+					camera.aspect = canvas.clientWidth / canvas.clientHeight;
 					renderer.onCanvasResized(canvas.width, canvas.height);
 				},
 			});
@@ -191,13 +150,10 @@
 				globalState.fps = 1000 / deltaTime;
 
 				material.update(device, {
-					aspectRatio: threeCamera.aspect,
-					cameraToWorldMatrix: mat4.create(...threeCamera.matrixWorld.elements),
-					cameraPosition: vec3.create(
-						threeCamera.position.x,
-						threeCamera.position.y,
-						threeCamera.position.z
-					),
+					aspectRatio: camera.aspect,
+					cameraPosition: camera.position,
+					projectionMatrixInverse: camera.projectionMatrixInverse,
+					viewMatrixInverse: camera.viewMatrixInverse,
 				});
 
 				scene.update(deltaTime);

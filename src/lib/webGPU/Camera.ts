@@ -48,8 +48,16 @@ export class Camera extends Object3D {
 		return mat4.lookAt(this.position, vec3.add(this.position, this.front), this.up);
 	}
 
+	get viewMatrixInverse(): Mat4 {
+		return mat4.inverse(this.viewMatrix);
+	}
+
 	get projectionMatrix(): Mat4 {
 		return mat4.perspective(degToRad(this.fov), this.aspect, this.near, this.far);
+	}
+
+	get projectionMatrixInverse(): Mat4 {
+		return mat4.inverse(this.projectionMatrix);
 	}
 
 	get viewProjectionMatrix(): Mat4 {

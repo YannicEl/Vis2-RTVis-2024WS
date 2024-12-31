@@ -65,12 +65,13 @@ export class UniformBuffer<T extends string = any> {
 	}
 
 	load(device: GPUDevice): GPUBuffer {
+		if (this.buffer) return this.buffer;
 		this.buffer = device.createBuffer(this.descriptor);
 		return this.buffer;
 	}
 
 	write(device: GPUDevice) {
-		const buffer = this.buffer ? this.buffer : this.load(device);
+		const buffer = this.load(device);
 		queueBufferWrite(device, buffer, this.value);
 	}
 }

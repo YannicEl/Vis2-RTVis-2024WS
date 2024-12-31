@@ -48,8 +48,6 @@ export const createPdbGeometry = (pdb: Pdb) => {
 		})
 		.filter(Boolean) as SceneObject[];
 
-	console.log(materials);
-
 	const bonds: SceneObject[] = [];
 	for (let i = 0; i < pdb.connectivity.conects.length - 1; i++) {
 		const connect = pdb.connectivity.conects[i];

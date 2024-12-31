@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { SvelteHTMLElements } from 'svelte/elements';
-	import { mergeClasses } from '../utils';
 	import { useFullscreen } from '$lib/fullscreen.svelte';
 	import IconFullscreen from '~icons/material-symbols/fullscreen';
 	import IconFullscreenExit from '~icons/material-symbols/fullscreen-exit';
@@ -27,10 +26,7 @@
 </script>
 
 <div
-	class={mergeClasses(
-		className,
-		'shadow-elevation-100 flex rounded-xl border border-gray-200 bg-white p-1'
-	)}
+	class={[className, 'shadow-elevation-100 flex rounded-xl border border-gray-200 bg-white p-1']}
 	{...props}
 >
 	<button onclick={zoomIn}>

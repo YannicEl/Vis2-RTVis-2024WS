@@ -4,8 +4,8 @@ struct Uniforms {
   fragmentColor: vec4f,
   clearColor: vec4f,
   cameraPosition: vec3f,
-  inverseProjectionMatrix: mat4x4f,
-  cameraToWorldMatrix: mat4x4f,
+  projectionMatrixInverse: mat4x4f,
+  viewMatrixInverse: mat4x4f,
   aspectRatio: f32,
   numberOfSteps: i32,
   minimumHitDistance: f32,
@@ -47,8 +47,8 @@ fn fragment(
   let ray_origin = uniforms.cameraPosition;
 
   // the following three lines are from: https://codepen.io/NabilNYMansour/pen/JjqoLJe?editors=0010
-  var ray_direction =  (uniforms.inverseProjectionMatrix * vec4f(input.texcoord * 2. - 1., 0, 1)).xyz;
-  ray_direction = (uniforms.cameraToWorldMatrix * vec4f(ray_direction, 0)).xyz;
+  var ray_direction =  (uniforms.projectionMatrixInverse * vec4f(input.texcoord * 2. - 1., 0, 1)).xyz;
+  ray_direction = (uniforms.viewMatrixInverse * vec4f(ray_direction, 0)).xyz;
   ray_direction = normalize(ray_direction);
 
   return ray_march(ray_origin, ray_direction);

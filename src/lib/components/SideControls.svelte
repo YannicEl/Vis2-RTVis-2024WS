@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { mergeClasses } from '$lib/utils';
 	import type { SvelteHTMLElements } from 'svelte/elements';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { getSettings } from '$lib/settings.svelte';
 	import { goto } from '$app/navigation';
 
@@ -13,13 +12,12 @@
 	const exampleControl = settings.addControl({
 		name: 'Example',
 		type: 'select',
-		value: $page.route.id?.split('/')?.at(-1) ?? '/',
+		value: page.route.id?.split('/')?.at(-1) ?? '/',
 		options: [
 			{ label: 'Molecules', value: 'molecules' },
 			{ label: 'Ray marching', value: 'ray-marching' },
 			{ label: 'Rotation', value: 'rotation' },
 			{ label: 'Blending', value: 'blending' },
-			{ label: 'Three.js', value: 'three' },
 		],
 	});
 
@@ -27,10 +25,10 @@
 </script>
 
 <div
-	class={mergeClasses(
+	class={[
 		className,
-		'shadow-elevation-100 flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-1'
-	)}
+		'shadow-elevation-100 flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-1',
+	]}
 	{...props}
 >
 	{#each settings.controls as control (control)}
