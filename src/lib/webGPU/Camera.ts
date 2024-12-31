@@ -20,9 +20,6 @@ export class Camera extends Object3D {
 	public up = vec3.create(0, 1, 0);
 	public right = vec3.create();
 
-	public yaw = degToRad(-90);
-	public pitch = degToRad(0);
-
 	constructor({ fov = 60, aspect = 1, near = 0.1, far = 2000 }: CameraParams = {}) {
 		super();
 
@@ -34,14 +31,6 @@ export class Camera extends Object3D {
 	}
 
 	get viewMatrix(): Mat4 {
-		// this.front = vec3.normalize(
-		// 	vec3.create(
-		// 		Math.cos(this.yaw) * Math.cos(this.pitch),
-		// 		Math.sin(this.pitch),
-		// 		Math.sin(this.yaw) * Math.cos(this.pitch)
-		// 	)
-		// );
-
 		this.right = vec3.normalize(vec3.cross(this.front, this.up));
 		this.up = vec3.normalize(vec3.cross(this.right, this.front));
 
