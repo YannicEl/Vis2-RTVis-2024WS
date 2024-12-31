@@ -7,12 +7,8 @@ export type ShaderMaterialParams = {
 export class ShaderMaterial extends Material {
 	constructor(shader: string, { requiresModelUniforms }: ShaderMaterialParams = {}) {
 		super({
-			vertexShader: {
-				label: 'Shader Material Vertex Shader',
-				code: shader,
-			},
-			fragmentShader: {
-				label: 'Shader Material Fragment Shader',
+			descriptor: {
+				label: 'Shader Material Shader',
 				code: shader,
 			},
 			requiresModelUniforms,

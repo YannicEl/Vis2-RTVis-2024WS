@@ -18,10 +18,16 @@ export type RayMarchingMaterialParams = {
 };
 
 export class RayMarchingMaterial extends Material {
-	#buffer?: UniformBuffer<keyof RayMarchingMaterialParams>;
-
 	constructor(params: RayMarchingMaterialParams) {
-		const buffer = new UniformBuffer(
+		super({
+			descriptor: {
+				label: 'Ray Marching Shader',
+				code: rayMarchingShader,
+			},
+			requiresModelUniforms: false,
+		});
+
+		this.uniformBuffer = new UniformBuffer(
 			{
 				fragmentColor: 'vec4',
 				clearColor: 'vec4',
@@ -36,25 +42,11 @@ export class RayMarchingMaterial extends Material {
 			'Ray Marching Material Buffer'
 		);
 
-		super({
-			vertexShader: {
-				label: 'Ray Marching Vertex Shader',
-				code: rayMarchingShader,
-			},
-			fragmentShader: {
-				label: 'Ray Marching Fragment Shader',
-				code: rayMarchingShader,
-			},
-			uniformBuffer: buffer,
-			requiresModelUniforms: false,
-		});
-
-		this.#buffer = buffer;
 		this.updateBufferValues(params);
 	}
 
 	private updateBufferValues(params: Partial<RayMarchingMaterialParams>): void {
-		if (!this.#buffer) return;
+		if (!this.uniformBuffer) return;
 		Object.entries(params).forEach(([key, value]) => {
 			let newValue: ArrayLike<number>;
 			if (typeof value === 'string') {
@@ -65,14 +57,14 @@ export class RayMarchingMaterial extends Material {
 				newValue = value;
 			}
 
-			this.#buffer?.set({ [key]: newValue });
+			this.uniformBuffer?.set({ [key]: newValue });
 		});
 	}
 
 	update(device: GPUDevice, params: Partial<RayMarchingMaterialParams>) {
-		if (!this.#buffer) return;
-		this.updateBufferValues(params);
+		if (!this.uniformBuffer) return;
 
-		this.#buffer.write(device);
+		this.updateBufferValues(params);
+		this.uniformBuffer.write(device);
 	}
 }

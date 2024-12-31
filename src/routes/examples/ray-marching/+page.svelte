@@ -143,11 +143,12 @@
 				material.update(device, {
 					clearColor: color,
 				});
-				scene.load(device);
 			});
 
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
+
+				controls.update(deltaTime);
 
 				material.update(device, {
 					aspectRatio: camera.aspect,
@@ -155,10 +156,6 @@
 					projectionMatrixInverse: camera.projectionMatrixInverse,
 					viewMatrixInverse: camera.viewMatrixInverse,
 				});
-
-				scene.update(deltaTime);
-
-				controls.update(deltaTime);
 
 				renderer.render(scene, { camera });
 			});

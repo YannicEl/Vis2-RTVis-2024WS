@@ -34,7 +34,7 @@ export class SceneObject extends Object3D {
 	}
 
 	load(device: GPUDevice): void {
-		const { vertexShaderModule, fragmentShaderModule, uniformBuffer } = this.#material.load(device);
+		const { shaderModule, uniformBuffer } = this.#material.load(device);
 		this.#geometry.load(device);
 
 		this.#modelUniformBuffer?.load(device);
@@ -43,7 +43,7 @@ export class SceneObject extends Object3D {
 			label: 'SceneObject Render Pipeline',
 			layout: 'auto',
 			vertex: {
-				module: vertexShaderModule,
+				module: shaderModule,
 				buffers: [
 					{
 						arrayStride: 4 * 3,
@@ -59,7 +59,7 @@ export class SceneObject extends Object3D {
 				],
 			},
 			fragment: {
-				module: fragmentShaderModule,
+				module: shaderModule,
 				targets: [
 					{
 						format: navigator.gpu.getPreferredCanvasFormat(),

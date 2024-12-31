@@ -6,25 +6,20 @@ import { Material } from './Material';
 
 export class ColorMaterial extends Material {
 	constructor(cssColor: CssColor) {
-		const buffer = new UniformBuffer(
+		super({
+			descriptor: {
+				label: 'Color Shader',
+				code: colorShader,
+			},
+		});
+
+		this.uniformBuffer = new UniformBuffer(
 			{
 				color: 'vec4',
 			},
 			'Color Material Buffer'
 		);
 
-		buffer.set({ color: Color.fromCssString(cssColor).value });
-
-		super({
-			vertexShader: {
-				label: 'Color Vertex Shader',
-				code: colorShader,
-			},
-			fragmentShader: {
-				label: 'Color Fragment Shader',
-				code: colorShader,
-			},
-			uniformBuffer: buffer,
-		});
+		this.uniformBuffer.set({ color: Color.fromCssString(cssColor).value });
 	}
 }

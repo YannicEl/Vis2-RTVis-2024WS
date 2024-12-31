@@ -1,47 +1,35 @@
 import type { UniformBuffer } from '../utils/UniformBuffer';
 
-export type MaterialBuffer = {
-	descriptor: GPUBufferDescriptor;
-	value: Float32Array;
-};
-
 export type MaterialParams = {
-	vertexShader: GPUShaderModuleDescriptor;
-	fragmentShader: GPUShaderModuleDescriptor;
-	uniformBuffer?: UniformBuffer;
+	descriptor: GPUShaderModuleDescriptor;
 	requiresModelUniforms?: boolean;
 };
 
 export abstract class Material {
-	#fragmentShader: GPUShaderModuleDescriptor;
-	#vertexShader: GPUShaderModuleDescriptor;
+	#shaderDescriptor: GPUShaderModuleDescriptor;
+	#shaderModules: Map<GPUDevice, GPUShaderModule> = new Map();
 
-	#uniformBuffer?: UniformBuffer;
+	protected uniformBuffer?: UniformBuffer;
 
 	requiresModelUniforms: boolean;
 
-	constructor({
-		vertexShader,
-		fragmentShader,
-		uniformBuffer,
-		requiresModelUniforms = true,
-	}: MaterialParams) {
-		this.#vertexShader = vertexShader;
-		this.#fragmentShader = fragmentShader;
-		this.#uniformBuffer = uniformBuffer;
+	constructor({ descriptor, requiresModelUniforms = true }: MaterialParams) {
+		this.#shaderDescriptor = descriptor;
 		this.requiresModelUniforms = requiresModelUniforms;
 	}
 
 	load(device: GPUDevice) {
-		const vertexShaderModule = device.createShaderModule(this.#vertexShader);
-		const fragmentShaderModule = device.createShaderModule(this.#fragmentShader);
+		let shaderModule = this.#shaderModules.get(device);
+		if (!shaderModule) {
+			shaderModule = device.createShaderModule(this.#shaderDescriptor);
+			this.#shaderModules.set(device, shaderModule);
+		}
 
-		if (this.#uniformBuffer) this.#uniformBuffer.write(device);
+		if (this.uniformBuffer) this.uniformBuffer.write(device);
 
 		return {
-			vertexShaderModule,
-			fragmentShaderModule,
-			uniformBuffer: this.#uniformBuffer,
+			shaderModule,
+			uniformBuffer: this.uniformBuffer,
 		};
 	}
 }
