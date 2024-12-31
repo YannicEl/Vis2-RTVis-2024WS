@@ -47,7 +47,7 @@
 
 			console.log('PDB', PDB);
 
-			const ballsAndSticks = createPdbGeometry(PDB);
+			const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
 			renderPDB(ballsAndSticks);
 		},
 	});
@@ -64,7 +64,7 @@
 
 		const PDB = await loadPDBLocal('example');
 		if (!PDB) return;
-		const ballsAndSticks = createPdbGeometry(PDB);
+		const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
 
 		try {
 			device = (await initWebGPU()).device;
@@ -75,14 +75,14 @@
 		}
 	});
 
-	function renderPDB(gemoetry: SceneObject[]) {
+	function renderPDB(geometry: SceneObject[]) {
 		if (!canvas) return;
 
 		const context = canvas.getContext('webgpu');
 		if (!context) return;
 
 		try {
-			const scene = new Scene(gemoetry);
+			const scene = new Scene(geometry);
 
 			scene.load(device);
 

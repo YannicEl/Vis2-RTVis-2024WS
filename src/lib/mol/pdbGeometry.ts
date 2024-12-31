@@ -10,7 +10,7 @@ export const createPdbGeometry = (pdb: Pdb) => {
 	const geometry = new SphereGeometry({
 		radius: 0.1,
 	});
-	const materials = new Map<string, ColorMaterial>();
+	const materials = materialCache();
 
 	console.log('pdb', pdb);
 
@@ -35,10 +35,6 @@ export const createPdbGeometry = (pdb: Pdb) => {
 
 			const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
 			let material = materials.get(color);
-			if (!material) {
-				material = new ColorMaterial(color);
-				materials.set(color, material);
-			}
 
 			const sphere = new SceneObject(geometry, material);
 
@@ -89,7 +85,7 @@ export const createPdbGeometry = (pdb: Pdb) => {
 					radiusBottom: 0.05,
 					height: distance,
 				}),
-				new ColorMaterial('#ccc')
+				materials.get('#ccc')
 			);
 
 			const u1 = vec3.create(0, 1, 0);
@@ -108,8 +104,6 @@ export const createPdbGeometry = (pdb: Pdb) => {
 
 	console.log('atoms', atoms.length, 'bonds', bonds.length);
 
-	const atomsAndBonds = [...atoms, ...bonds];
-
 	// center the molecule
 	const center = vec3.create();
 	for (const atom of atoms) {
@@ -121,9 +115,26 @@ export const createPdbGeometry = (pdb: Pdb) => {
 	center[1] /= atoms.length;
 	center[2] /= atoms.length;
 
+	const atomsAndBonds = [...atoms, ...bonds];
 	for (const atom of atomsAndBonds) {
 		atom.translate(vec3.negate(center));
 	}
 
-	return atomsAndBonds;
+	return { atoms, bonds, atomsAndBonds };
 };
+
+function materialCache() {
+	const materials = new Map<string, ColorMaterial>();
+
+	return {
+		get: (color: string) => {
+			let material = materials.get(color);
+			if (!material) {
+				material = new ColorMaterial(color);
+				materials.set(color, material);
+			}
+
+			return material;
+		},
+	};
+}

@@ -96,7 +96,7 @@
 		async function getSceneMolecules() {
 			const PDB = await loadPDBLocal('example');
 			if (!PDB) return;
-			const ballsAndSticks = createPdbGeometry(PDB);
+			const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
 
 			const scene = new Scene(ballsAndSticks);
 			scene.load(device);

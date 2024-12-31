@@ -2,15 +2,15 @@ import type { Camera } from './Camera';
 import { SceneObject } from './SceneObject';
 
 export class Scene {
-	#children: SceneObject[];
+	#children: SceneObject[] = [];
 
-	constructor(children: SceneObject[] = []) {
-		this.#children = children;
+	constructor(children: SceneObject | SceneObject[] = []) {
+		this.add(children);
 	}
 
-	add(child: SceneObject | SceneObject[]): void {
-		if (!Array.isArray(child)) child = [child];
-		this.#children.push(...child);
+	add(children: SceneObject | SceneObject[]): void {
+		if (!Array.isArray(children)) children = [children];
+		this.#children.push(...children);
 	}
 
 	load(device: GPUDevice): void {

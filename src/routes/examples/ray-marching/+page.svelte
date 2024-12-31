@@ -51,7 +51,7 @@
 
 			const PDB = await loadPDBLocal('example');
 			if (!PDB) return;
-			const atoms_2 = createPdbGeometry(PDB);
+			const { atoms } = createPdbGeometry(PDB);
 
 			let dimensions = {
 				width: { min: 0, max: 0 },
@@ -60,8 +60,8 @@
 			};
 
 			const padding = 2;
-			for (let i = 0; i < atoms_2.length; i++) {
-				const atom = atoms_2[i];
+			for (let i = 0; i < atoms.length; i++) {
+				const atom = atoms[i];
 				const [x, y, z] = atom.position;
 
 				dimensions.width.min = Math.min(dimensions.width.min, x - padding);
@@ -88,8 +88,8 @@
 			const height = 128;
 			const depth = 128;
 
-			for (let i = 0; i < atoms_2.length; i++) {
-				const atom = atoms_2[i];
+			for (let i = 0; i < atoms.length; i++) {
+				const atom = atoms[i];
 				const [x, y, z] = atom.position;
 
 				atom.position = vec3.create(
@@ -105,9 +105,9 @@
 				width,
 				height,
 				depth,
-				radius: 4,
+				radius: 2,
 				scale: 4,
-				atoms: atoms_2,
+				atoms,
 			});
 			console.timeEnd('Compute SDF Texture');
 
@@ -123,7 +123,7 @@
 			});
 
 			const quad = new SceneObject(new QuadGeometry(), material, texture);
-			const scene = new Scene([quad]);
+			const scene = new Scene(quad);
 
 			scene.load(device);
 
