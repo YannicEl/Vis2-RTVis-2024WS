@@ -5,7 +5,11 @@ import { UniformBuffer } from '../utils/UniformBuffer';
 import { Material } from './Material';
 
 export class ColorMaterial extends Material {
+	static #cache = new Map<CssColor, ColorMaterial>();
+
 	constructor(cssColor: CssColor) {
+		if (ColorMaterial.#cache.has(cssColor)) return ColorMaterial.#cache.get(cssColor)!;
+
 		super({
 			descriptor: {
 				label: 'Color Shader',
@@ -21,5 +25,7 @@ export class ColorMaterial extends Material {
 		);
 
 		this.uniformBuffer.set({ color: Color.fromCssString(cssColor).value });
+
+		ColorMaterial.#cache.set(cssColor, this);
 	}
 }
