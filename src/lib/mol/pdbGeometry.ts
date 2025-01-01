@@ -10,6 +10,7 @@ export const createPdbGeometry = (pdb: Pdb) => {
 	const geometry = new SphereGeometry({
 		radius: 0.1,
 	});
+	const materials = materialCache();
 
 	console.log('pdb', pdb);
 
@@ -33,7 +34,7 @@ export const createPdbGeometry = (pdb: Pdb) => {
 			const element = atom.data.element!;
 
 			const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
-			let material = new ColorMaterial(color);
+			let material = materials.get(color);
 
 			const sphere = new SceneObject(geometry, material);
 
@@ -84,7 +85,7 @@ export const createPdbGeometry = (pdb: Pdb) => {
 					radiusBottom: 0.05,
 					height: distance,
 				}),
-				new ColorMaterial('#ccc')
+				materials.get('#ccc')
 			);
 
 			const u1 = vec3.create(0, 1, 0);

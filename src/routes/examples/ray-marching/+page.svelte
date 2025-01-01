@@ -35,7 +35,7 @@
 	const numberOfStepsControl = settings.addControl({
 		name: 'Number of steps',
 		type: 'range',
-		value: 1000,
+		value: 300,
 		min: 0,
 		max: 5000,
 	});
@@ -43,8 +43,8 @@
 	const minimumHitDistanceControl = settings.addControl({
 		name: 'Minimum hit distance',
 		type: 'range',
-		value: 0.001,
-		step: 0.001,
+		value: 0.4,
+		step: 0.01,
 		min: 0,
 		max: 1,
 	});
@@ -169,14 +169,16 @@
 				});
 			});
 
-			// const start = Date.now();
-			// let totalFps = 0;
+			numberOfStepsControl.onChange((numberOfSteps) => material.update(device, { numberOfSteps }));
+			maximumTraceDistanceControl.onChange((maximumTraceDistance) =>
+				material.update(device, { maximumTraceDistance })
+			);
+			minimumHitDistanceControl.onChange((minimumHitDistance) =>
+				material.update(device, { minimumHitDistance })
+			);
+
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
-
-				// totalFps++;
-				// const totalDeltaTime = Date.now() - start;
-				// console.log(`Average Fps: ${1000 / (totalDeltaTime / totalFps)}`);
 
 				controls.update(deltaTime);
 
