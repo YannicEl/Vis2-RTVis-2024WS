@@ -112,7 +112,16 @@ fn atoms_SDF(position: vec3f) -> f32 {
     return sample.r;
   } else {
     // TODO should be shortest distance between position and texture cube
-    return 1;
+    // Currently approximating the cube with a shere
+    let center = vec3f(0, 0, 0);
+    let radius = sqrt(pow(width, 2) + pow(height, 2) + pow(depth, 2)) / 2;
+    let distance_from_center = distance(center, position);
+      
+    if(distance_from_center > radius) {
+      return distance_from_center - radius;
+    } else {
+      return 1;
+    }
   }
 }
 
