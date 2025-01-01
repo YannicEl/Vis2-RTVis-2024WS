@@ -83,10 +83,10 @@
 
 		try {
 			const scene = new Scene(geometry);
-
 			scene.load(device);
 
 			renderer = new Renderer({ context, device, clearColor: 'black' });
+			renderer.load(scene);
 
 			autoResizeCanvas({
 				canvas,

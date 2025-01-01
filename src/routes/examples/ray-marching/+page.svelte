@@ -32,6 +32,31 @@
 		],
 	});
 
+	const numberOfStepsControl = settings.addControl({
+		name: 'Number of steps',
+		type: 'range',
+		value: 1000,
+		min: 0,
+		max: 5000,
+	});
+
+	const minimumHitDistanceControl = settings.addControl({
+		name: 'Minimum hit distance',
+		type: 'range',
+		value: 0.001,
+		step: 0.001,
+		min: 0,
+		max: 1,
+	});
+
+	const maximumTraceDistanceControl = settings.addControl({
+		name: 'Maximum trace distance',
+		type: 'range',
+		value: 1000,
+		min: 0,
+		max: 5000,
+	});
+
 	onMount(async () => {
 		try {
 			if (!canvas) return;
@@ -124,10 +149,10 @@
 
 			const quad = new SceneObject(new QuadGeometry(), material, texture);
 			const scene = new Scene(quad);
-
 			scene.load(device);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
+			renderer.load(scene);
 
 			autoResizeCanvas({
 				canvas,
@@ -144,8 +169,14 @@
 				});
 			});
 
+			// const start = Date.now();
+			// let totalFps = 0;
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
+
+				// totalFps++;
+				// const totalDeltaTime = Date.now() - start;
+				// console.log(`Average Fps: ${1000 / (totalDeltaTime / totalFps)}`);
 
 				controls.update(deltaTime);
 

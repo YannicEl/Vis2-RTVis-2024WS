@@ -121,9 +121,17 @@ export class SceneObject extends Object3D {
 		this.#uniformBindGroup = device.createBindGroup(bindGroupDescriptor);
 	}
 
-	update(deltaTime: number): void {}
+	update(device: GPUDevice, viewProjectionMatrix?: Mat4): void {
+		if (this.#modelUniformBuffer) {
+			this.#modelUniformBuffer.set({
+				viewProjectionMatrix: viewProjectionMatrix,
+				modelMatrix: this.modelMatrix,
+			});
+			this.#modelUniformBuffer.write(device);
+		}
+	}
 
-	render(device: GPUDevice, encoder: GPURenderPassEncoder, viewProjectionMatrix?: Mat4): void {
+	render(encoder: GPURenderPassEncoder | GPURenderBundleEncoder): void {
 		if (
 			!this.#pipeline ||
 			!this.#uniformBindGroup ||
@@ -131,14 +139,6 @@ export class SceneObject extends Object3D {
 			!this.#geometry.indexBuffer
 		) {
 			throw new Error('SceneObject not loaded');
-		}
-
-		if (this.#modelUniformBuffer) {
-			this.#modelUniformBuffer.set({
-				viewProjectionMatrix: viewProjectionMatrix,
-				modelMatrix: this.modelMatrix,
-			});
-			this.#modelUniformBuffer.write(device);
 		}
 
 		encoder.setPipeline(this.#pipeline);
