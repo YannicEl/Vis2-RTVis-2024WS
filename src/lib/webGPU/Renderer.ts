@@ -13,6 +13,7 @@ export class Renderer {
 	#device: GPUDevice;
 	#clearColor: Color;
 	#depthTexture: GPUTexture;
+	#renderBundles: Map<Scene, GPURenderBundle> = new Map();
 
 	constructor({ context, device, clearColor = 'black' }: RendererParams) {
 		this.#device = device;
@@ -45,10 +46,23 @@ export class Renderer {
 		});
 	}
 
+	load(scene: Scene): void {
+		const bundleEncoder = this.#device.createRenderBundleEncoder({
+			colorFormats: [navigator.gpu.getPreferredCanvasFormat()],
+			depthStencilFormat: 'depth24plus',
+		});
+
+		scene.render(bundleEncoder);
+
+		this.#renderBundles.set(scene, bundleEncoder.finish());
+	}
+
 	render(
 		scene: Scene,
 		{ camera, view }: Partial<{ camera: Camera; view: GPUTextureView }> = {}
 	): void {
+		scene.update(this.#device, camera);
+
 		const commandEncoder = this.#device.createCommandEncoder();
 		const renderPassDescriptor: GPURenderPassDescriptor = {
 			colorAttachments: [
@@ -69,10 +83,14 @@ export class Renderer {
 
 		const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
-		scene.render(this.#device, passEncoder, camera);
+		const renderBundle = this.#renderBundles.get(scene);
+		if (renderBundle) {
+			passEncoder.executeBundles([renderBundle]);
+		} else {
+			scene.render(passEncoder);
+		}
 
 		passEncoder.end();
-
 		const commandBuffer = commandEncoder.finish();
 		this.#device.queue.submit([commandBuffer]);
 	}

@@ -19,17 +19,17 @@ export class Scene {
 		}
 	}
 
-	render(device: GPUDevice, passEncoder: GPURenderPassEncoder, camera?: Camera): void {
-		const { viewProjectionMatrix } = camera ?? {};
-
+	render(passEncoder: GPURenderPassEncoder | GPURenderBundleEncoder): void {
 		for (const child of this.#children) {
-			child.render(device, passEncoder, viewProjectionMatrix);
+			child.render(passEncoder);
 		}
 	}
 
-	update(deltaTime: number): void {
+	update(device: GPUDevice, camera?: Camera): void {
+		const { viewProjectionMatrix } = camera ?? {};
+
 		for (const child of this.#children) {
-			child.update(deltaTime);
+			child.update(device, viewProjectionMatrix);
 		}
 	}
 }
