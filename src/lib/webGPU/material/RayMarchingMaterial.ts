@@ -14,6 +14,7 @@ export type RayMarchingMaterialParams = {
 	numberOfSteps: number;
 	minimumHitDistance: number;
 	maximumTraceDistance: number;
+	subsurfaceDepth: number;
 };
 
 export class RayMarchingMaterial extends Material {
@@ -36,6 +37,7 @@ export class RayMarchingMaterial extends Material {
 				numberOfSteps: 'i32',
 				minimumHitDistance: 'f32',
 				maximumTraceDistance: 'f32',
+				subsurfaceDepth: 'f32',
 			},
 			'Ray Marching Material Buffer'
 		);

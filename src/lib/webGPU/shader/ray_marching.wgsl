@@ -9,6 +9,7 @@ struct Uniforms {
   numberOfSteps: i32,
   minimumHitDistance: f32,
   maximumTraceDistance: f32,
+  subsurfaceDepth: f32,
 }
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
@@ -51,7 +52,6 @@ fn fragment(
   return ray_march(ray_origin, ray_direction);
 }
 
-
 // https://michaelwalczyk.com/blog-ray-marching.html
 fn ray_march(
   ray_origin: vec3f, 
@@ -73,9 +73,13 @@ fn ray_march(
       // pre-multiply alpha to the color. https://stackoverflow.com/a/12290551
       // let alpha = 1.0 - total_distance_traveled / maximumTraceDistance;
 
+      let subsurface_position = ray_origin + (total_distance_traveled + uniforms.subsurfaceDepth) * ray_direction;
+      let distance_to_surface = atoms_SDF(subsurface_position);
+      let subsurface_scattering_factor = 1 - (uniforms.subsurfaceDepth - distance_to_surface) / (2 * uniforms.subsurfaceDepth);
+  
 
-      let alpha = 0.5;
-      let color = vec4f(uniforms.fragmentColor.rgb * alpha, alpha);
+      // let alpha = 0.5;
+      var color = vec4f(uniforms.fragmentColor.rgb + subsurface_scattering_factor, 1);
       return color;
       // return uniforms.fragmentColor;
     }

@@ -20,16 +20,16 @@
 
 	const settings = getSettings();
 
-	const colorControl = settings.addControl({
+	const clearColorControl = settings.addControl({
 		name: 'Clear color',
-		type: 'select',
-		value: 'white',
-		options: [
-			{ label: 'White', value: 'white' },
-			{ label: 'Red', value: 'red' },
-			{ label: 'Green', value: 'green' },
-			{ label: 'Blue', value: 'blue' },
-		],
+		type: 'color',
+		value: '#ffffff',
+	});
+
+	const fragmentColorControl = settings.addControl({
+		name: 'Fragment color',
+		type: 'color',
+		value: '#0000ff',
 	});
 
 	const numberOfStepsControl = settings.addControl({
@@ -55,6 +55,24 @@
 		value: 1000,
 		min: 0,
 		max: 5000,
+	});
+
+	const subsurfaceDepthControl = settings.addControl({
+		name: 'Subsurface depth',
+		type: 'range',
+		value: 2,
+		step: 0.01,
+		min: 0,
+		max: 5,
+	});
+
+	const radiusControl = settings.addControl({
+		name: 'Radius',
+		type: 'range',
+		value: 4,
+		step: 0.5,
+		min: 0,
+		max: 20,
 	});
 
 	onMount(async () => {
@@ -130,7 +148,7 @@
 				width,
 				height,
 				depth,
-				radius: 2,
+				radius: 4,
 				scale: 4,
 				atoms,
 			});
@@ -138,13 +156,14 @@
 
 			const material = new RayMarchingMaterial({
 				clearColor: 'white',
-				fragmentColor: 'red',
+				fragmentColor: 'blue',
 				cameraPosition: camera.position,
 				projectionMatrixInverse: camera.projectionMatrixInverse,
 				viewMatrixInverse: camera.viewMatrixInverse,
 				numberOfSteps: 1000,
 				minimumHitDistance: 0.001,
 				maximumTraceDistance: 1000,
+				subsurfaceDepth: 2,
 			});
 
 			const quad = new SceneObject(new QuadGeometry(), material, texture);
@@ -163,11 +182,8 @@
 				},
 			});
 
-			colorControl.onChange((color) => {
-				material.update(device, {
-					clearColor: color,
-				});
-			});
+			clearColorControl.onChange((clearColor) => material.update(device, { clearColor }));
+			fragmentColorControl.onChange((fragmentColor) => material.update(device, { fragmentColor }));
 
 			numberOfStepsControl.onChange((numberOfSteps) => material.update(device, { numberOfSteps }));
 			maximumTraceDistanceControl.onChange((maximumTraceDistance) =>
@@ -175,6 +191,9 @@
 			);
 			minimumHitDistanceControl.onChange((minimumHitDistance) =>
 				material.update(device, { minimumHitDistance })
+			);
+			subsurfaceDepthControl.onChange((subsurfaceDepth) =>
+				material.update(device, { subsurfaceDepth })
 			);
 
 			draw((deltaTime) => {

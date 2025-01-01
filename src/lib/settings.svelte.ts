@@ -5,7 +5,8 @@ export type ControlParams<T = unknown> =
 	| CheckboxControlParams<T>
 	| SelectControlParams<T>
 	| TextControlParams<T>
-	| ButtonControlParams<T>;
+	| ButtonControlParams<T>
+	| ColorControlParams<T>;
 
 type BaseControl<T> = {
 	name: string;
@@ -33,6 +34,10 @@ export type SelectControlParams<T> = {
 
 export type TextControlParams<T> = {
 	type: 'text';
+} & BaseControl<T>;
+
+export type ColorControlParams<T> = {
+	type: 'color';
 } & BaseControl<T>;
 
 export type ButtonControlParams<T> = {

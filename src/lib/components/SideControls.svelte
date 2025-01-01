@@ -68,6 +68,8 @@
 					max={control.max}
 					step={control.step}
 				/>
+			{:else if control.type === 'color'}
+				<input type={control.type} name={control.name} bind:value={control.value} />
 			{:else if control.type === 'text'}
 				<input type={control.type} name={control.name} bind:value={control.value} />
 			{:else if control.type === 'button'}
