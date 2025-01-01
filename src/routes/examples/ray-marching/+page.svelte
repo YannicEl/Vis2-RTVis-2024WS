@@ -84,7 +84,7 @@
 				depth: { min: 0, max: 0 },
 			};
 
-			const padding = 2;
+			const padding = 10;
 			for (let i = 0; i < atoms.length; i++) {
 				const atom = atoms[i];
 				const [x, y, z] = atom.position;

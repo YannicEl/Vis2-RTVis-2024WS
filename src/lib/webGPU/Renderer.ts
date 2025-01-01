@@ -1,6 +1,7 @@
 import type { Camera } from './Camera';
 import { Color, type CssColor } from './color/Color';
 import type { Scene } from './Scene';
+import { Texture } from './texture/Texture';
 
 export type RendererParams = {
 	context: GPUCanvasContext;
@@ -12,13 +13,13 @@ export class Renderer {
 	#context: GPUCanvasContext;
 	#device: GPUDevice;
 	#clearColor: Color;
-	#depthTexture: GPUTexture;
+	#depthTexture: Texture;
 	#renderBundles: Map<Scene, GPURenderBundle> = new Map();
 
 	constructor({ context, device, clearColor = 'black' }: RendererParams) {
 		this.#device = device;
 		this.#context = context;
-		this.#depthTexture = this.#device.createTexture({
+		this.#depthTexture = new Texture({
 			size: [context.canvas.width, context.canvas.height],
 			format: 'depth24plus',
 			usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -39,7 +40,7 @@ export class Renderer {
 	}
 
 	onCanvasResized(width: number, height: number) {
-		this.#depthTexture = this.#device.createTexture({
+		this.#depthTexture = new Texture({
 			size: [width, height],
 			format: 'depth24plus',
 			usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -74,7 +75,7 @@ export class Renderer {
 				},
 			],
 			depthStencilAttachment: {
-				view: this.#depthTexture.createView(),
+				view: this.#depthTexture.createView(this.#device),
 				depthClearValue: 1.0,
 				depthLoadOp: 'clear',
 				depthStoreOp: 'store',

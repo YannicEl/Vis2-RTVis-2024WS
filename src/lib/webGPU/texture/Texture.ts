@@ -8,6 +8,7 @@ export class Texture {
 	#depthOrArrayLayers?: number;
 	#descriptor: GPUTextureDescriptor;
 	#loaded: Map<GPUDevice, GPUTexture> = new Map();
+	#views: Map<GPUDevice, GPUTextureView> = new Map();
 
 	constructor(descriptor: Optional<GPUTextureDescriptor, 'usage'>) {
 		this.#descriptor = {
@@ -51,6 +52,11 @@ export class Texture {
 
 	createView(device: GPUDevice): GPUTextureView {
 		const texture = this.load(device);
-		return texture.createView();
+		let view = this.#views.get(device);
+		if (!view) {
+			view = texture.createView();
+			this.#views.set(device, view);
+		}
+		return view;
 	}
 }
