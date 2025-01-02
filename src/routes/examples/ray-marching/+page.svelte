@@ -166,7 +166,7 @@
 				subsurfaceDepth: 2,
 			});
 
-			const quad = new SceneObject(new QuadGeometry(), material, texture);
+			const quad = new SceneObject(new QuadGeometry(), material, [texture]);
 			const scene = new Scene(quad);
 			scene.load(device);
 

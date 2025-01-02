@@ -2,7 +2,6 @@
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { ShaderMaterial } from '$lib/webGPU/material/ShaderMaterial';
 	import { onMount } from 'svelte';
-	import shader_1 from './blend_1.wgsl?raw';
 	import shader_2 from './copyPass.wgsl?raw';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { SceneObject } from '$lib/webGPU/SceneObject';
@@ -70,8 +69,6 @@
 				camera.aspect = canvas.clientWidth / canvas.clientHeight;
 				renderer.onCanvasResized(canvas.width, canvas.height);
 
-				console.log(quad);
-
 				texture = new Texture({
 					format: 'bgra8unorm',
 					size: [canvas.width, canvas.height],
@@ -81,16 +78,12 @@
 						GPUTextureUsage.RENDER_ATTACHMENT,
 				});
 
-				quad.texture = texture;
-				quad?.load(device);
-				// sceneCopyPass = getSceneCopyPass(texture);
+				sceneCopyPass = getSceneCopyPass(texture);
 			},
 		});
 
 		const controls = new ArcballControls({ eventSource: canvas, camera });
 		globalState.contols = controls;
-
-		console.log(camera.aspect);
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
@@ -115,7 +108,7 @@
 		function getSceneCopyPass(texture: Texture): Scene {
 			const geometry = new QuadGeometry();
 			const material = new ShaderMaterial(shader_2, { requiresModelUniforms: false });
-			const quad = new SceneObject(geometry, material, texture);
+			const quad = new SceneObject(geometry, material, [texture]);
 			const scene = new Scene([quad]);
 			scene.load(device);
 

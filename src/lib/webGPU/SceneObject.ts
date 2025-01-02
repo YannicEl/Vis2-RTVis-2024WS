@@ -8,19 +8,19 @@ import { UniformBuffer } from './utils/UniformBuffer';
 export class SceneObject extends Object3D {
 	#geometry: Geometry;
 	#material: Material;
-	texture?: Texture;
+	textures?: Texture[];
 
 	#pipeline?: GPURenderPipeline;
 	#uniformBindGroup?: GPUBindGroup;
 
 	#modelUniformBuffer?: UniformBuffer<'viewProjectionMatrix' | 'modelMatrix'>;
 
-	constructor(geometry: Geometry, material: Material, texture?: Texture) {
+	constructor(geometry: Geometry, material: Material, texture?: Texture[]) {
 		super();
 
 		this.#geometry = geometry;
 		this.#material = material;
-		this.texture = texture;
+		this.textures = texture;
 
 		if (material.requiresModelUniforms) {
 			this.#modelUniformBuffer = new UniformBuffer(
@@ -97,15 +97,18 @@ export class SceneObject extends Object3D {
 			});
 		}
 
-		if (this.texture) {
+		if (this.textures) {
 			entries.push({
 				binding: 2,
 				resource: device.createSampler({ magFilter: 'linear' }),
 			});
-			entries.push({
-				binding: 3,
-				resource: this.texture.createView(device),
-			});
+
+			for (let i = 0; i < this.textures.length; i++) {
+				entries.push({
+					binding: 3 + i,
+					resource: this.textures[i].createView(device),
+				});
+			}
 		}
 
 		const emptyBindGroupLayout = device.createBindGroupLayout({
