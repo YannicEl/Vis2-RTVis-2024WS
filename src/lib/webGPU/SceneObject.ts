@@ -8,7 +8,7 @@ import { UniformBuffer } from './utils/UniformBuffer';
 export class SceneObject extends Object3D {
 	#geometry: Geometry;
 	#material: Material;
-	#texture?: Texture;
+	texture?: Texture;
 
 	#pipeline?: GPURenderPipeline;
 	#uniformBindGroup?: GPUBindGroup;
@@ -20,7 +20,7 @@ export class SceneObject extends Object3D {
 
 		this.#geometry = geometry;
 		this.#material = material;
-		this.#texture = texture;
+		this.texture = texture;
 
 		if (material.requiresModelUniforms) {
 			this.#modelUniformBuffer = new UniformBuffer(
@@ -97,14 +97,14 @@ export class SceneObject extends Object3D {
 			});
 		}
 
-		if (this.#texture) {
+		if (this.texture) {
 			entries.push({
 				binding: 2,
 				resource: device.createSampler({ magFilter: 'linear' }),
 			});
 			entries.push({
 				binding: 3,
-				resource: this.#texture.createView(device),
+				resource: this.texture.createView(device),
 			});
 		}
 

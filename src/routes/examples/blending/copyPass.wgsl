@@ -15,6 +15,7 @@ input : VertexInput,
 
   output.position = input.position;
   output.texcoord = vec2f((input.position.x + 1) / 2, (input.position.y + 1) / 2);
+  output.texcoord = vec2f(output.texcoord.x, 1.0 - output.texcoord.y);
 
   return output;
 }

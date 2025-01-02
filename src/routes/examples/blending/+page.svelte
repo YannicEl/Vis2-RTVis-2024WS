@@ -59,30 +59,38 @@
 
 		// TODO: insert more render passes here
 
-		const sceneCopyPass = getSceneCopyPass(texture);
+		let sceneCopyPass = getSceneCopyPass(texture);
 
 		const renderer = new Renderer({ context, device, clearColor: 'black' });
 
-		// autoResizeCanvas({
-		// 	canvas,
-		// 	device,
-		// 	onResize: (canvas) => {
-		// 		camera.aspect = canvas.clientWidth / canvas.clientHeight;
-		// 		renderer.onCanvasResized(canvas.width, canvas.height);
+		autoResizeCanvas({
+			canvas,
+			device,
+			onResize: (canvas) => {
+				camera.aspect = canvas.clientWidth / canvas.clientHeight;
+				renderer.onCanvasResized(canvas.width, canvas.height);
 
-		// 		texture = new Texture({
-		// 			format: 'bgra8unorm',
-		// 			size: [canvas.width, canvas.height],
-		// 			usage:
-		// 				GPUTextureUsage.TEXTURE_BINDING |
-		// 				GPUTextureUsage.COPY_DST |
-		// 				GPUTextureUsage.RENDER_ATTACHMENT,
-		// 		});
-		// 	},
-		// });
+				console.log(quad);
+
+				texture = new Texture({
+					format: 'bgra8unorm',
+					size: [canvas.width, canvas.height],
+					usage:
+						GPUTextureUsage.TEXTURE_BINDING |
+						GPUTextureUsage.COPY_DST |
+						GPUTextureUsage.RENDER_ATTACHMENT,
+				});
+
+				quad.texture = texture;
+				quad?.load(device);
+				// sceneCopyPass = getSceneCopyPass(texture);
+			},
+		});
 
 		const controls = new ArcballControls({ eventSource: canvas, camera });
 		globalState.contols = controls;
+
+		console.log(camera.aspect);
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
