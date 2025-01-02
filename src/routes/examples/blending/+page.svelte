@@ -88,7 +88,7 @@
 
 		let sceneCopyPass = getSceneCopyPass([textureMolecules, textureRaymarching]);
 
-		const renderer = new Renderer({ context, device, clearColor: 'black' });
+		const renderer = new Renderer({ context, device, clearColor: 'white' });
 
 		autoResizeCanvas({
 			canvas,
@@ -216,7 +216,7 @@
 
 			raymarchingMaterial = new RayMarchingMaterial({
 				clearColor: 'white',
-				fragmentColor: 'green',
+				fragmentColor: 'blue',
 				cameraPosition: camera.position,
 				projectionMatrixInverse: camera.projectionMatrixInverse,
 				viewMatrixInverse: camera.viewMatrixInverse,
