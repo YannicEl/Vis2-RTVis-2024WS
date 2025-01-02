@@ -63,23 +63,23 @@
 
 		const renderer = new Renderer({ context, device, clearColor: 'black' });
 
-		autoResizeCanvas({
-			canvas,
-			device,
-			onResize: (canvas) => {
-				camera.aspect = canvas.clientWidth / canvas.clientHeight;
-				renderer.onCanvasResized(canvas.width, canvas.height);
+		// autoResizeCanvas({
+		// 	canvas,
+		// 	device,
+		// 	onResize: (canvas) => {
+		// 		camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		// 		renderer.onCanvasResized(canvas.width, canvas.height);
 
-				texture = new Texture({
-					format: 'bgra8unorm',
-					size: [canvas.width, canvas.height],
-					usage:
-						GPUTextureUsage.TEXTURE_BINDING |
-						GPUTextureUsage.COPY_DST |
-						GPUTextureUsage.RENDER_ATTACHMENT,
-				});
-			},
-		});
+		// 		texture = new Texture({
+		// 			format: 'bgra8unorm',
+		// 			size: [canvas.width, canvas.height],
+		// 			usage:
+		// 				GPUTextureUsage.TEXTURE_BINDING |
+		// 				GPUTextureUsage.COPY_DST |
+		// 				GPUTextureUsage.RENDER_ATTACHMENT,
+		// 		});
+		// 	},
+		// });
 
 		const controls = new ArcballControls({ eventSource: canvas, camera });
 		globalState.contols = controls;
