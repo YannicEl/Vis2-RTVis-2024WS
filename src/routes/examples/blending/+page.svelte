@@ -15,6 +15,10 @@
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { getSettings } from '$lib/settings.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
+	import { vec3 } from 'wgpu-matrix';
+	import { compute3DTexture } from '$lib/computeShader';
+	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
+	import type { Pdb } from 'pdb-parser-js/dist/pdb';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -31,7 +35,12 @@
 	const camera = new Camera();
 	globalState.camera = camera;
 
-	let texture: Texture;
+	let textureMolecules: Texture;
+	let textureRaymarching: Texture;
+
+	let raymarchingMaterial: RayMarchingMaterial;
+
+	let PDB: Pdb;
 
 	onMount(async () => {
 		if (!canvas) return;
@@ -39,9 +48,26 @@
 		const context = canvas.getContext('webgpu');
 		if (!context) return;
 
-		const { device } = await initWebGPU();
+		const { device } = await initWebGPU({
+			deviceOptions: (adapter) => ({
+				requiredLimits: { maxBufferSize: adapter.limits.maxBufferSize },
+			}),
+		});
 
-		texture = new Texture({
+		const deineMame = await loadPDBLocal('example');
+		if (!deineMame) return;
+		PDB = deineMame;
+
+		textureMolecules = new Texture({
+			format: 'bgra8unorm',
+			size: [canvas.width, canvas.height],
+			usage:
+				GPUTextureUsage.TEXTURE_BINDING |
+				GPUTextureUsage.COPY_DST |
+				GPUTextureUsage.RENDER_ATTACHMENT,
+		});
+
+		textureRaymarching = new Texture({
 			format: 'bgra8unorm',
 			size: [canvas.width, canvas.height],
 			usage:
@@ -58,7 +84,9 @@
 
 		// TODO: insert more render passes here
 
-		let sceneCopyPass = getSceneCopyPass(texture);
+		const sceneRaymarching = await getSceneRaymarching();
+
+		let sceneCopyPass = getSceneCopyPass([textureMolecules, textureRaymarching]);
 
 		const renderer = new Renderer({ context, device, clearColor: 'black' });
 
@@ -69,7 +97,7 @@
 				camera.aspect = canvas.clientWidth / canvas.clientHeight;
 				renderer.onCanvasResized(canvas.width, canvas.height);
 
-				texture = new Texture({
+				textureMolecules = new Texture({
 					format: 'bgra8unorm',
 					size: [canvas.width, canvas.height],
 					usage:
@@ -78,7 +106,16 @@
 						GPUTextureUsage.RENDER_ATTACHMENT,
 				});
 
-				sceneCopyPass = getSceneCopyPass(texture);
+				textureRaymarching = new Texture({
+					format: 'bgra8unorm',
+					size: [canvas.width, canvas.height],
+					usage:
+						GPUTextureUsage.TEXTURE_BINDING |
+						GPUTextureUsage.COPY_DST |
+						GPUTextureUsage.RENDER_ATTACHMENT,
+				});
+
+				sceneCopyPass = getSceneCopyPass([textureMolecules, textureRaymarching]);
 			},
 		});
 
@@ -89,26 +126,117 @@
 			globalState.fps = 1000 / deltaTime;
 			controls.update(deltaTime);
 
+			raymarchingMaterial.update(device, {
+				cameraPosition: camera.position,
+				projectionMatrixInverse: camera.projectionMatrixInverse,
+				viewMatrixInverse: camera.viewMatrixInverse,
+			});
+
 			// renderer.render(sceneMolecules, { camera });
-			renderer.render(sceneMolecules, { view: texture.createView(device), camera: camera });
+			renderer.render(sceneMolecules, {
+				view: textureMolecules.createView(device),
+				camera: camera,
+			});
+			// renderer.render(sceneRaymarching, { camera: camera });
+			renderer.render(sceneRaymarching, {
+				view: textureRaymarching.createView(device),
+				camera: camera,
+			});
 			renderer.render(sceneCopyPass, { camera });
 		});
 
 		async function getSceneMolecules() {
-			const PDB = await loadPDBLocal('example');
-			if (!PDB) return;
 			const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
-
 			const scene = new Scene(ballsAndSticks);
 			scene.load(device);
 
 			return scene;
 		}
 
-		function getSceneCopyPass(texture: Texture): Scene {
+		async function getSceneRaymarching() {
+			let dimensions = {
+				width: { min: 0, max: 0 },
+				height: { min: 0, max: 0 },
+				depth: { min: 0, max: 0 },
+			};
+
+			const { atoms } = createPdbGeometry(PDB);
+
+			const padding = 10;
+			for (let i = 0; i < atoms.length; i++) {
+				const atom = atoms[i];
+				const [x, y, z] = atom.position;
+
+				dimensions.width.min = Math.min(dimensions.width.min, x - padding);
+				dimensions.width.max = Math.max(dimensions.width.max, x + padding);
+
+				dimensions.height.min = Math.min(dimensions.height.min, y - padding);
+				dimensions.height.max = Math.max(dimensions.height.max, y + padding);
+
+				dimensions.depth.min = Math.min(dimensions.depth.min, z - padding);
+				dimensions.depth.max = Math.max(dimensions.depth.max, z + padding);
+			}
+
+			function normalize(
+				value: number,
+				min: number,
+				max: number,
+				from: number,
+				to: number
+			): number {
+				return (to - from) * ((value - min) / (max - min)) + from;
+			}
+
+			const width = 128;
+			const height = 128;
+			const depth = 128;
+
+			for (let i = 0; i < atoms.length; i++) {
+				const atom = atoms[i];
+				const [x, y, z] = atom.position;
+
+				atom.position = vec3.create(
+					normalize(x, dimensions.width.min, dimensions.width.max, 0, width),
+					normalize(y, dimensions.height.min, dimensions.height.max, 0, height),
+					normalize(z, dimensions.depth.min, dimensions.depth.max, 0, depth)
+				);
+			}
+
+			console.time('Compute SDF Texture');
+			const raymarchingTexture = await compute3DTexture({
+				device,
+				width,
+				height,
+				depth,
+				radius: 4,
+				scale: 4,
+				atoms,
+			});
+			console.timeEnd('Compute SDF Texture');
+
+			raymarchingMaterial = new RayMarchingMaterial({
+				clearColor: 'white',
+				fragmentColor: 'green',
+				cameraPosition: camera.position,
+				projectionMatrixInverse: camera.projectionMatrixInverse,
+				viewMatrixInverse: camera.viewMatrixInverse,
+				numberOfSteps: 1000,
+				minimumHitDistance: 0.001,
+				maximumTraceDistance: 1000,
+				subsurfaceDepth: 2,
+			});
+
+			const quad = new SceneObject(new QuadGeometry(), raymarchingMaterial, [raymarchingTexture]);
+			const scene = new Scene(quad);
+			scene.load(device);
+
+			return scene;
+		}
+
+		function getSceneCopyPass(textures: Texture[]): Scene {
 			const geometry = new QuadGeometry();
 			const material = new ShaderMaterial(shader_2, { requiresModelUniforms: false });
-			const quad = new SceneObject(geometry, material, [texture]);
+			const quad = new SceneObject(geometry, material, textures);
 			const scene = new Scene([quad]);
 			scene.load(device);
 

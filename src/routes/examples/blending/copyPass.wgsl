@@ -23,18 +23,20 @@ input : VertexInput,
 //-------------- //
 
 @group(0) @binding(2) var ourSampler : sampler;
-@group(0) @binding(3) var ourTexture : texture_2d<f32>;
+@group(0) @binding(3) var ourTexture1 : texture_2d<f32>;
+@group(0) @binding(4) var ourTexture2 : texture_2d<f32>;
 
 @fragment
 fn fragment(
 input : VertexOutput
 ) -> @location(0) vec4f {
-  let sample = textureSample(ourTexture, ourSampler, input.texcoord);
+  let sample = textureSample(ourTexture1, ourSampler, input.texcoord);
+  let sample2 = textureSample(ourTexture2, ourSampler, input.texcoord);
 
   // background "removal"
-  if (sample.r == 0.0 && sample.g == 0.0 && sample.b == 0.0) {
-    return vec4f(1.0, 0.0, 0.0, 1.0);
-  }
+  // if (sample.r == 0.0 && sample.g == 0.0 && sample.b == 0.0) {
+  //   return vec4f(1.0, 0.0, 0.0, 1.0);
+  // }
 
-  return mix(sample, vec4f(0, 0, 1, 1), 0.5);
+  return mix(sample, sample2, 0.5);
 }
