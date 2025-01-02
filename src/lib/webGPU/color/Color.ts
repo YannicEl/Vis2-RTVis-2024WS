@@ -10,7 +10,7 @@ export type ColorParams =
 			alpha: number;
 	  };
 
-export const cssColors = [
+export const CSS_COLORS = [
 	'black',
 	'silver',
 	'gray',
@@ -29,7 +29,7 @@ export const cssColors = [
 	'aqua',
 ] as const;
 
-export type CssColor = (typeof cssColors)[number] | (string & {});
+export type CssColor = (typeof CSS_COLORS)[number] | (string & {});
 
 export class Color {
 	public value: Vec4;
