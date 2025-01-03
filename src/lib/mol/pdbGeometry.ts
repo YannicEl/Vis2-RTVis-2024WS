@@ -1,3 +1,4 @@
+import type { CssColor } from '$lib/webGPU/color/Color';
 import { CylinderGeometry } from '$lib/webGPU/geometry/CylinderGeometry';
 import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
@@ -5,6 +6,7 @@ import { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
 import type { Pdb } from 'pdb-parser-js/dist/pdb';
 import type { Atom, Hetatm } from 'pdb-parser-js/dist/section/coordinate';
 import { vec3 } from 'wgpu-matrix';
+import { elementColors } from './pdbColors';
 
 export const createPdbGeometry = (pdb: Pdb) => {
 	const sphereGeometry = new SphereGeometry({
@@ -34,16 +36,32 @@ export const createPdbGeometry = (pdb: Pdb) => {
 	// const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
 	// let material = materials.get(color);
 
-	const atoms = new InstancedSceneObject(
-		sphereGeometry,
-		materials.get('red'),
-		atomsFiltered.length
-	);
-	for (let i = 0; i < atomsFiltered.length; i++) {
-		const { data } = atomsFiltered[i];
-		const atom = atoms.getInstance(i);
-		atom.setPosition(vec3.create(data.x!, data.y!, data.z!));
-	}
+	const atomsGroupdByColor: Map<CssColor, (Atom | Hetatm)[]> = new Map();
+	atomsFiltered.forEach((atom) => {
+		const element = atom.data.element!;
+		const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
+
+		const found = atomsGroupdByColor.get(color);
+		if (found) {
+			found.push(atom);
+		} else {
+			atomsGroupdByColor.set(color, [atom]);
+		}
+	});
+
+	const atoms = [...atomsGroupdByColor].map(([color, atoms], i) => {
+		const material = materials.get(color);
+
+		const atomsInstanced = new InstancedSceneObject(sphereGeometry, material, atoms.length);
+
+		for (let i = 0; i < atoms.length; i++) {
+			const { data } = atoms[i];
+			const atom = atomsInstanced.getInstance(i);
+			atom.setPosition(vec3.create(data.x!, data.y!, data.z!));
+		}
+
+		return atomsInstanced;
+	});
 
 	const bondAtoms: { primary: Atom | Hetatm; secondary: Atom | Hetatm }[] = [];
 	for (let i = 0; i < pdb.connectivity.conects.length - 1; i++) {
@@ -102,28 +120,33 @@ export const createPdbGeometry = (pdb: Pdb) => {
 		bond.scaleY(distance);
 	}
 
-	console.log('atoms', atoms.count, 'bonds', bonds.count);
+	console.log('atoms', atomsFiltered.length, 'bonds', bonds.count);
 
 	// center the molecule
 	const center = vec3.create();
-	for (const atom of atoms.instances) {
-		center[0] += atom.position[0];
-		center[1] += atom.position[1];
-		center[2] += atom.position[2];
+	for (const atomsInstanced of atoms) {
+		for (const atom of atomsInstanced.instances) {
+			center[0] += atom.position[0];
+			center[1] += atom.position[1];
+			center[2] += atom.position[2];
+		}
 	}
-	center[0] /= atoms.count;
-	center[1] /= atoms.count;
-	center[2] /= atoms.count;
 
-	for (const atom of atoms.instances) {
-		atom.translate(vec3.negate(center));
+	center[0] /= atomsFiltered.length;
+	center[1] /= atomsFiltered.length;
+	center[2] /= atomsFiltered.length;
+
+	for (const atomsInstanced of atoms) {
+		for (const atom of atomsInstanced.instances) {
+			atom.translate(vec3.negate(center));
+		}
 	}
 
 	for (const bond of bonds.instances) {
 		bond.translate(vec3.negate(center));
 	}
 
-	const atomsAndBonds = [atoms, bonds];
+	const atomsAndBonds = [...atoms, bonds];
 	return { atoms, bonds, atomsAndBonds };
 };
 
