@@ -4,14 +4,14 @@
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Renderer } from '$lib/webGPU/Renderer';
-	import { Scene } from '$lib/webGPU/Scene';
-	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { onMount } from 'svelte';
 	import { CylinderGeometry } from '$lib/webGPU/geometry/CylinderGeometry';
 	import { vec3 } from 'wgpu-matrix';
+	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
+	import { Scene } from '$lib/webGPU/scene/Scene';
 
 	let canvas = $state<HTMLCanvasElement>();
 

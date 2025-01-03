@@ -4,12 +4,10 @@
 	import { onMount } from 'svelte';
 	import shader_2 from './copyPass.wgsl?raw';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
-	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { Texture } from '$lib/webGPU/texture/Texture';
-	import { Scene } from '$lib/webGPU/Scene';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { globalState } from '$lib/globalState.svelte';
-	import { loadPDBLocal, loadPDBWeb } from '$lib/mol/pdbLoader';
+	import { loadPDBLocal } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
@@ -19,6 +17,8 @@
 	import { compute3DTexture } from '$lib/computeShader';
 	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
 	import type { Pdb } from 'pdb-parser-js/dist/pdb';
+	import { Scene } from '$lib/webGPU/scene/Scene';
+	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -163,8 +163,7 @@
 			const { atoms } = createPdbGeometry(PDB);
 
 			const padding = 10;
-			for (let i = 0; i < atoms.length; i++) {
-				const atom = atoms[i];
+			for (const atom of atoms.instances) {
 				const [x, y, z] = atom.position;
 
 				dimensions.width.min = Math.min(dimensions.width.min, x - padding);
@@ -191,8 +190,7 @@
 			const height = 128;
 			const depth = 128;
 
-			for (let i = 0; i < atoms.length; i++) {
-				const atom = atoms[i];
+			for (const atom of atoms.instances) {
 				const [x, y, z] = atom.position;
 
 				atom.position = vec3.create(

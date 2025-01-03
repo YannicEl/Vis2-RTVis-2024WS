@@ -43,7 +43,7 @@ export type ColorControlParams<T> = {
 export type ButtonControlParams<T> = {
 	type: 'button';
 	label: string;
-	onClick: () => void;
+	onClick?: () => void;
 } & BaseControl<T>;
 
 type OnControlChangeCallback<T> = (value: T) => void;
@@ -71,6 +71,12 @@ export function getSettings() {
 		return {
 			get value() {
 				return value.value;
+			},
+			set params(params: ControlParams<T>) {
+				value = params;
+			},
+			get params() {
+				return params;
 			},
 			onChange: (callback: OnControlChangeCallback<T>) => {
 				onChange = callback;

@@ -1,7 +1,7 @@
 import { CylinderGeometry } from '$lib/webGPU/geometry/CylinderGeometry';
 import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
-import { InstancedSceneObject } from '$lib/webGPU/InstancedSceneObject';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
+import { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
 import type { Pdb } from 'pdb-parser-js/dist/pdb';
 import type { Atom, Hetatm } from 'pdb-parser-js/dist/section/coordinate';
 import { vec3 } from 'wgpu-matrix';

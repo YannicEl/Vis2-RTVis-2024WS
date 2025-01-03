@@ -1,10 +1,11 @@
 import type { Mat4 } from 'wgpu-matrix';
-import type { Geometry } from './geometry/Geometry';
-import type { Material } from './material/Material';
-import { Object3D } from './Object3D';
-import { UniformBuffer } from './utils/UniformBuffer';
+import type { Geometry } from '../geometry/Geometry';
+import type { Material } from '../material/Material';
+import { Object3D } from '../Object3D';
+import { UniformBuffer } from '../utils/UniformBuffer';
+import type { BaseSceneObject } from './BaseSceneObject';
 
-export class InstancedSceneObject {
+export class InstancedSceneObject implements BaseSceneObject {
 	#geometry: Geometry;
 	#material: Material;
 

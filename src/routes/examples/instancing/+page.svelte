@@ -5,17 +5,12 @@
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
-	import { ShaderMaterial } from '$lib/webGPU/material/ShaderMaterial';
-	import shader from './instance.wgsl?raw';
-	import { Color, CSS_COLORS } from '$lib/webGPU/color/Color';
 	import { getSettings } from '$lib/settings.svelte';
-	import { UniformBuffer } from '$lib/webGPU/utils/UniformBuffer';
-	import { mat4, vec3 } from 'wgpu-matrix';
-	import { Texture } from '$lib/webGPU/texture/Texture';
+	import { vec3 } from 'wgpu-matrix';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
-	import { InstancedSceneObject } from '$lib/webGPU/InstancedSceneObject';
-	import { Scene } from '$lib/webGPU/Scene';
 	import { Renderer } from '$lib/webGPU/Renderer';
+	import { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
+	import { Scene } from '$lib/webGPU/scene/Scene';
 
 	let canvas = $state<HTMLCanvasElement>();
 

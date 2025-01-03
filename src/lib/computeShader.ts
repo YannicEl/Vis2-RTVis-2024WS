@@ -1,5 +1,5 @@
 import computeShader from './compute.wgsl?raw';
-import type { SceneObject } from './webGPU/SceneObject';
+import type { InstancedSceneObject } from './webGPU/scene/InstancedSceneObject';
 import { Texture } from './webGPU/texture/Texture';
 
 export type Compute3DTextureParams = {
@@ -9,7 +9,7 @@ export type Compute3DTextureParams = {
 	depth: number;
 	radius?: number;
 	scale?: number;
-	atoms: SceneObject[];
+	atoms: InstancedSceneObject;
 };
 
 export async function compute3DTexture({
@@ -25,10 +25,8 @@ export async function compute3DTexture({
 	height = Math.ceil(height * scale);
 	depth = Math.ceil(depth * scale);
 	radius = Math.ceil(radius * scale);
-
-	console.log('compute3DTexture', { width, height, depth });
-
-	atoms = atoms.map((atom) => {
+	console.log(`SDF Texture size: ${width}x${height}x${depth}`);
+	atoms.instances.forEach((atom) => {
 		atom.setPosition(atom.position.map((value) => value * scale));
 		return atom;
 	});
@@ -57,9 +55,9 @@ export async function compute3DTexture({
 
 	// In the shader the buffer has the type array<vec3f>.
 	// Each vec3f is 3 bytes long + 1 byte of padding.
-	const atomsBufferData = new Float32Array(atoms.length * 4);
-	for (let i = 0; i < atoms.length; i++) {
-		atomsBufferData.set(atoms[i].position, i * 4);
+	const atomsBufferData = new Float32Array(atoms.count * 4);
+	for (let i = 0; i < atoms.count; i++) {
+		atomsBufferData.set(atoms.instances[i].position, i * 4);
 	}
 
 	const atomsBuffer = device.createBuffer({

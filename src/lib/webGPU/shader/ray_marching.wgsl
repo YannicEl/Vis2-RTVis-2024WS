@@ -98,9 +98,9 @@ fn ray_march(
 
 fn atoms_SDF(position: vec3f) -> f32 {
   // TODO: no hardcoded values
-  let height: f32 = 22;
-  let width: f32 = 22;
-  let depth: f32 = 22;
+  let height: f32 = 64;
+  let width: f32 = 64;
+  let depth: f32 = 64;
 
   if(
     position.x >= -width && position.x <= width &&

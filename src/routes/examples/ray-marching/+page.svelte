@@ -2,8 +2,6 @@
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { Renderer } from '$lib/webGPU/Renderer';
-	import { Scene } from '$lib/webGPU/Scene';
-	import { SceneObject } from '$lib/webGPU/SceneObject';
 	import { onMount } from 'svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { Camera } from '$lib/webGPU/Camera';
@@ -15,6 +13,8 @@
 	import { compute3DTexture } from '$lib/computeShader';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
+	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
+	import { Scene } from '$lib/webGPU/scene/Scene';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -103,8 +103,7 @@
 			};
 
 			const padding = 10;
-			for (let i = 0; i < atoms.length; i++) {
-				const atom = atoms[i];
+			for (const atom of atoms.instances) {
 				const [x, y, z] = atom.position;
 
 				dimensions.width.min = Math.min(dimensions.width.min, x - padding);
@@ -131,8 +130,7 @@
 			const height = 128;
 			const depth = 128;
 
-			for (let i = 0; i < atoms.length; i++) {
-				const atom = atoms[i];
+			for (const atom of atoms.instances) {
 				const [x, y, z] = atom.position;
 
 				atom.position = vec3.create(

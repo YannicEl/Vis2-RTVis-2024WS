@@ -1,7 +1,7 @@
 import { CylinderGeometry } from '$lib/webGPU/geometry/CylinderGeometry';
 import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
-import { SceneObject } from '$lib/webGPU/SceneObject';
+import { SceneObject } from '$lib/webGPU/scene/SceneObject';
 import { vec3 } from 'wgpu-matrix';
 import type { mmcifAtom, mmcifBond } from './mmcifTypes';
 

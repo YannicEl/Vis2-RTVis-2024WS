@@ -1,17 +1,14 @@
-import type { Camera } from './Camera';
-import type { InstancedSceneObject } from './InstancedSceneObject';
-import { SceneObject } from './SceneObject';
-
-type Child = SceneObject | InstancedSceneObject;
+import type { Camera } from '../Camera';
+import type { BaseSceneObject } from './BaseSceneObject';
 
 export class Scene {
-	children: Child[] = [];
+	children: BaseSceneObject[] = [];
 
-	constructor(children: Child | Child[] = []) {
+	constructor(children: BaseSceneObject | BaseSceneObject[] = []) {
 		this.add(children);
 	}
 
-	add(children: Child | Child[]): void {
+	add(children: BaseSceneObject | BaseSceneObject[]): void {
 		if (!Array.isArray(children)) children = [children];
 		this.children.push(...children);
 	}

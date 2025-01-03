@@ -1,6 +1,6 @@
 import type { Camera } from './Camera';
 import { Color, type CssColor } from './color/Color';
-import type { Scene } from './Scene';
+import type { Scene } from './scene/Scene';
 import { Texture } from './texture/Texture';
 
 export type RendererParams = {

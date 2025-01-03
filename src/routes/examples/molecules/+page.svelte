@@ -2,15 +2,15 @@
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { Renderer } from '$lib/webGPU/Renderer';
-	import { Scene } from '$lib/webGPU/Scene';
-	import { loadPDBLocal, loadPDBWeb } from '$lib/mol/pdbLoader';
+	import { loadPDBLocal } from '$lib/mol/pdbLoader';
+	import type { PdbFile } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { getSettings } from '$lib/settings.svelte';
 	import { onMount } from 'svelte';
-	import type { InstancedSceneObject } from '$lib/webGPU/InstancedSceneObject';
+	import { Scene } from '$lib/webGPU/scene/Scene';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -34,59 +34,33 @@
 		label: 'Load',
 		type: 'button',
 		value: 'load',
-		async onClick() {
-			console.log('load', searchControl.value);
-
-			const PDB = await loadPDBWeb(searchControl.value);
-			if (!PDB) {
-				console.error(
-					`PDB ${searchControl.value} not found. It may not exist or os too large to load as PDB.`
-				);
-				return;
-			}
-
-			console.log('PDB', PDB);
-
-			const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
-			renderPDB(ballsAndSticks);
-		},
 	});
 
 	const camera = new Camera();
 	globalState.camera = camera;
 	fovControl.onChange((value) => (camera.fov = value));
 
-	let device: GPUDevice;
-	let renderer: Renderer;
-
 	onMount(async () => {
-		if (!canvas) return;
-
-		const PDB = await loadPDBLocal('example');
-		if (!PDB) return;
-		const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
-
-		try {
-			device = (await initWebGPU()).device;
-
-			renderPDB(ballsAndSticks);
-		} catch (error) {
-			alert(error);
-		}
-	});
-
-	function renderPDB(geometry: InstancedSceneObject[]) {
 		if (!canvas) return;
 
 		const context = canvas.getContext('webgpu');
 		if (!context) return;
 
 		try {
-			const scene = new Scene(geometry);
-			scene.load(device);
+			const controls = new ArcballControls({ eventSource: canvas, camera });
+			globalState.contols = controls;
 
-			renderer = new Renderer({ context, device, clearColor: 'black' });
-			renderer.load(scene);
+			const { device } = await initWebGPU();
+
+			const renderer = new Renderer({ context, device, clearColor: 'black' });
+
+			let scene = await updateScene('example');
+
+			if (buttonControl.params?.type === 'button') {
+				buttonControl.params.onClick = async () => {
+					scene = await updateScene(searchControl.value as PdbFile);
+				};
+			}
 
 			autoResizeCanvas({
 				canvas,
@@ -97,9 +71,6 @@
 				},
 			});
 
-			const controls = new ArcballControls({ eventSource: canvas, camera });
-			globalState.contols = controls;
-
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
 
@@ -107,10 +78,26 @@
 
 				renderer.render(scene, { camera });
 			});
+
+			async function updateScene(pdbFile: PdbFile): Promise<Scene> {
+				const PDB = await loadPDBLocal(pdbFile);
+				if (!PDB)
+					throw new Error(
+						`PDB ${pdbFile} not found. It may not exist or os too large to load as PDB.`
+					);
+				const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
+
+				const scene = new Scene(ballsAndSticks);
+
+				scene.load(device);
+				renderer.load(scene);
+
+				return scene;
+			}
 		} catch (error) {
 			alert(error);
 		}
-	}
+	});
 </script>
 
 <canvas bind:this={canvas} class="h-full w-full"></canvas>

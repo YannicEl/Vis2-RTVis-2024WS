@@ -1,9 +1,9 @@
 import { PdbParser } from 'pdb-parser-js';
-type pdbFiles = '3iz8' | '8z3k' | '101m' | 'example';
+export type PdbFile = '3iz8' | '8z3k' | '101m' | 'example';
 
-export const loadPDBLocal = async (fileName: pdbFiles) => {
+export const loadPDBLocal = async (fileName: PdbFile) => {
 	try {
-		const fileContent = await import(`../mol-files/${fileName}.pdb?raw`);
+		const fileContent = await import(`../mol-files/${fileName.toLowerCase()}.pdb?raw`);
 
 		const parser = new PdbParser();
 		parser.collect(fileContent.default.split('\n'));
