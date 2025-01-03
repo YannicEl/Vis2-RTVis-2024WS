@@ -2,7 +2,7 @@ import type { Mat4, Quat, Vec3 } from 'wgpu-matrix';
 import { mat4, quat, vec3 } from 'wgpu-matrix';
 import { degToRad } from './helpers/helpers';
 
-export abstract class Object3D {
+export class Object3D {
 	public position: Vec3;
 	public scale: Vec3;
 	public quaternion: Quat;
