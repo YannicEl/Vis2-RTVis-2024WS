@@ -4,6 +4,8 @@
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
+	import { loadMmcifLocal } from '$lib/mol/mmcifLoader';
+	import { createMmcifGeometry } from '$lib/mol/mmcifGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
@@ -94,6 +96,7 @@
 			const renderer = new Renderer({ context, device, clearColor: 'black' });
 
 			let scene = await updateScene('example');
+			// let scene = await updateScene('1jjj', true);
 
 			if (searchOnlineButton.params?.type === 'button') {
 				searchOnlineButton.params.onClick = async () => {
@@ -124,13 +127,23 @@
 				renderer.render(scene, { camera });
 			});
 
-			async function updateScene(pdbFile: string): Promise<Scene> {
-				const PDB = await loadPDBLocal(pdbFile);
-				if (!PDB)
-					throw new Error(
-						`PDB ${pdbFile} not found. It may not exist or os too large to load as PDB.`
-					);
-				const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
+			async function updateScene(fileName: string, cif: boolean = false): Promise<Scene> {
+				let ballsAndSticks;
+				if (!cif) {
+					const PDB = await loadPDBLocal(fileName);
+					if (!PDB)
+						throw new Error(
+							`PDB ${fileName} not found. It may not exist or is too large to load as PDB.`
+						);
+					ballsAndSticks = createPdbGeometry(PDB).atomsAndBonds;
+				} else {
+					const CIF = await loadMmcifLocal(fileName);
+					if (!CIF)
+						throw new Error(
+							`CIF ${fileName} not found. It may not exist or is too large to load as CIF.`
+						);
+					ballsAndSticks = createMmcifGeometry(CIF.atoms, CIF.bonds);
+				}
 
 				const scene = new Scene(ballsAndSticks);
 
