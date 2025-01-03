@@ -3,7 +3,6 @@
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
-	import type { PdbFile } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
@@ -23,15 +22,55 @@
 		max: 180,
 	});
 
-	const searchControl = settings.addControl({
-		name: 'Search',
-		type: 'text',
-		value: '8Z3K',
+	const searchLocalControl = settings.addControl({
+		name: 'Search Local',
+		type: 'select',
+		value: 'example',
+		options: [
+			{
+				label: 'Example',
+				value: 'example',
+			},
+			{
+				label: '1JJJ',
+				value: '1jjj',
+			},
+			{
+				label: '4NKG',
+				value: '4nkg',
+			},
+			{
+				label: '1AF6',
+				value: '1af6',
+			},
+			{
+				label: '5XYU',
+				value: '5xyu',
+			},
+			{
+				label: 'Random molecules ↓',
+				value: '',
+			},
+			{
+				label: '3IZ8',
+				value: '3iz8',
+			},
+			{
+				label: '8Z3K',
+				value: '8z3k',
+			},
+		],
 	});
 
-	const buttonControl = settings.addControl({
+	const searchOnlineControl = settings.addControl({
+		name: 'Search',
+		type: 'text',
+		value: '',
+	});
+
+	const searchOnlineButton = settings.addControl({
 		name: 'load',
-		label: 'Load',
+		label: 'Load (Online)',
 		type: 'button',
 		value: 'load',
 	});
@@ -56,11 +95,17 @@
 
 			let scene = await updateScene('example');
 
-			if (buttonControl.params?.type === 'button') {
-				buttonControl.params.onClick = async () => {
-					scene = await updateScene(searchControl.value as PdbFile);
+			if (searchOnlineButton.params?.type === 'button') {
+				searchOnlineButton.params.onClick = async () => {
+					scene = await updateScene(searchOnlineControl.value);
 				};
 			}
+
+			searchLocalControl.onChange(async (value) => {
+				if (!value) return;
+
+				scene = await updateScene(value);
+			});
 
 			autoResizeCanvas({
 				canvas,
@@ -79,7 +124,7 @@
 				renderer.render(scene, { camera });
 			});
 
-			async function updateScene(pdbFile: PdbFile): Promise<Scene> {
+			async function updateScene(pdbFile: string): Promise<Scene> {
 				const PDB = await loadPDBLocal(pdbFile);
 				if (!PDB)
 					throw new Error(
