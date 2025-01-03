@@ -7,8 +7,8 @@ export class Texture {
 	#height?: number;
 	#depthOrArrayLayers?: number;
 	#descriptor: GPUTextureDescriptor;
-	#loaded: Map<GPUDevice, GPUTexture> = new Map();
-	#views: Map<GPUDevice, GPUTextureView> = new Map();
+	#loaded: WeakMap<GPUDevice, GPUTexture> = new WeakMap();
+	#views: WeakMap<GPUDevice, GPUTextureView> = new WeakMap();
 
 	constructor(descriptor: Optional<GPUTextureDescriptor, 'usage'>) {
 		this.#descriptor = {

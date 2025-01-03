@@ -14,7 +14,7 @@ export class Renderer {
 	#device: GPUDevice;
 	#clearColor: Color;
 	#depthTexture: Texture;
-	#renderBundles: Map<Scene, GPURenderBundle> = new Map();
+	#renderBundles: WeakMap<Scene, GPURenderBundle> = new WeakMap();
 
 	constructor({ context, device, clearColor = 'black' }: RendererParams) {
 		this.#device = device;

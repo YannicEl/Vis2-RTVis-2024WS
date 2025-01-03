@@ -7,7 +7,7 @@ export type MaterialParams = {
 
 export abstract class Material {
 	#shaderDescriptor: GPUShaderModuleDescriptor;
-	#shaderModules: Map<GPUDevice, GPUShaderModule> = new Map();
+	#shaderModules: WeakMap<GPUDevice, GPUShaderModule> = new WeakMap();
 
 	protected uniformBuffer?: UniformBuffer;
 
