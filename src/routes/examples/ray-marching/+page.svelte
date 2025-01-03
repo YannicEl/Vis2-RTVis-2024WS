@@ -103,7 +103,7 @@
 			};
 
 			const padding = 10;
-			for (const atom of atoms.instances) {
+			for (const atom of atoms) {
 				const [x, y, z] = atom.position;
 
 				dimensions.width.min = Math.min(dimensions.width.min, x - padding);
@@ -130,7 +130,7 @@
 			const height = 128;
 			const depth = 128;
 
-			for (const atom of atoms.instances) {
+			for (const atom of atoms) {
 				const [x, y, z] = atom.position;
 
 				atom.position = vec3.create(

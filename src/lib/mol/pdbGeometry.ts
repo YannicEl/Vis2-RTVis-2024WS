@@ -147,7 +147,10 @@ export const createPdbGeometry = (pdb: Pdb) => {
 	}
 
 	const atomsAndBonds = [...atoms, bonds];
-	return { atoms, bonds, atomsAndBonds };
+
+	const atomsObject3D = atoms.map((atom) => atom.instances).flat();
+
+	return { atoms: atomsObject3D, atomsAndBonds };
 };
 
 function materialCache() {
