@@ -1,14 +1,19 @@
-import { elementColors } from '$lib/mol/pdbColors';
 import { CylinderGeometry } from '$lib/webGPU/geometry/CylinderGeometry';
 import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
+import { InstancedSceneObject } from '$lib/webGPU/InstancedSceneObject';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
-import { SceneObject } from '$lib/webGPU/SceneObject';
 import type { Pdb } from 'pdb-parser-js/dist/pdb';
+import type { Atom, Hetatm } from 'pdb-parser-js/dist/section/coordinate';
 import { vec3 } from 'wgpu-matrix';
 
 export const createPdbGeometry = (pdb: Pdb) => {
-	const geometry = new SphereGeometry({
+	const sphereGeometry = new SphereGeometry({
 		radius: 0.1,
+	});
+	const cylinderGeometry = new CylinderGeometry({
+		radiusTop: 0.05,
+		radiusBottom: 0.05,
+		height: 1,
 	});
 	const materials = materialCache();
 
@@ -19,107 +24,106 @@ export const createPdbGeometry = (pdb: Pdb) => {
 
 	const atomsSorted = [...pdbAtoms, ...pdbHetAtoms].sort((a, b) => a.data.serial! - b.data.serial!);
 
-	const atoms = atomsSorted
-		// tutorial
-		// https://www.youtube.com/watch?v=vQO2Qrv5mN8&list=RDEMrmjaK60NOsLjTW1y6Mr5zg&index=2
-		.map((atom) => {
-			if (
-				atom.data === undefined ||
-				atom.data.x === null ||
-				atom.data.y === null ||
-				atom.data.z === null
-			)
-				return null;
+	const atomsFiltered = atomsSorted.filter(
+		(atom) => atom.data && atom.data.x !== null && atom.data.y !== null && atom.data.z !== null
+	);
+	// tutorial
+	// https://www.youtube.com/watch?v=vQO2Qrv5mN8&list=RDEMrmjaK60NOsLjTW1y6Mr5zg&index=2
 
-			const element = atom.data.element!;
+	// const element = atom.data.element!;
+	// const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
+	// let material = materials.get(color);
 
-			const color = elementColors.Jmol[element] ?? elementColors.defaultColor;
-			let material = materials.get(color);
+	const atoms = new InstancedSceneObject(
+		sphereGeometry,
+		materials.get('red'),
+		atomsFiltered.length
+	);
+	for (let i = 0; i < atomsFiltered.length; i++) {
+		const { data } = atomsFiltered[i];
+		const atom = atoms.getInstance(i);
+		atom.setPosition(vec3.create(data.x!, data.y!, data.z!));
+	}
 
-			const sphere = new SceneObject(geometry, material);
-
-			sphere.setPosition(vec3.create(atom.data.x, atom.data.y, atom.data.z));
-
-			return sphere;
-		})
-		.filter(Boolean) as SceneObject[];
-
-	const bonds: SceneObject[] = [];
+	const bondAtoms: { primary: Atom | Hetatm; secondary: Atom | Hetatm }[] = [];
 	for (let i = 0; i < pdb.connectivity.conects.length - 1; i++) {
 		const connect = pdb.connectivity.conects[i];
 		// atom serials are 1-indexed 🤮
 		const primaryAtom = atomsSorted[connect.atomSeqNum - 1];
 
-		if (!primaryAtom) console.error('primaryAtom not found', connect.atomSeqNum);
-
 		if (
-			primaryAtom === undefined ||
-			primaryAtom.data === undefined ||
+			!primaryAtom?.data ||
 			primaryAtom.data.x === null ||
 			primaryAtom.data.y === null ||
 			primaryAtom.data.z === null
-		)
+		) {
+			console.error('primaryAtom not found or invalid', connect.atomSeqNum);
 			continue;
+		}
 
 		for (const bond of connect.bondedAtomSeqNums) {
 			const secondaryAtom = atomsSorted[bond - 1];
 
 			if (
-				secondaryAtom === undefined ||
-				secondaryAtom.data === undefined ||
+				!secondaryAtom?.data ||
 				secondaryAtom.data.x === null ||
 				secondaryAtom.data.y === null ||
 				secondaryAtom.data.z === null
-			)
+			) {
+				console.error('secondaryAtom not found or invalid', bond);
 				continue;
+			}
 
-			const start = vec3.create(primaryAtom.data.x, primaryAtom.data.y, primaryAtom.data.z);
-			const end = vec3.create(secondaryAtom.data.x, secondaryAtom.data.y, secondaryAtom.data.z);
-
-			const direction = vec3.subtract(end, start);
-			const distance = vec3.length(direction);
-
-			const stick = new SceneObject(
-				new CylinderGeometry({
-					radiusTop: 0.05,
-					radiusBottom: 0.05,
-					height: distance,
-				}),
-				materials.get('#ccc')
-			);
-
-			const u1 = vec3.create(0, 1, 0);
-			const u2 = vec3.divScalar(direction, distance);
-
-			const dot_u1u2 = vec3.dot(u1, u2);
-			const angle = Math.acos(dot_u1u2);
-
-			const axis = vec3.cross(u1, u2);
-			stick.setRotation((180 * angle) / Math.PI, axis);
-			stick.translate(vec3.divScalar(vec3.add(start, end), 2));
-
-			bonds.push(stick);
+			bondAtoms.push({ primary: primaryAtom, secondary: secondaryAtom });
 		}
 	}
 
-	console.log('atoms', atoms.length, 'bonds', bonds.length);
+	const bonds = new InstancedSceneObject(cylinderGeometry, materials.get('#ccc'), bondAtoms.length);
+
+	for (let i = 0; i < bondAtoms.length; i++) {
+		const { primary, secondary } = bondAtoms[i];
+		const start = vec3.create(primary.data.x!, primary.data.y!, primary.data.z!);
+		const end = vec3.create(secondary.data.x!, secondary.data.y!, secondary.data.z!);
+
+		const direction = vec3.subtract(end, start);
+		const distance = vec3.length(direction);
+
+		const bond = bonds.getInstance(i);
+
+		const u1 = vec3.create(0, 1, 0);
+		const u2 = vec3.divScalar(direction, distance);
+
+		const dot_u1u2 = vec3.dot(u1, u2);
+		const angle = Math.acos(dot_u1u2);
+
+		const axis = vec3.cross(u1, u2);
+		bond.setRotation((180 * angle) / Math.PI, axis);
+		bond.translate(vec3.divScalar(vec3.add(start, end), 2));
+		bond.scaleY(distance);
+	}
+
+	console.log('atoms', atoms.count, 'bonds', bonds.count);
 
 	// center the molecule
 	const center = vec3.create();
-	for (const atom of atoms) {
+	for (const atom of atoms.instances) {
 		center[0] += atom.position[0];
 		center[1] += atom.position[1];
 		center[2] += atom.position[2];
 	}
-	center[0] /= atoms.length;
-	center[1] /= atoms.length;
-	center[2] /= atoms.length;
+	center[0] /= atoms.count;
+	center[1] /= atoms.count;
+	center[2] /= atoms.count;
 
-	const atomsAndBonds = [...atoms, ...bonds];
-	for (const atom of atomsAndBonds) {
+	for (const atom of atoms.instances) {
 		atom.translate(vec3.negate(center));
 	}
 
+	for (const bond of bonds.instances) {
+		bond.translate(vec3.negate(center));
+	}
+
+	const atomsAndBonds = [atoms, bonds];
 	return { atoms, bonds, atomsAndBonds };
 };
 
@@ -130,7 +134,7 @@ function materialCache() {
 		get: (color: string) => {
 			let material = materials.get(color);
 			if (!material) {
-				material = new ColorMaterial(color);
+				material = new ColorMaterial(color, { instanced: true });
 				materials.set(color, material);
 			}
 

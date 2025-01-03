@@ -10,7 +10,7 @@
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { getSettings } from '$lib/settings.svelte';
 	import { onMount } from 'svelte';
-	import type { SceneObject } from '$lib/webGPU/SceneObject';
+	import type { InstancedSceneObject } from '$lib/webGPU/InstancedSceneObject';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -75,7 +75,7 @@
 		}
 	});
 
-	function renderPDB(geometry: SceneObject[]) {
+	function renderPDB(geometry: InstancedSceneObject[]) {
 		if (!canvas) return;
 
 		const context = canvas.getContext('webgpu');
