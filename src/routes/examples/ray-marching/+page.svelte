@@ -119,7 +119,7 @@
 					width,
 					height,
 					depth,
-					radius: 4,
+					radius: 2,
 					scale: 4,
 					atoms,
 				});

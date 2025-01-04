@@ -7,6 +7,7 @@ export const LOCAL_PDB_FILES = [
 	'MA_MACOFFESLACC104963G1I1',
 	'AF-U7Q5H6-F1-model_v4',
 	'AF-Q6LA55-F1-model_v4',
+	'4v4l',
 ] as const;
 
 export type PdbFile = (typeof LOCAL_PDB_FILES)[number] | (string & {});
