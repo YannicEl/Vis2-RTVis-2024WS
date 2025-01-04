@@ -15,13 +15,30 @@
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
 	import { Scene } from '$lib/webGPU/scene/Scene';
-	import { setupRayMarchingControls } from '$lib/controls/rayMarchingControls';
+	import { addRayMarchingControls } from '$lib/controls/rayMarchingControls';
+	import { addMoleculeSelectControl } from '$lib/controls/moleculeSelectControl';
 
 	let canvas = $state<HTMLCanvasElement>();
 
+	const camera = new Camera();
+	globalState.camera = camera;
+
 	const controls = getControls();
 
-	const rayMarchingControls = setupRayMarchingControls();
+	const rayMarchingMaterial = new RayMarchingMaterial({
+		clearColor: 'white',
+		fragmentColor: 'blue',
+		cameraPosition: camera.position,
+		projectionMatrixInverse: camera.projectionMatrixInverse,
+		viewMatrixInverse: camera.viewMatrixInverse,
+		numberOfSteps: 1000,
+		minimumHitDistance: 0.001,
+		maximumTraceDistance: 1000,
+		subsurfaceDepth: 2,
+	});
+
+	addRayMarchingControls(rayMarchingMaterial);
+	const moleculeControl = addMoleculeSelectControl();
 
 	const radiusControl = controls.addControl({
 		name: 'Radius',
@@ -39,8 +56,6 @@
 			const context = canvas.getContext('webgpu');
 			if (!context) return;
 
-			const camera = new Camera();
-
 			const controls = new ArcballControls({ eventSource: canvas, camera, distance: 80 });
 
 			const { device } = await initWebGPU({
@@ -49,87 +64,84 @@
 				}),
 			});
 
-			const PDB = await loadPDBLocal('example');
-			if (!PDB) return;
-			const { atoms } = createPdbGeometry(PDB);
+			async function updateScene(): Promise<Scene> {
+				const PDB = await loadPDBLocal(moleculeControl.value);
+				if (!PDB) throw new Error('PDB Not found');
+				const { atoms } = createPdbGeometry(PDB);
 
-			let dimensions = {
-				width: { min: 0, max: 0 },
-				height: { min: 0, max: 0 },
-				depth: { min: 0, max: 0 },
-			};
+				let dimensions = {
+					width: { min: 0, max: 0 },
+					height: { min: 0, max: 0 },
+					depth: { min: 0, max: 0 },
+				};
 
-			const padding = 10;
-			for (const atom of atoms) {
-				const [x, y, z] = atom.position;
+				const padding = 10;
+				for (const atom of atoms) {
+					const [x, y, z] = atom.position;
 
-				dimensions.width.min = Math.min(dimensions.width.min, x - padding);
-				dimensions.width.max = Math.max(dimensions.width.max, x + padding);
+					dimensions.width.min = Math.min(dimensions.width.min, x - padding);
+					dimensions.width.max = Math.max(dimensions.width.max, x + padding);
 
-				dimensions.height.min = Math.min(dimensions.height.min, y - padding);
-				dimensions.height.max = Math.max(dimensions.height.max, y + padding);
+					dimensions.height.min = Math.min(dimensions.height.min, y - padding);
+					dimensions.height.max = Math.max(dimensions.height.max, y + padding);
 
-				dimensions.depth.min = Math.min(dimensions.depth.min, z - padding);
-				dimensions.depth.max = Math.max(dimensions.depth.max, z + padding);
+					dimensions.depth.min = Math.min(dimensions.depth.min, z - padding);
+					dimensions.depth.max = Math.max(dimensions.depth.max, z + padding);
+				}
+
+				function normalize(
+					value: number,
+					min: number,
+					max: number,
+					from: number,
+					to: number
+				): number {
+					return (to - from) * ((value - min) / (max - min)) + from;
+				}
+
+				const width = 128;
+				const height = 128;
+				const depth = 128;
+
+				for (const atom of atoms) {
+					const [x, y, z] = atom.position;
+
+					atom.position = vec3.create(
+						normalize(x, dimensions.width.min, dimensions.width.max, 0, width),
+						normalize(y, dimensions.height.min, dimensions.height.max, 0, height),
+						normalize(z, dimensions.depth.min, dimensions.depth.max, 0, depth)
+					);
+				}
+
+				console.time('Compute SDF Texture');
+				const texture = await compute3DTexture({
+					device,
+					width,
+					height,
+					depth,
+					radius: 4,
+					scale: 4,
+					atoms,
+				});
+				console.timeEnd('Compute SDF Texture');
+
+				rayMarchingMaterial.updateBufferValues({ width, height, depth });
+
+				const quad = new SceneObject(new QuadGeometry(), rayMarchingMaterial, [texture]);
+				const scene = new Scene(quad);
+				scene.load(device);
+				renderer.load(scene);
+
+				return scene;
 			}
-
-			function normalize(
-				value: number,
-				min: number,
-				max: number,
-				from: number,
-				to: number
-			): number {
-				return (to - from) * ((value - min) / (max - min)) + from;
-			}
-
-			const width = 128;
-			const height = 128;
-			const depth = 128;
-
-			for (const atom of atoms) {
-				const [x, y, z] = atom.position;
-
-				atom.position = vec3.create(
-					normalize(x, dimensions.width.min, dimensions.width.max, 0, width),
-					normalize(y, dimensions.height.min, dimensions.height.max, 0, height),
-					normalize(z, dimensions.depth.min, dimensions.depth.max, 0, depth)
-				);
-			}
-
-			console.time('Compute SDF Texture');
-			const texture = await compute3DTexture({
-				device,
-				width,
-				height,
-				depth,
-				radius: 4,
-				scale: 4,
-				atoms,
-			});
-			console.timeEnd('Compute SDF Texture');
-
-			const material = new RayMarchingMaterial({
-				clearColor: 'white',
-				fragmentColor: 'blue',
-				cameraPosition: camera.position,
-				projectionMatrixInverse: camera.projectionMatrixInverse,
-				viewMatrixInverse: camera.viewMatrixInverse,
-				numberOfSteps: 1000,
-				minimumHitDistance: 0.001,
-				maximumTraceDistance: 1000,
-				subsurfaceDepth: 2,
-				width,
-				height,
-				depth,
-			});
-
-			const quad = new SceneObject(new QuadGeometry(), material, [texture]);
-			const scene = new Scene(quad);
-			scene.load(device);
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
-			renderer.load(scene);
+
+			let scene = await updateScene();
+
+			moleculeControl.onChange(async () => {
+				scene = await updateScene();
+			});
 
 			autoResizeCanvas({
 				canvas,
@@ -140,31 +152,12 @@
 				},
 			});
 
-			rayMarchingControls.clearColor.onChange((clearColor) =>
-				material.update(device, { clearColor })
-			);
-			rayMarchingControls.fragmentColor.onChange((fragmentColor) =>
-				material.update(device, { fragmentColor })
-			);
-			rayMarchingControls.numberOfSteps.onChange((numberOfSteps) =>
-				material.update(device, { numberOfSteps })
-			);
-			rayMarchingControls.maximumTraceDistance.onChange((maximumTraceDistance) =>
-				material.update(device, { maximumTraceDistance })
-			);
-			rayMarchingControls.minimumHitDistance.onChange((minimumHitDistance) =>
-				material.update(device, { minimumHitDistance })
-			);
-			rayMarchingControls.subsurfaceDepth.onChange((subsurfaceDepth) =>
-				material.update(device, { subsurfaceDepth })
-			);
-
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;
 
 				controls.update(deltaTime);
 
-				material.update(device, {
+				rayMarchingMaterial.update(device, {
 					cameraPosition: camera.position,
 					projectionMatrixInverse: camera.projectionMatrixInverse,
 					viewMatrixInverse: camera.viewMatrixInverse,

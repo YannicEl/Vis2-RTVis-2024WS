@@ -2,7 +2,8 @@
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { Renderer } from '$lib/webGPU/Renderer';
-	import { loadPDBLocal, LOCAL_PDB_FILES } from '$lib/mol/pdbLoader';
+	import { loadPDBLocal } from '$lib/mol/pdbLoader';
+	import type { PdbFile } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { loadMmcifLocal } from '$lib/mol/mmcifLoader';
 	import { createMmcifGeometry } from '$lib/mol/mmcifGeometry';
@@ -12,6 +13,7 @@
 	import { getControls } from '$lib/controls/controls.svelte';
 	import { onMount } from 'svelte';
 	import { Scene } from '$lib/webGPU/scene/Scene';
+	import { addMoleculeSelectControl } from '$lib/controls/moleculeSelectControl';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -24,19 +26,7 @@
 		max: 180,
 	});
 
-	const searchLocalControl = controls.addControl({
-		name: 'Search Local',
-		type: 'select',
-		value: 'example',
-		options: [
-			...LOCAL_PDB_FILES.map((file) => {
-				return {
-					label: file === 'example' ? 'Example' : file.toUpperCase(),
-					value: file,
-				};
-			}),
-		],
-	});
+	const searchLocalControl = addMoleculeSelectControl();
 
 	const searchOnlineControl = controls.addControl({
 		name: 'Search',
@@ -101,7 +91,7 @@
 				renderer.render(scene, { camera });
 			});
 
-			async function updateScene(fileName: string, cif: boolean = false): Promise<Scene> {
+			async function updateScene(fileName: PdbFile, cif: boolean = false): Promise<Scene> {
 				let ballsAndSticks;
 				if (!cif) {
 					const PDB = await loadPDBLocal(fileName);

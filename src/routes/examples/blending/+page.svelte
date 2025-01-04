@@ -23,8 +23,13 @@
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Object3D } from '$lib/webGPU/Object3D';
 	import type { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
+	import { addMoleculeSelectControl } from '$lib/controls/moleculeSelectControl';
+	import { addRayMarchingControls } from '$lib/controls/rayMarchingControls';
 
 	let canvas = $state<HTMLCanvasElement>();
+
+	const camera = new Camera();
+	globalState.camera = camera;
 
 	const controls = getControls();
 	const fovControl = controls.addControl({
@@ -36,19 +41,21 @@
 	});
 	fovControl.onChange((value) => (camera.fov = value));
 
-	const moleculeControl = controls.addControl({
-		name: 'Molecule',
-		type: 'select',
-		value: 'example',
-		options: [
-			...LOCAL_PDB_FILES.map((file) => {
-				return {
-					label: file === 'example' ? 'Example' : file.toUpperCase(),
-					value: file,
-				};
-			}),
-		],
+	const moleculeControl = addMoleculeSelectControl();
+
+	const rayMarchingMaterial = new RayMarchingMaterial({
+		clearColor: 'white',
+		fragmentColor: 'blue',
+		cameraPosition: camera.position,
+		projectionMatrixInverse: camera.projectionMatrixInverse,
+		viewMatrixInverse: camera.viewMatrixInverse,
+		numberOfSteps: 300,
+		minimumHitDistance: 0.4,
+		maximumTraceDistance: 1000,
+		subsurfaceDepth: 2,
 	});
+
+	addRayMarchingControls(rayMarchingMaterial);
 
 	const showCubeControl = controls.addControl({
 		name: 'Show cube',
@@ -56,13 +63,20 @@
 		value: false,
 	});
 
-	const camera = new Camera();
-	globalState.camera = camera;
+	const showSticksAndBallsControl = controls.addControl({
+		name: 'Show sticks and balls',
+		type: 'checkbox',
+		value: true,
+	});
+
+	const showMoleculeSurfaceControl = controls.addControl({
+		name: 'Show surface',
+		type: 'checkbox',
+		value: true,
+	});
 
 	let textureMolecules: Texture;
 	let textureRaymarching: Texture;
-
-	let raymarchingMaterial: RayMarchingMaterial;
 
 	let PDB: Pdb;
 
@@ -108,7 +122,16 @@
 			scenes = await getScenes();
 		});
 
+		showSticksAndBallsControl.onChange(async () => {
+			scenes = await getScenes();
+		});
+
+		showMoleculeSurfaceControl.onChange(async () => {
+			scenes = await getScenes();
+		});
+
 		moleculeControl.onChange(async () => {
+			PDB = await loadPDBLocal(moleculeControl.value);
 			scenes = await getScenes();
 		});
 
@@ -121,7 +144,7 @@
 			globalState.fps = 1000 / deltaTime;
 			controls.update(deltaTime);
 
-			raymarchingMaterial.update(device, {
+			rayMarchingMaterial.update(device, {
 				cameraPosition: camera.position,
 				projectionMatrixInverse: camera.projectionMatrixInverse,
 				viewMatrixInverse: camera.viewMatrixInverse,
@@ -176,7 +199,9 @@
 				}
 			}
 
-			const moleculesScene = getSceneMolecules(sticksAndBalls);
+			const moleculesScene = getSceneMolecules(
+				showSticksAndBallsControl.value ? sticksAndBalls : []
+			);
 
 			const geometry = new CubeGeometry(width, height, depth);
 			const material = new ColorMaterial('green');
@@ -271,27 +296,31 @@
 			});
 			console.timeEnd('Compute SDF Texture');
 
-			const scale = 4;
+			let scale = 1;
+			while (true) {
+				scale += 0.1;
+
+				if (width * scale > 200 || height * scale > 200 || depth * scale > 200) {
+					scale -= 0.1;
+					break;
+				}
+			}
+
+			console.log(scale);
+
 			width *= scale;
 			height *= scale;
 			depth *= scale;
 
-			raymarchingMaterial = new RayMarchingMaterial({
-				clearColor: 'white',
-				fragmentColor: 'blue',
-				cameraPosition: camera.position,
-				projectionMatrixInverse: camera.projectionMatrixInverse,
-				viewMatrixInverse: camera.viewMatrixInverse,
-				numberOfSteps: 300,
-				minimumHitDistance: 0.4,
-				maximumTraceDistance: 1000,
-				subsurfaceDepth: 2,
+			console.log({ width, height, depth });
+
+			rayMarchingMaterial.updateBufferValues({
 				width: width,
 				height: height,
 				depth: depth,
 			});
 
-			const quad = new SceneObject(new QuadGeometry(), raymarchingMaterial, [raymarchingTexture]);
+			const quad = new SceneObject(new QuadGeometry(), rayMarchingMaterial, [raymarchingTexture]);
 			const scene = new Scene(quad);
 			scene.load(device);
 

@@ -15,9 +15,9 @@ export type RayMarchingMaterialParams = {
 	minimumHitDistance: number;
 	maximumTraceDistance: number;
 	subsurfaceDepth: number;
-	width: number;
-	height: number;
-	depth: number;
+	width?: number;
+	height?: number;
+	depth?: number;
 };
 
 export class RayMarchingMaterial extends Material {
