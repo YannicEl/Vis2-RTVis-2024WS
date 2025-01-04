@@ -2,7 +2,7 @@
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { Renderer } from '$lib/webGPU/Renderer';
-	import { loadPDBLocal } from '$lib/mol/pdbLoader';
+	import { loadPDBLocal, LOCAL_PDB_FILES } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { loadMmcifLocal } from '$lib/mol/mmcifLoader';
 	import { createMmcifGeometry } from '$lib/mol/mmcifGeometry';
@@ -29,37 +29,15 @@
 		type: 'select',
 		value: 'example',
 		options: [
-			{
-				label: 'Example',
-				value: 'example',
-			},
-			{
-				label: '1JJJ',
-				value: '1jjj',
-			},
-			{
-				label: '4NKG',
-				value: '4nkg',
-			},
-			{
-				label: '1AF6',
-				value: '1af6',
-			},
-			{
-				label: '5XYU',
-				value: '5xyu',
-			},
+			...LOCAL_PDB_FILES.map((file) => {
+				return {
+					label: file === 'example' ? 'Example' : file.toUpperCase(),
+					value: file,
+				};
+			}),
 			{
 				label: 'Random molecules ↓',
 				value: '',
-			},
-			{
-				label: '3IZ8',
-				value: '3iz8',
-			},
-			{
-				label: '8Z3K',
-				value: '8z3k',
 			},
 		],
 	});
