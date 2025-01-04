@@ -16,25 +16,18 @@ export class Texture {
 			...descriptor,
 		};
 
-		if ('width' in descriptor.size) {
-			this.#width = descriptor.size.width;
-			this.#height = descriptor.size.height;
-			this.#depthOrArrayLayers = descriptor.size.depthOrArrayLayers;
-		} else {
-			const [width, height, depthOrArrayLayers] = [...descriptor.size];
-			this.#width = width;
-			this.#height = height;
-			this.#depthOrArrayLayers = depthOrArrayLayers;
-		}
+		const { width, height, depthOrArrayLayers } = this.getDimension(this.#descriptor.size);
+		this.#width = width;
+		this.#height = height;
+		this.#depthOrArrayLayers = depthOrArrayLayers;
 	}
 
 	load(device: GPUDevice): GPUTexture {
-		if (this.#loaded.has(device)) {
-			return this.#loaded.get(device)!;
+		let texture = this.#loaded.get(device);
+		if (!texture) {
+			texture = device.createTexture(this.#descriptor);
+			this.#loaded.set(device, texture);
 		}
-
-		const texture = device.createTexture(this.#descriptor);
-		this.#loaded.set(device, texture);
 
 		return texture;
 	}
@@ -58,5 +51,31 @@ export class Texture {
 			this.#views.set(device, view);
 		}
 		return view;
+	}
+
+	updateSize(size: GPUExtent3DStrict): void {
+		this.#descriptor.size = size;
+
+		const { width, height, depthOrArrayLayers } = this.getDimension(this.#descriptor.size);
+		this.#width = width;
+		this.#height = height;
+		this.#depthOrArrayLayers = depthOrArrayLayers;
+
+		this.#loaded = new WeakMap();
+		this.#views = new WeakMap();
+	}
+
+	private getDimension(size: GPUExtent3DStrict): {
+		width: number;
+		height?: number;
+		depthOrArrayLayers?: number;
+	} {
+		if ('width' in size) {
+			const { width, height, depthOrArrayLayers } = size;
+			return { width, height, depthOrArrayLayers };
+		} else {
+			const [width, height, depthOrArrayLayers] = [...size];
+			return { width, height, depthOrArrayLayers };
+		}
 	}
 }

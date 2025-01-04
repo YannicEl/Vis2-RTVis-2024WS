@@ -22,6 +22,7 @@ export type NumberControlParams<T> = {
 
 export type CheckboxControlParams<T> = {
 	type: 'checkbox';
+	value: boolean;
 } & BaseControl<T>;
 
 export type SelectControlParams<T> = {

@@ -33,10 +33,11 @@
 	{...props}
 >
 	{#each settings.controls as control (control)}
-		<label>
+		<label class="flex flex-col">
 			{#if control.type !== 'button'}
 				{control.name}
 			{/if}
+
 			{#if control.type === 'select'}
 				<select name="examples" bind:value={control.value}>
 					{#each control.options as option (option)}
@@ -53,26 +54,24 @@
 					step={control.step}
 				/>
 			{:else if control.type === 'range'}
-				<input
-					type={control.type}
-					name={control.name}
-					bind:value={control.value}
-					min={control.min}
-					max={control.max}
-					step={control.step}
-				/>
+				<div class="flex gap-2">
+					<input
+						type={control.type}
+						name={control.name}
+						bind:value={control.value}
+						min={control.min}
+						max={control.max}
+						step={control.step}
+					/>
 
-				<input
-					type="number"
-					bind:value={control.value}
-					min={control.min}
-					max={control.max}
-					step={control.step}
-				/>
-			{:else if control.type === 'color'}
-				<input type={control.type} name={control.name} bind:value={control.value} />
-			{:else if control.type === 'text'}
-				<input type={control.type} name={control.name} bind:value={control.value} />
+					<input
+						type="number"
+						bind:value={control.value}
+						min={control.min}
+						max={control.max}
+						step={control.step}
+					/>
+				</div>
 			{:else if control.type === 'button'}
 				<button
 					type={control.type}
@@ -82,6 +81,10 @@
 				>
 					{control.label}
 				</button>
+			{:else if control.type === 'checkbox'}
+				<input type="checkbox" name={control.name} bind:checked={control.value} />
+			{:else}
+				<input type={control.type} name={control.name} bind:value={control.value} />
 			{/if}
 		</label>
 	{/each}
