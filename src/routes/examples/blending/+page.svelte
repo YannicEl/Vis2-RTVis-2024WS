@@ -19,6 +19,9 @@
 	import type { Pdb } from 'pdb-parser-js/dist/pdb';
 	import { Scene } from '$lib/webGPU/scene/Scene';
 	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
+	import { CubeGeometry } from '$lib/webGPU/geometry/CubeGeometry';
+	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
+	import { Object3D } from '$lib/webGPU/Object3D';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -119,7 +122,7 @@
 			},
 		});
 
-		const controls = new ArcballControls({ eventSource: canvas, camera });
+		const controls = new ArcballControls({ eventSource: canvas, camera, distance: 80 });
 		globalState.contols = controls;
 
 		draw((deltaTime) => {
@@ -146,8 +149,15 @@
 		});
 
 		async function getSceneMolecules() {
-			const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
-			const scene = new Scene(ballsAndSticks);
+			// const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
+			const geometry = new CubeGeometry();
+			const material = new ColorMaterial('green');
+			const cube = new SceneObject(geometry, material);
+			cube.scaleX(41.61699867248535);
+			cube.scaleY(24.414999961853027);
+			cube.scaleZ(47.81300067901611);
+
+			const scene = new Scene(cube);
 			scene.load(device);
 
 			return scene;
@@ -186,9 +196,15 @@
 				return (to - from) * ((value - min) / (max - min)) + from;
 			}
 
-			const width = 128;
-			const height = 128;
-			const depth = 128;
+			// const width = 64;
+			// const height = 64;
+			// const depth = 64;
+
+			const width = dimensions.width.max - dimensions.width.min;
+			const height = dimensions.height.max - dimensions.height.min;
+			const depth = dimensions.depth.max - dimensions.depth.min;
+
+			console.log({ width, height, depth });
 
 			for (const atom of atoms) {
 				const [x, y, z] = atom.position;
@@ -200,14 +216,19 @@
 				);
 			}
 
+			const top_left_back = new Object3D();
+			top_left_back.setPosition(vec3.create(0, height, depth));
+
+			atoms.push(top_left_back);
+
 			console.time('Compute SDF Texture');
 			const raymarchingTexture = await compute3DTexture({
 				device,
 				width,
 				height,
 				depth,
-				radius: 4,
-				scale: 4,
+				radius: 1,
+				scale: 10,
 				atoms,
 			});
 			console.timeEnd('Compute SDF Texture');

@@ -98,9 +98,9 @@ fn ray_march(
 
 fn atoms_SDF(position: vec3f) -> f32 {
   // TODO: no hardcoded values
-  let height: f32 = 64;
-  let width: f32 = 64;
-  let depth: f32 = 64;
+  let width: f32 = 47.81300067901611;
+  let height: f32 = 24.414999961853027;
+  let depth: f32 = 41.61699867248535;
 
   if(
     position.x >= -width && position.x <= width &&
@@ -121,7 +121,8 @@ fn atoms_SDF(position: vec3f) -> f32 {
     let radius = sqrt(pow(width, 2) + pow(height, 2) + pow(depth, 2)) / 2;
     let distance_from_center = distance(center, position);
       
-    if(distance_from_center > radius) {
+    let padding = 0.001;
+    if(distance_from_center > radius + padding) {
       return distance_from_center - radius;
     } else {
       return 1;
