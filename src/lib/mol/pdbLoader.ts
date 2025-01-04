@@ -1,6 +1,13 @@
 import { PdbParser } from 'pdb-parser-js';
 
-export const LOCAL_PDB_FILES = ['example', '1jjj', '4nkg', '1af6', '5xyu', '3iz8', '8z3k'] as const;
+export const LOCAL_PDB_FILES = [
+	'example',
+	'1jjj',
+	'AF_AFB5EZH0F1',
+	'MA_MACOFFESLACC104963G1I1',
+	'AF-U7Q5H6-F1-model_v4',
+	'AF-Q6LA55-F1-model_v4',
+] as const;
 
 export type PdbFile = (typeof LOCAL_PDB_FILES)[number] | (string & {});
 

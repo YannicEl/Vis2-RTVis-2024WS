@@ -35,10 +35,6 @@
 					value: file,
 				};
 			}),
-			{
-				label: 'Random molecules ↓',
-				value: '',
-			},
 		],
 	});
 
