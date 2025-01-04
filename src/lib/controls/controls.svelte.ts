@@ -51,7 +51,7 @@ type OnControlChangeCallback<T> = (value: T) => void;
 
 let controls = $state<ControlParams[]>([]);
 
-export function getSettings() {
+export function getControls() {
 	function addControl<T>(params: ControlParams<T>) {
 		let value = $state(params);
 		let onChange = $state<OnControlChangeCallback<T>>();

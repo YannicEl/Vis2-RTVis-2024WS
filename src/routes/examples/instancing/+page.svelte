@@ -5,7 +5,7 @@
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
-	import { getSettings } from '$lib/settings.svelte';
+	import { getControls } from '$lib/controls/controls.svelte';
 	import { vec3 } from 'wgpu-matrix';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Renderer } from '$lib/webGPU/Renderer';
@@ -14,9 +14,9 @@
 
 	let canvas = $state<HTMLCanvasElement>();
 
-	const settings = getSettings();
+	const controls = getControls();
 
-	const instanceCountControl = settings.addControl({
+	const instanceCountControl = controls.addControl({
 		name: 'Instance count',
 		type: 'range',
 		value: 100,

@@ -1,32 +1,36 @@
 import { Geometry } from './Geometry';
 
 export class CubeGeometry extends Geometry {
-	constructor() {
+	constructor(width = 1, height = 1, depth = 1) {
+		width /= 2;
+		height /= 2;
+		depth /= 2;
+
 		// prettier-ignore
 		const vertices = [
       // TOP LEFT FRONT
-      -1, 1,  1,
+      -width, height,  depth,
   
       // TOP RIGHT FRONT
-      1,  1,  1,
+      width,  height,  depth,
   
       // BOTTOM RIGHT FRONT
-      1,  -1, 1,
+      width,  -height, depth,
   
       // BOTTOM LEFT FRONT
-      -1, -1, 1,
+      -width, -height, depth,
 
       // TOP LEFT BACK
-      -1, 1, -1,
+      -width, height, -depth,
   
       // TOP RIGHT BACK
-      1,  1,  -1,
+      width,  height,  -depth,
   
       // BOTTOM RIGHT BACK
-      1,  -1, -1,
+      width,  -height, -depth,
 
       // BOTTOM LEFT BACK
-      -1, -1, -1,
+      -width, -height, -depth,
     ];
 
 		// prettier-ignore

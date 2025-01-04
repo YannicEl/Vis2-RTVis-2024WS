@@ -8,65 +8,22 @@
 	import { globalState } from '$lib/globalState.svelte';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
-	import { getSettings } from '$lib/settings.svelte';
+	import { getControls } from '$lib/controls/controls.svelte';
 	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
 	import { Scene } from '$lib/webGPU/scene/Scene';
+	import { setupRayMarchingControls } from '$lib/controls/rayMarchingControls';
 
 	let canvas = $state<HTMLCanvasElement>();
 
-	const settings = getSettings();
+	const controls = getControls();
 
-	const clearColorControl = settings.addControl({
-		name: 'Clear color',
-		type: 'color',
-		value: '#ffffff',
-	});
+	const rayMarchingControls = setupRayMarchingControls();
 
-	const fragmentColorControl = settings.addControl({
-		name: 'Fragment color',
-		type: 'color',
-		value: '#0000ff',
-	});
-
-	const numberOfStepsControl = settings.addControl({
-		name: 'Number of steps',
-		type: 'range',
-		value: 300,
-		min: 0,
-		max: 5000,
-	});
-
-	const minimumHitDistanceControl = settings.addControl({
-		name: 'Minimum hit distance',
-		type: 'range',
-		value: 0.4,
-		step: 0.01,
-		min: 0,
-		max: 1,
-	});
-
-	const maximumTraceDistanceControl = settings.addControl({
-		name: 'Maximum trace distance',
-		type: 'range',
-		value: 1000,
-		min: 0,
-		max: 5000,
-	});
-
-	const subsurfaceDepthControl = settings.addControl({
-		name: 'Subsurface depth',
-		type: 'range',
-		value: 2,
-		step: 0.01,
-		min: 0,
-		max: 5,
-	});
-
-	const radiusControl = settings.addControl({
+	const radiusControl = controls.addControl({
 		name: 'Radius',
 		type: 'range',
 		value: 4,
@@ -162,6 +119,9 @@
 				minimumHitDistance: 0.001,
 				maximumTraceDistance: 1000,
 				subsurfaceDepth: 2,
+				width,
+				height,
+				depth,
 			});
 
 			const quad = new SceneObject(new QuadGeometry(), material, [texture]);
@@ -180,17 +140,22 @@
 				},
 			});
 
-			clearColorControl.onChange((clearColor) => material.update(device, { clearColor }));
-			fragmentColorControl.onChange((fragmentColor) => material.update(device, { fragmentColor }));
-
-			numberOfStepsControl.onChange((numberOfSteps) => material.update(device, { numberOfSteps }));
-			maximumTraceDistanceControl.onChange((maximumTraceDistance) =>
+			rayMarchingControls.clearColor.onChange((clearColor) =>
+				material.update(device, { clearColor })
+			);
+			rayMarchingControls.fragmentColor.onChange((fragmentColor) =>
+				material.update(device, { fragmentColor })
+			);
+			rayMarchingControls.numberOfSteps.onChange((numberOfSteps) =>
+				material.update(device, { numberOfSteps })
+			);
+			rayMarchingControls.maximumTraceDistance.onChange((maximumTraceDistance) =>
 				material.update(device, { maximumTraceDistance })
 			);
-			minimumHitDistanceControl.onChange((minimumHitDistance) =>
+			rayMarchingControls.minimumHitDistance.onChange((minimumHitDistance) =>
 				material.update(device, { minimumHitDistance })
 			);
-			subsurfaceDepthControl.onChange((subsurfaceDepth) =>
+			rayMarchingControls.subsurfaceDepth.onChange((subsurfaceDepth) =>
 				material.update(device, { subsurfaceDepth })
 			);
 

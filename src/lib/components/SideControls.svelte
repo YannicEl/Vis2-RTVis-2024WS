@@ -1,15 +1,15 @@
 <script lang="ts">
 	import type { SvelteHTMLElements } from 'svelte/elements';
 	import { page } from '$app/state';
-	import { getSettings } from '$lib/settings.svelte';
+	import { getControls } from '$lib/controls/controls.svelte';
 	import { goto } from '$app/navigation';
 
 	type Props = {} & SvelteHTMLElements['div'];
 	let { class: className, ...props }: Props = $props();
 
-	const settings = getSettings();
+	const controls = getControls();
 
-	const exampleControl = settings.addControl({
+	const exampleControl = controls.addControl({
 		name: 'Example',
 		type: 'select',
 		value: page.route.id?.split('/')?.at(-1) ?? '/',
@@ -32,7 +32,7 @@
 	]}
 	{...props}
 >
-	{#each settings.controls as control (control)}
+	{#each controls.controls as control (control)}
 		<label class="flex flex-col">
 			{#if control.type !== 'button'}
 				{control.name}

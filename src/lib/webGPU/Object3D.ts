@@ -64,4 +64,11 @@ export class Object3D {
 	scaleZ(value: number): void {
 		this.scale[2] = value;
 	}
+
+	scaleAll(value: Vec3): void {
+		const [x, y, z] = value;
+		this.scaleX(x);
+		this.scaleY(y);
+		this.scaleZ(z);
+	}
 }

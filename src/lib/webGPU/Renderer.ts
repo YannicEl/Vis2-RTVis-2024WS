@@ -16,7 +16,7 @@ export class Renderer {
 	#depthTexture: Texture;
 	#renderBundles: WeakMap<Scene, GPURenderBundle> = new WeakMap();
 
-	constructor({ context, device, clearColor = 'black' }: RendererParams) {
+	constructor({ context, device, clearColor = 'white' }: RendererParams) {
 		this.#device = device;
 		this.#context = context;
 		this.#depthTexture = new Texture({
@@ -40,11 +40,7 @@ export class Renderer {
 	}
 
 	onCanvasResized(width: number, height: number) {
-		this.#depthTexture = new Texture({
-			size: [width, height],
-			format: 'depth24plus',
-			usage: GPUTextureUsage.RENDER_ATTACHMENT,
-		});
+		this.#depthTexture.updateSize({ width, height });
 	}
 
 	load(scene: Scene): void {

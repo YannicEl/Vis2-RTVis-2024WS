@@ -9,14 +9,14 @@
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
-	import { getSettings } from '$lib/settings.svelte';
+	import { getControls } from '$lib/controls/controls.svelte';
 	import { onMount } from 'svelte';
 	import { Scene } from '$lib/webGPU/scene/Scene';
 
 	let canvas = $state<HTMLCanvasElement>();
 
-	const settings = getSettings();
-	const fovControl = settings.addControl({
+	const controls = getControls();
+	const fovControl = controls.addControl({
 		name: 'FOV',
 		type: 'range',
 		value: 60,
@@ -24,7 +24,7 @@
 		max: 180,
 	});
 
-	const searchLocalControl = settings.addControl({
+	const searchLocalControl = controls.addControl({
 		name: 'Search Local',
 		type: 'select',
 		value: 'example',
@@ -42,13 +42,13 @@
 		],
 	});
 
-	const searchOnlineControl = settings.addControl({
+	const searchOnlineControl = controls.addControl({
 		name: 'Search',
 		type: 'text',
 		value: '',
 	});
 
-	const searchOnlineButton = settings.addControl({
+	const searchOnlineButton = controls.addControl({
 		name: 'load',
 		label: 'Load (Online)',
 		type: 'button',

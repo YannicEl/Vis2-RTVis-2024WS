@@ -10,6 +10,9 @@ struct Uniforms {
   minimumHitDistance: f32,
   maximumTraceDistance: f32,
   subsurfaceDepth: f32,
+  width: f32,
+  height: f32,
+  depth: f32,
 }
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
@@ -98,19 +101,19 @@ fn ray_march(
 
 fn atoms_SDF(position: vec3f) -> f32 {
   // TODO: no hardcoded values
-  let width: f32 = 47.81300067901611;
-  let height: f32 = 24.414999961853027;
-  let depth: f32 = 41.61699867248535;
+  let width = uniforms.width;
+  let height = uniforms.height;
+  let depth = uniforms.depth;
 
   if(
-    position.x >= -width && position.x <= width &&
-    position.y >= -height && position.y <= height &&
-    position.z >= -depth && position.z <= depth
+    position.x >= -(width / 2) && position.x <= width / 2 &&
+    position.y >= -(height / 2) && position.y <= height / 2 &&
+    position.z >= -(depth / 2) && position.z <= depth / 2 
   ) {
     let pixel = vec3f(
-      normalize_lol(position.x, -width, width), 
-      normalize_lol(position.y, -height, height), 
-      normalize_lol(position.z, -depth, depth),
+      normalize_lol(position.x, -width / 2, width / 2), 
+      normalize_lol(position.y, -height / 2, height / 2), 
+      normalize_lol(position.z, -depth / 2, depth / 2),
     );
     let sample = textureSample(sdf_texture, sdf_sampler, pixel);
     return sample.r;
@@ -118,10 +121,10 @@ fn atoms_SDF(position: vec3f) -> f32 {
     // TODO should be shortest distance between position and texture cube
     // Currently approximating the cube with a shere
     let center = vec3f(0, 0, 0);
-    let radius = sqrt(pow(width, 2) + pow(height, 2) + pow(depth, 2)) / 2;
+    let radius = sqrt(pow(width, 2) + pow(height, 2) + pow(depth, 2));
     let distance_from_center = distance(center, position);
       
-    let padding = 0.001;
+    let padding = 0.4;
     if(distance_from_center > radius + padding) {
       return distance_from_center - radius;
     } else {

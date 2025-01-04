@@ -7,11 +7,11 @@
 	import { Texture } from '$lib/webGPU/texture/Texture';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { globalState } from '$lib/globalState.svelte';
-	import { loadPDBLocal } from '$lib/mol/pdbLoader';
+	import { loadPDBLocal, LOCAL_PDB_FILES } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
-	import { getSettings } from '$lib/settings.svelte';
+	import { getControls } from '$lib/controls/controls.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
@@ -22,11 +22,12 @@
 	import { CubeGeometry } from '$lib/webGPU/geometry/CubeGeometry';
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Object3D } from '$lib/webGPU/Object3D';
+	import type { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
 
 	let canvas = $state<HTMLCanvasElement>();
 
-	const settings = getSettings();
-	const fovControl = settings.addControl({
+	const controls = getControls();
+	const fovControl = controls.addControl({
 		name: 'FOV',
 		type: 'range',
 		value: 60,
@@ -34,6 +35,26 @@
 		max: 180,
 	});
 	fovControl.onChange((value) => (camera.fov = value));
+
+	const moleculeControl = controls.addControl({
+		name: 'Molecule',
+		type: 'select',
+		value: 'example',
+		options: [
+			...LOCAL_PDB_FILES.map((file) => {
+				return {
+					label: file === 'example' ? 'Example' : file.toUpperCase(),
+					value: file,
+				};
+			}),
+		],
+	});
+
+	const showCubeControl = controls.addControl({
+		name: 'Show cube',
+		type: 'checkbox',
+		value: false,
+	});
 
 	const camera = new Camera();
 	globalState.camera = camera;
@@ -57,7 +78,9 @@
 			}),
 		});
 
-		const deineMame = await loadPDBLocal('example');
+		const renderer = new Renderer({ context, device, clearColor: 'white' });
+
+		const deineMame = await loadPDBLocal(moleculeControl.value);
 		if (!deineMame) return;
 		PDB = deineMame;
 
@@ -79,48 +102,17 @@
 				GPUTextureUsage.RENDER_ATTACHMENT,
 		});
 
-		const sceneMolecules = await getSceneMolecules();
-		if (!sceneMolecules) {
-			console.error('Failed to load sceneMolecules');
-			return;
-		}
+		let scenes = await getScenes();
 
-		// TODO: insert more render passes here
-
-		const sceneRaymarching = await getSceneRaymarching();
-
-		let sceneCopyPass = getSceneCopyPass([textureMolecules, textureRaymarching]);
-
-		const renderer = new Renderer({ context, device, clearColor: 'white' });
-
-		autoResizeCanvas({
-			canvas,
-			device,
-			onResize: (canvas) => {
-				camera.aspect = canvas.clientWidth / canvas.clientHeight;
-				renderer.onCanvasResized(canvas.width, canvas.height);
-
-				textureMolecules = new Texture({
-					format: 'bgra8unorm',
-					size: [canvas.width, canvas.height],
-					usage:
-						GPUTextureUsage.TEXTURE_BINDING |
-						GPUTextureUsage.COPY_DST |
-						GPUTextureUsage.RENDER_ATTACHMENT,
-				});
-
-				textureRaymarching = new Texture({
-					format: 'bgra8unorm',
-					size: [canvas.width, canvas.height],
-					usage:
-						GPUTextureUsage.TEXTURE_BINDING |
-						GPUTextureUsage.COPY_DST |
-						GPUTextureUsage.RENDER_ATTACHMENT,
-				});
-
-				sceneCopyPass = getSceneCopyPass([textureMolecules, textureRaymarching]);
-			},
+		showCubeControl.onChange(async () => {
+			scenes = await getScenes();
 		});
+
+		moleculeControl.onChange(async () => {
+			scenes = await getScenes();
+		});
+
+		const sceneCopyPass = getSceneCopyPass([textureMolecules, textureRaymarching]);
 
 		const controls = new ArcballControls({ eventSource: canvas, camera, distance: 80 });
 		globalState.contols = controls;
@@ -135,55 +127,121 @@
 				viewMatrixInverse: camera.viewMatrixInverse,
 			});
 
-			// renderer.render(sceneMolecules, { camera });
-			renderer.render(sceneMolecules, {
+			renderer.render(scenes.molecules, {
 				view: textureMolecules.createView(device),
-				camera: camera,
+				camera,
 			});
-			// renderer.render(sceneRaymarching, { camera: camera });
-			renderer.render(sceneRaymarching, {
+
+			renderer.render(scenes.rayMarching, {
 				view: textureRaymarching.createView(device),
-				camera: camera,
+				camera,
 			});
+
 			renderer.render(sceneCopyPass, { camera });
 		});
 
-		async function getSceneMolecules() {
-			// const { atomsAndBonds: ballsAndSticks } = createPdbGeometry(PDB);
-			const geometry = new CubeGeometry();
+		autoResizeCanvas({
+			canvas,
+			device,
+			onResize: (canvas) => {
+				camera.aspect = canvas.clientWidth / canvas.clientHeight;
+				renderer.onCanvasResized(canvas.width, canvas.height);
+
+				const { width, height } = canvas;
+				textureMolecules.updateSize({ width, height });
+				textureRaymarching.updateSize({ width, height });
+
+				sceneCopyPass.load(device);
+			},
+		});
+
+		async function getScenes() {
+			const { atomsAndBonds: sticksAndBalls, atoms } = createPdbGeometry(PDB);
+
+			const {
+				scene: rayMarchingScene,
+				width,
+				height,
+				depth,
+				scale,
+			} = await getSceneRaymarching(atoms);
+
+			for (const sceneObject of sticksAndBalls) {
+				for (let i = 0; i < sceneObject.count; i++) {
+					const instance = sceneObject.getInstance(i);
+					const [x, y, z] = instance.position;
+
+					instance.scaleAll(vec3.create(scale, scale, scale));
+					instance.setPosition(vec3.create(x * scale, y * scale, z * scale));
+				}
+			}
+
+			const moleculesScene = getSceneMolecules(sticksAndBalls);
+
+			const geometry = new CubeGeometry(width, height, depth);
 			const material = new ColorMaterial('green');
 			const cube = new SceneObject(geometry, material);
-			cube.scaleX(41.61699867248535);
-			cube.scaleY(24.414999961853027);
-			cube.scaleZ(47.81300067901611);
 
-			const scene = new Scene(cube);
+			cube.load(device);
+
+			if (showCubeControl.value) moleculesScene.add(cube);
+			renderer.load(moleculesScene);
+
+			return {
+				molecules: moleculesScene,
+				rayMarching: rayMarchingScene,
+			};
+		}
+
+		function getSceneMolecules(sticksAndBalls: InstancedSceneObject[]) {
+			const scene = new Scene(sticksAndBalls);
 			scene.load(device);
+			renderer.load(scene);
 
 			return scene;
 		}
 
-		async function getSceneRaymarching() {
+		async function getSceneRaymarching(atoms: Object3D[]) {
 			let dimensions = {
 				width: { min: 0, max: 0 },
 				height: { min: 0, max: 0 },
 				depth: { min: 0, max: 0 },
 			};
 
-			const { atoms } = createPdbGeometry(PDB);
-
-			const padding = 10;
+			const radius = 0.5;
+			const padding = 0;
 			for (const atom of atoms) {
 				const [x, y, z] = atom.position;
 
-				dimensions.width.min = Math.min(dimensions.width.min, x - padding);
-				dimensions.width.max = Math.max(dimensions.width.max, x + padding);
+				dimensions.width.min = Math.min(dimensions.width.min, x - radius - padding);
+				dimensions.width.max = Math.max(dimensions.width.max, x + radius + padding);
 
-				dimensions.height.min = Math.min(dimensions.height.min, y - padding);
-				dimensions.height.max = Math.max(dimensions.height.max, y + padding);
+				dimensions.height.min = Math.min(dimensions.height.min, y - radius - padding);
+				dimensions.height.max = Math.max(dimensions.height.max, y + radius + padding);
 
-				dimensions.depth.min = Math.min(dimensions.depth.min, z - padding);
-				dimensions.depth.max = Math.max(dimensions.depth.max, z + padding);
+				dimensions.depth.min = Math.min(dimensions.depth.min, z - radius - padding);
+				dimensions.depth.max = Math.max(dimensions.depth.max, z + radius + padding);
+			}
+
+			let width = dimensions.width.max - dimensions.width.min;
+			let height = dimensions.height.max - dimensions.height.min;
+			let depth = dimensions.depth.max - dimensions.depth.min;
+
+			const atoms_2: Object3D[] = [];
+			for (const atom of atoms) {
+				const [x, y, z] = atom.position;
+
+				const newAtom = new Object3D();
+
+				newAtom.setPosition(
+					vec3.create(
+						normalize(x, dimensions.width.min, dimensions.width.max, 0, width),
+						normalize(y, dimensions.height.min, dimensions.height.max, 0, height),
+						normalize(z, dimensions.depth.min, dimensions.depth.max, 0, depth)
+					)
+				);
+
+				atoms_2.push(newAtom);
 			}
 
 			function normalize(
@@ -194,26 +252,6 @@
 				to: number
 			): number {
 				return (to - from) * ((value - min) / (max - min)) + from;
-			}
-
-			// const width = 64;
-			// const height = 64;
-			// const depth = 64;
-
-			const width = dimensions.width.max - dimensions.width.min;
-			const height = dimensions.height.max - dimensions.height.min;
-			const depth = dimensions.depth.max - dimensions.depth.min;
-
-			console.log({ width, height, depth });
-
-			for (const atom of atoms) {
-				const [x, y, z] = atom.position;
-
-				atom.position = vec3.create(
-					normalize(x, dimensions.width.min, dimensions.width.max, 0, width),
-					normalize(y, dimensions.height.min, dimensions.height.max, 0, height),
-					normalize(z, dimensions.depth.min, dimensions.depth.max, 0, depth)
-				);
 			}
 
 			const top_left_back = new Object3D();
@@ -227,11 +265,16 @@
 				width,
 				height,
 				depth,
-				radius: 1,
+				radius,
 				scale: 10,
-				atoms,
+				atoms: atoms_2,
 			});
 			console.timeEnd('Compute SDF Texture');
+
+			const scale = 4;
+			width *= scale;
+			height *= scale;
+			depth *= scale;
 
 			raymarchingMaterial = new RayMarchingMaterial({
 				clearColor: 'white',
@@ -239,17 +282,20 @@
 				cameraPosition: camera.position,
 				projectionMatrixInverse: camera.projectionMatrixInverse,
 				viewMatrixInverse: camera.viewMatrixInverse,
-				numberOfSteps: 1000,
-				minimumHitDistance: 0.001,
+				numberOfSteps: 300,
+				minimumHitDistance: 0.4,
 				maximumTraceDistance: 1000,
 				subsurfaceDepth: 2,
+				width: width,
+				height: height,
+				depth: depth,
 			});
 
 			const quad = new SceneObject(new QuadGeometry(), raymarchingMaterial, [raymarchingTexture]);
 			const scene = new Scene(quad);
 			scene.load(device);
 
-			return scene;
+			return { scene, width, height, depth, scale };
 		}
 
 		function getSceneCopyPass(textures: Texture[]): Scene {

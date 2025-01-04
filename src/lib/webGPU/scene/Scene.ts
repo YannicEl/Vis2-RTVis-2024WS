@@ -13,6 +13,11 @@ export class Scene {
 		this.children.push(...children);
 	}
 
+	remove(child: BaseSceneObject): void {
+		const index = this.children.indexOf(child);
+		if (index >= 0) this.children.splice(index, 1);
+	}
+
 	load(device: GPUDevice): void {
 		for (const child of this.children) {
 			child.load(device);

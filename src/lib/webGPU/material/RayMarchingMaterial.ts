@@ -15,6 +15,9 @@ export type RayMarchingMaterialParams = {
 	minimumHitDistance: number;
 	maximumTraceDistance: number;
 	subsurfaceDepth: number;
+	width: number;
+	height: number;
+	depth: number;
 };
 
 export class RayMarchingMaterial extends Material {
@@ -38,6 +41,9 @@ export class RayMarchingMaterial extends Material {
 				minimumHitDistance: 'f32',
 				maximumTraceDistance: 'f32',
 				subsurfaceDepth: 'f32',
+				width: 'f32',
+				height: 'f32',
+				depth: 'f32',
 			},
 			'Ray Marching Material Buffer'
 		);
@@ -45,7 +51,7 @@ export class RayMarchingMaterial extends Material {
 		this.updateBufferValues(params);
 	}
 
-	private updateBufferValues(params: Partial<RayMarchingMaterialParams>): void {
+	updateBufferValues(params: Partial<RayMarchingMaterialParams>): void {
 		if (!this.uniformBuffer) return;
 		Object.entries(params).forEach(([key, value]) => {
 			let newValue: ArrayLike<number>;
