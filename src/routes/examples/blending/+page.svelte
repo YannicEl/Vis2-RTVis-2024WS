@@ -23,7 +23,7 @@
 	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Object3D } from '$lib/webGPU/Object3D';
 	import type { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
-	import { addMoleculeSelectControl } from '$lib/controls/moleculeSelectControl';
+	import { addGeneralControls } from '$lib/controls/generalControls.ts';
 	import { addRayMarchingControls } from '$lib/controls/rayMarchingControls';
 
 	let canvas = $state<HTMLCanvasElement>();
@@ -41,7 +41,7 @@
 	});
 	fovControl.onChange((value) => (camera.fov = value));
 
-	const moleculeControl = addMoleculeSelectControl();
+	const generalControls = addGeneralControls();
 
 	const rayMarchingMaterial = new RayMarchingMaterial({
 		clearColor: 'white',
@@ -94,7 +94,7 @@
 
 		const renderer = new Renderer({ context, device, clearColor: 'white' });
 
-		const deineMame = await loadPDBLocal(moleculeControl.value);
+		const deineMame = await loadPDBLocal(generalControls.molecule.value);
 		if (!deineMame) return;
 		PDB = deineMame;
 
@@ -130,8 +130,8 @@
 			scenes = await getScenes();
 		});
 
-		moleculeControl.onChange(async () => {
-			PDB = await loadPDBLocal(moleculeControl.value);
+		generalControls.molecule.onChange(async () => {
+			PDB = await loadPDBLocal(generalControls.molecule.value);
 			scenes = await getScenes();
 		});
 

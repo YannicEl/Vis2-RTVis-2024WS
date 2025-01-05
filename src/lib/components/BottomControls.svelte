@@ -25,10 +25,7 @@
 	}
 </script>
 
-<div
-	class={[className, 'shadow-elevation-100 flex rounded-xl border border-gray-200 bg-white p-1']}
-	{...props}
->
+<div class={[className, 'shadow-elevation-100 border-gray-2  flex border bg-white p-1']} {...props}>
 	<button onclick={zoomIn}>
 		<IconsAdd class="text-2xl text-gray-500" />
 	</button>
@@ -48,11 +45,10 @@
 
 <style>
 	button {
-		border-radius: var(--radius-xl);
-		padding: var(--spacing-2);
+		--apply: rounded-4 p-2;
 
 		&:hover {
-			background-color: var(--color-gray-100);
+			--apply: gray-1;
 		}
 	}
 </style>

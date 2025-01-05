@@ -8,7 +8,6 @@
 	import { globalState } from '$lib/globalState.svelte';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
-	import { getControls } from '$lib/controls/controls.svelte';
 	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
@@ -16,14 +15,14 @@
 	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
 	import { Scene } from '$lib/webGPU/scene/Scene';
 	import { addRayMarchingControls } from '$lib/controls/rayMarchingControls';
-	import { addMoleculeSelectControl } from '$lib/controls/moleculeSelectControl';
+	import { addGeneralControls } from '$lib/controls/generalControls.ts';
+	import { addCameraControls } from '$lib/controls/cameraControls';
+	import { addMiscControls } from '$lib/controls/miscControls.svelte';
 
 	let canvas = $state<HTMLCanvasElement>();
 
 	const camera = new Camera();
 	globalState.camera = camera;
-
-	const controls = getControls();
 
 	const rayMarchingMaterial = new RayMarchingMaterial({
 		clearColor: 'white',
@@ -38,16 +37,10 @@
 	});
 
 	addRayMarchingControls(rayMarchingMaterial);
-	const moleculeControl = addMoleculeSelectControl();
+	const generalControls = addGeneralControls();
 
-	const radiusControl = controls.addControl({
-		name: 'Radius',
-		type: 'range',
-		value: 4,
-		step: 0.5,
-		min: 0,
-		max: 20,
-	});
+	addCameraControls(camera);
+	addMiscControls();
 
 	onMount(async () => {
 		try {
@@ -65,7 +58,7 @@
 			});
 
 			async function updateScene(): Promise<Scene> {
-				const PDB = await loadPDBLocal(moleculeControl.value);
+				const PDB = await loadPDBLocal(generalControls.molecule.value);
 				if (!PDB) throw new Error('PDB Not found');
 				const { atoms } = createPdbGeometry(PDB);
 
@@ -137,9 +130,9 @@
 
 			const renderer = new Renderer({ context, device, clearColor: 'white' });
 
-			let scene = await updateScene();
+			let scene = new Scene();
 
-			moleculeControl.onChange(async () => {
+			generalControls.molecule.onChange(async () => {
 				scene = await updateScene();
 			});
 
@@ -151,6 +144,8 @@
 					renderer.onCanvasResized(canvas.width, canvas.height);
 				},
 			});
+
+			console.log('draw');
 
 			draw((deltaTime) => {
 				globalState.fps = 1000 / deltaTime;

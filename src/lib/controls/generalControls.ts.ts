@@ -1,11 +1,11 @@
 import { LOCAL_PDB_FILES } from '$lib/mol/pdbLoader';
 import { getControls } from './controls.svelte';
 
-export function addMoleculeSelectControl() {
+export function addGeneralControls() {
 	const controls = getControls();
 
-	const moleculeSelect = controls.addControl({
-		name: 'Search Local',
+	const molecule = controls.addControl({
+		name: 'Molecule',
 		type: 'select',
 		value: 'example',
 		options: [
@@ -18,5 +18,7 @@ export function addMoleculeSelectControl() {
 		],
 	});
 
-	return moleculeSelect;
+	return {
+		molecule,
+	};
 }

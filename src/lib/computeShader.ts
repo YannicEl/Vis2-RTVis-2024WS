@@ -21,6 +21,20 @@ export async function compute3DTexture({
 	scale = 1,
 	atoms,
 }: Compute3DTextureParams): Promise<Texture> {
+	const { maxBufferSize } = device.limits;
+
+	while (true) {
+		scale += 0.1;
+
+		const size = width * height * depth * Math.pow(scale, 3) * 4;
+		if (size > maxBufferSize * 0.3) {
+			scale -= 0.1;
+			break;
+		}
+	}
+
+	console.log(scale);
+
 	width = Math.ceil(width * scale);
 	height = Math.ceil(height * scale);
 	depth = Math.ceil(depth * scale);

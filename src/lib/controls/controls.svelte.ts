@@ -10,14 +10,15 @@ export type ControlParams<T = unknown> =
 
 type BaseControl<T> = {
 	name: string;
+	group?: string;
 	value: T;
 };
 
 export type NumberControlParams<T> = {
 	type: 'number' | 'range';
-	min?: number | string;
-	max?: number | string;
-	step?: number | string;
+	min?: number;
+	max?: number;
+	step?: number;
 } & BaseControl<T>;
 
 export type CheckboxControlParams<T> = {

@@ -3,9 +3,11 @@ import { getControls } from './controls.svelte';
 
 export function addRayMarchingControls(material: RayMarchingMaterial) {
 	const controls = getControls();
+	const group = 'Ray marching';
 
 	const clearColor = controls.addControl({
 		name: 'Clear color',
+		group,
 		type: 'color',
 		value: '#ffffff',
 	});
@@ -13,6 +15,7 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 
 	const fragmentColor = controls.addControl({
 		name: 'Fragment color',
+		group,
 		type: 'color',
 		value: '#0000ff',
 	});
@@ -20,6 +23,7 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 
 	const numberOfSteps = controls.addControl({
 		name: 'Number of steps',
+		group,
 		type: 'range',
 		value: 300,
 		min: 0,
@@ -29,6 +33,7 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 
 	const minimumHitDistance = controls.addControl({
 		name: 'Minimum hit distance',
+		group,
 		type: 'range',
 		value: 0.4,
 		step: 0.01,
@@ -41,6 +46,7 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 
 	const maximumTraceDistance = controls.addControl({
 		name: 'Maximum trace distance',
+		group,
 		type: 'range',
 		value: 1000,
 		min: 0,
@@ -52,6 +58,7 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 
 	const subsurfaceDepth = controls.addControl({
 		name: 'Subsurface depth',
+		group,
 		type: 'range',
 		value: 2,
 		step: 0.01,

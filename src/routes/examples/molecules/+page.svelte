@@ -13,7 +13,7 @@
 	import { getControls } from '$lib/controls/controls.svelte';
 	import { onMount } from 'svelte';
 	import { Scene } from '$lib/webGPU/scene/Scene';
-	import { addMoleculeSelectControl } from '$lib/controls/moleculeSelectControl';
+	import { addGeneralControls } from '$lib/controls/generalControls.ts';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -26,7 +26,7 @@
 		max: 180,
 	});
 
-	const searchLocalControl = addMoleculeSelectControl();
+	const generalControls = addGeneralControls();
 
 	const searchOnlineControl = controls.addControl({
 		name: 'Search',
@@ -68,7 +68,7 @@
 				};
 			}
 
-			searchLocalControl.onChange(async (value) => {
+			generalControls.molecule.onChange(async (value) => {
 				if (!value) return;
 
 				scene = await updateScene(value);
