@@ -42,7 +42,7 @@ export class InstancedSceneObject implements BaseSceneObject {
 		return this.instances[index];
 	}
 
-	load(device: GPUDevice): void {
+	async load(device: GPUDevice): Promise<void> {
 		const { shaderModule, uniformBuffer } = this.#material.load(device);
 		this.#geometry.load(device);
 
@@ -54,7 +54,7 @@ export class InstancedSceneObject implements BaseSceneObject {
 		});
 		device.queue.writeBuffer(this.#modelMatrixvertexBuffer, 0, this.#modelMatrixvertexBufferValues);
 
-		this.#pipeline = device.createRenderPipeline({
+		this.#pipeline = await device.createRenderPipelineAsync({
 			label: 'InstancedSceneObject Render Pipeline',
 			layout: 'auto',
 			vertex: {
@@ -169,6 +169,11 @@ export class InstancedSceneObject implements BaseSceneObject {
 	render(encoder: GPURenderPassEncoder | GPURenderBundleEncoder): void {
 		if (!this.#pipeline || !this.#geometry.indexBuffer) {
 			throw new Error('SceneObject not loaded');
+		}
+
+		if (this.count === 0) {
+			console.warn('InstancedSceneObject count is 0, skipping render');
+			return;
 		}
 
 		encoder.setPipeline(this.#pipeline);

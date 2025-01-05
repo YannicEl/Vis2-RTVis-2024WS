@@ -30,7 +30,7 @@
 		cameraPosition: camera.position,
 		projectionMatrixInverse: camera.projectionMatrixInverse,
 		viewMatrixInverse: camera.viewMatrixInverse,
-		numberOfSteps: 1000,
+		numberOfSteps: 500,
 		minimumHitDistance: 0.001,
 		maximumTraceDistance: 1000,
 		subsurfaceDepth: 2,
@@ -123,7 +123,7 @@
 
 				const quad = new SceneObject(new QuadGeometry(), rayMarchingMaterial, [texture]);
 				const scene = new Scene(quad);
-				scene.load(device);
+				await scene.load(device);
 				renderer.load(scene);
 
 				return scene;

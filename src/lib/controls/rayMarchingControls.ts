@@ -25,7 +25,7 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 		name: 'Number of steps',
 		group,
 		type: 'range',
-		value: 300,
+		value: 500,
 		min: 0,
 		max: 5000,
 	});

@@ -111,7 +111,7 @@
 
 				const scene = new Scene(ballsAndSticks);
 
-				scene.load(device);
+				await scene.load(device);
 				renderer.load(scene);
 
 				return scene;

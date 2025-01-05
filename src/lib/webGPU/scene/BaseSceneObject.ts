@@ -1,5 +1,5 @@
 export interface BaseSceneObject {
-	load(device: GPUDevice): void;
+	load(device: GPUDevice): Promise<void>;
 
 	update(device: GPUDevice, viewProjectionMatrix?: Float32Array): void;
 

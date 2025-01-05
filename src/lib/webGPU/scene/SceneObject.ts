@@ -34,13 +34,13 @@ export class SceneObject extends Object3D implements BaseSceneObject {
 		}
 	}
 
-	load(device: GPUDevice): void {
+	async load(device: GPUDevice): Promise<void> {
 		const { shaderModule, uniformBuffer } = this.#material.load(device);
 		this.#geometry.load(device);
 
 		this.#modelUniformBuffer?.load(device);
 
-		this.#pipeline = device.createRenderPipeline({
+		this.#pipeline = await device.createRenderPipelineAsync({
 			label: 'SceneObject Render Pipeline',
 			layout: 'auto',
 			vertex: {

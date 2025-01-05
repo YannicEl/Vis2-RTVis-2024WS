@@ -18,10 +18,13 @@ export class Scene {
 		if (index >= 0) this.children.splice(index, 1);
 	}
 
-	load(device: GPUDevice): void {
+	async load(device: GPUDevice): Promise<void> {
+		const promises: Promise<void>[] = [];
 		for (const child of this.children) {
-			child.load(device);
+			promises.push(child.load(device));
 		}
+
+		await Promise.all(promises);
 	}
 
 	render(passEncoder: GPURenderPassEncoder | GPURenderBundleEncoder): void {

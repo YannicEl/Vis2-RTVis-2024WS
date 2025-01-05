@@ -44,7 +44,7 @@
 			const stick_b = new SceneObject(cylinderGeometry, colorBlue);
 
 			const scene = new Scene([atom_a1, atom_a2, stick_a, atom_b1, atom_b2, stick_b]);
-			scene.load(device);
+			await scene.load(device);
 
 			atom_a1.setPosition(vec3.create(0, 0, 0));
 			atom_a2.setPosition(vec3.create(1, 1, 1));

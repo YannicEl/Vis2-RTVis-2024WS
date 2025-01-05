@@ -43,7 +43,7 @@
 		cameraPosition: camera.position,
 		projectionMatrixInverse: camera.projectionMatrixInverse,
 		viewMatrixInverse: camera.viewMatrixInverse,
-		numberOfSteps: 300,
+		numberOfSteps: 500,
 		minimumHitDistance: 0.4,
 		maximumTraceDistance: 1000,
 		subsurfaceDepth: 2,
@@ -120,7 +120,7 @@
 			scenes = await getScenes();
 		});
 
-		const sceneCopyPass = getSceneCopyPass([textureMolecules, textureRaymarching]);
+		const sceneCopyPass = await getSceneCopyPass([textureMolecules, textureRaymarching]);
 
 		const controls = new ArcballControls({ eventSource: canvas, camera, distance: 80 });
 		globalState.contols = controls;
@@ -184,7 +184,7 @@
 				}
 			}
 
-			const moleculesScene = getSceneMolecules(
+			const moleculesScene = await getSceneMolecules(
 				generalControls.showMoleculeStructure.value ? sticksAndBalls : []
 			);
 
@@ -192,7 +192,7 @@
 			const material = new ColorMaterial('green');
 			const cube = new SceneObject(geometry, material);
 
-			cube.load(device);
+			await cube.load(device);
 
 			if (showCubeControl.value) moleculesScene.add(cube);
 			renderer.load(moleculesScene);
@@ -203,9 +203,9 @@
 			};
 		}
 
-		function getSceneMolecules(sticksAndBalls: InstancedSceneObject[]) {
+		async function getSceneMolecules(sticksAndBalls: InstancedSceneObject[]) {
 			const scene = new Scene(sticksAndBalls);
-			scene.load(device);
+			await scene.load(device);
 			renderer.load(scene);
 
 			return scene;
@@ -307,17 +307,17 @@
 
 			const quad = new SceneObject(new QuadGeometry(), rayMarchingMaterial, [raymarchingTexture]);
 			const scene = new Scene(quad);
-			scene.load(device);
+			await scene.load(device);
 
 			return { scene, width, height, depth, scale };
 		}
 
-		function getSceneCopyPass(textures: Texture[]): Scene {
+		async function getSceneCopyPass(textures: Texture[]): Promise<Scene> {
 			const geometry = new QuadGeometry();
 			const material = new ShaderMaterial(shader_2, { requiresModelUniforms: false });
 			const quad = new SceneObject(geometry, material, textures);
 			const scene = new Scene([quad]);
-			scene.load(device);
+			await scene.load(device);
 
 			return scene;
 		}
