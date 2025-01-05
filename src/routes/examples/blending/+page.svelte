@@ -60,9 +60,6 @@
 		value: false,
 	});
 
-	let textureMolecules: Texture;
-	let textureRaymarching: Texture;
-
 	let PDB: Pdb;
 
 	onMount(async () => {
@@ -77,13 +74,16 @@
 			}),
 		});
 
+		const controls = new ArcballControls({ eventSource: canvas, camera, distance: 80 });
+		globalState.contols = controls;
+
 		const renderer = new Renderer({ context, device, clearColor: 'white' });
 
 		const deineMame = await loadPDBLocal(generalControls.molecule.value);
 		if (!deineMame) return;
 		PDB = deineMame;
 
-		textureMolecules = new Texture({
+		const textureMolecules = new Texture({
 			format: 'bgra8unorm',
 			size: [canvas.width, canvas.height],
 			usage:
@@ -92,7 +92,7 @@
 				GPUTextureUsage.RENDER_ATTACHMENT,
 		});
 
-		textureRaymarching = new Texture({
+		const textureRaymarching = new Texture({
 			format: 'bgra8unorm',
 			size: [canvas.width, canvas.height],
 			usage:
@@ -121,9 +121,6 @@
 		});
 
 		const sceneCopyPass = await getSceneCopyPass([textureMolecules, textureRaymarching]);
-
-		const controls = new ArcballControls({ eventSource: canvas, camera, distance: 80 });
-		globalState.contols = controls;
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
@@ -305,7 +302,11 @@
 				depth: depth,
 			});
 
-			const quad = new SceneObject(new QuadGeometry(), rayMarchingMaterial, [raymarchingTexture]);
+			const geometry = new QuadGeometry();
+			const quad = new SceneObject(geometry, rayMarchingMaterial, [
+				raymarchingTexture,
+				// renderer.depthTexture,
+			]);
 			const scene = new Scene(quad);
 			await scene.load(device);
 

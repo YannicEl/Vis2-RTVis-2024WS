@@ -58,6 +58,8 @@
 				}),
 			});
 
+			const renderer = new Renderer({ context, device, clearColor: 'white' });
+
 			async function updateScene(): Promise<Scene> {
 				const PDB = await loadPDBLocal(generalControls.molecule.value);
 				if (!PDB) throw new Error('PDB Not found');
@@ -121,15 +123,16 @@
 
 				rayMarchingMaterial.updateBufferValues({ width, height, depth });
 
-				const quad = new SceneObject(new QuadGeometry(), rayMarchingMaterial, [texture]);
+				const quad = new SceneObject(new QuadGeometry(), rayMarchingMaterial, [
+					texture,
+					// renderer.depthTexture,
+				]);
 				const scene = new Scene(quad);
 				await scene.load(device);
 				renderer.load(scene);
 
 				return scene;
 			}
-
-			const renderer = new Renderer({ context, device, clearColor: 'white' });
 
 			let scene = new Scene();
 

@@ -16,8 +16,9 @@ struct Uniforms {
 }
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
-@group(0) @binding(2) var sdf_sampler: sampler;
+@group(0) @binding(2) var texture_sampler: sampler;
 @group(0) @binding(3) var sdf_texture: texture_3d<f32>;
+// @group(0) @binding(4) var depth_texture: texture_depth_2d;
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
@@ -52,6 +53,7 @@ fn fragment(
   ray_direction = (uniforms.viewMatrixInverse * vec4f(ray_direction, 0)).xyz;
   ray_direction = normalize(ray_direction);
 
+  // let depth = textureSample(depth_texture, texture_sampler, input.uv);
   return ray_march(ray_origin, ray_direction);
 }
 
@@ -115,7 +117,7 @@ fn atoms_SDF(position: vec3f) -> f32 {
       normalize_lol(position.y, -height / 2, height / 2), 
       normalize_lol(position.z, -depth / 2, depth / 2),
     );
-    let sample = textureSample(sdf_texture, sdf_sampler, pixel);
+    let sample = textureSample(sdf_texture, texture_sampler, pixel);
     return sample.r;
   } else {
     // TODO should be shortest distance between position and texture cube

@@ -13,16 +13,17 @@ export class Renderer {
 	#context: GPUCanvasContext;
 	#device: GPUDevice;
 	#clearColor: Color;
-	#depthTexture: Texture;
+	depthTexture: Texture;
 	#renderBundles: WeakMap<Scene, GPURenderBundle> = new WeakMap();
 
 	constructor({ context, device, clearColor = 'white' }: RendererParams) {
 		this.#device = device;
 		this.#context = context;
-		this.#depthTexture = new Texture({
+		this.depthTexture = new Texture({
+			label: 'Depth Texture',
 			size: [context.canvas.width, context.canvas.height],
 			format: 'depth24plus',
-			usage: GPUTextureUsage.RENDER_ATTACHMENT,
+			usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
 		});
 
 		const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -40,7 +41,7 @@ export class Renderer {
 	}
 
 	onCanvasResized(width: number, height: number) {
-		this.#depthTexture.updateSize({ width, height });
+		this.depthTexture.updateSize({ width, height });
 	}
 
 	load(scene: Scene): void {
@@ -71,7 +72,7 @@ export class Renderer {
 				},
 			],
 			depthStencilAttachment: {
-				view: this.#depthTexture.createView(this.#device),
+				view: this.depthTexture.createView(this.#device),
 				depthClearValue: 1.0,
 				depthLoadOp: 'clear',
 				depthStoreOp: 'store',
