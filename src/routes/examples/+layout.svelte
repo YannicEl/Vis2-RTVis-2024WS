@@ -14,7 +14,5 @@
 		<FpsCounter class="absolute left-0 top-0" fps={globalState.fps} />
 	{/if}
 	<SideControls class="absolute right-0 top-0" />
-	<BottomControls class="absolute bottom-4 left-0 right-0 mx-auto w-min" />
-
 	{@render children()}
 </main>

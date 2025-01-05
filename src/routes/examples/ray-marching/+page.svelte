@@ -50,6 +50,7 @@
 			if (!context) return;
 
 			const controls = new ArcballControls({ eventSource: canvas, camera, distance: 80 });
+			globalState.contols = controls;
 
 			const { device } = await initWebGPU({
 				deviceOptions: (adapter) => ({

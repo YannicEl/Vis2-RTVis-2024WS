@@ -27,10 +27,10 @@ export class ArcballControls {
 		y: 0,
 	};
 
-	#distance: number;
+	distance: number;
 	#rotationSpeed: number;
 	#zoomSpeed: number;
-	#frictionCoefficient: number;
+	frictionCoefficient: number;
 
 	#angularVelocity = 0;
 
@@ -42,13 +42,13 @@ export class ArcballControls {
 		distance = 5,
 		rotationSpeed = 0.0005,
 		zoomSpeed = 0.1,
-		frictionCoefficient = 0.001,
+		frictionCoefficient = 0.01,
 	}: ArcballControlsParams) {
 		this.#camera = camera;
-		this.#distance = distance;
+		this.distance = distance;
 		this.#rotationSpeed = rotationSpeed;
 		this.#zoomSpeed = zoomSpeed;
-		this.#frictionCoefficient = frictionCoefficient;
+		this.frictionCoefficient = frictionCoefficient;
 
 		eventSource.onpointermove = (event) => {
 			// Nicht mein code simon. Nicht böse sein bitte
@@ -72,7 +72,7 @@ export class ArcballControls {
 			this.#angularVelocity = 0;
 		} else {
 			// Dampen any existing angular velocity
-			this.#angularVelocity *= Math.pow(1 - this.#frictionCoefficient, deltaTime);
+			this.#angularVelocity *= Math.pow(1 - this.frictionCoefficient, deltaTime);
 		}
 
 		// Calculate the movement vector
@@ -107,10 +107,10 @@ export class ArcballControls {
 
 		// recalculate `this.position` from `this.front` considering zoom
 		if (this.input.zoom !== 0) {
-			this.#distance *= 1 + this.input.zoom * this.#zoomSpeed;
+			this.distance *= 1 + this.input.zoom * this.#zoomSpeed;
 		}
 
-		this.#camera.position = vec3.scale(this.#camera.front, -this.#distance);
+		this.#camera.position = vec3.scale(this.#camera.front, -this.distance);
 
 		this.input.x = 0;
 		this.input.y = 0;

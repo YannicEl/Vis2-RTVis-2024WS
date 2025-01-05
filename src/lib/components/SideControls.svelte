@@ -8,6 +8,7 @@
 	import MdiChevronUp from '~icons/mdi/chevron-up';
 	import MdiChevronDoubleRight from '~icons/mdi/chevron-double-right';
 	import MdiChevronDoubleLeft from '~icons/mdi/chevron-double-left';
+	import BottomControls from './BottomControls.svelte';
 
 	type Props = {} & SvelteHTMLElements['div'];
 	let { class: className, ...props }: Props = $props();
@@ -23,7 +24,6 @@
 			{ label: 'Ray marching', value: 'ray-marching' },
 			{ label: 'Rotation', value: 'rotation' },
 			{ label: 'Blending', value: 'blending' },
-			{ label: 'Instancing', value: 'instancing' },
 		],
 	});
 
@@ -146,6 +146,8 @@
 					{/each}
 				{/if}
 			{/each}
+
+			<BottomControls class="w-full" />
 		</div>
 	{:else}
 		<button

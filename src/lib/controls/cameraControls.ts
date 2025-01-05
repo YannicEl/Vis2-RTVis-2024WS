@@ -1,3 +1,4 @@
+import { globalState } from '$lib/globalState.svelte';
 import type { Camera } from '$lib/webGPU/Camera';
 import { getControls } from './controls.svelte';
 
@@ -35,9 +36,37 @@ export function addCameraControls(camera: Camera) {
 	});
 	far.onChange((far) => (camera.far = far));
 
+	const frictionCoefficient = controls.addControl({
+		name: 'Friction coefficient',
+		group,
+		type: 'range',
+		value: 0.01,
+		min: 0,
+		max: 0.1,
+		step: 0.001,
+	});
+	frictionCoefficient.onChange((frictionCoefficient) => {
+		if (!globalState.contols) return;
+		globalState.contols.frictionCoefficient = frictionCoefficient;
+	});
+
+	const distance = controls.addControl({
+		name: 'Distance',
+		group,
+		type: 'range',
+		value: 80,
+		min: 0,
+		max: 400,
+	});
+	distance.onChange((distance) => {
+		if (!globalState.contols) return;
+		globalState.contols.distance = distance;
+	});
+
 	return {
 		fov,
 		near,
 		far,
+		frictionCoefficient,
 	};
 }
