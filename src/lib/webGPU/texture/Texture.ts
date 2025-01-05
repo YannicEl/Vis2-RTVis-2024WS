@@ -6,17 +6,17 @@ export class Texture {
 	#width: number;
 	#height?: number;
 	#depthOrArrayLayers?: number;
-	#descriptor: GPUTextureDescriptor;
+	descriptor: GPUTextureDescriptor;
 	#loaded: WeakMap<GPUDevice, GPUTexture> = new WeakMap();
 	#views: WeakMap<GPUDevice, GPUTextureView> = new WeakMap();
 
 	constructor(descriptor: Optional<GPUTextureDescriptor, 'usage'>) {
-		this.#descriptor = {
+		this.descriptor = {
 			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
 			...descriptor,
 		};
 
-		const { width, height, depthOrArrayLayers } = this.getDimension(this.#descriptor.size);
+		const { width, height, depthOrArrayLayers } = this.getDimension(this.descriptor.size);
 		this.#width = width;
 		this.#height = height;
 		this.#depthOrArrayLayers = depthOrArrayLayers;
@@ -25,7 +25,7 @@ export class Texture {
 	load(device: GPUDevice): GPUTexture {
 		let texture = this.#loaded.get(device);
 		if (!texture) {
-			texture = device.createTexture(this.#descriptor);
+			texture = device.createTexture(this.descriptor);
 			this.#loaded.set(device, texture);
 		}
 
@@ -54,9 +54,9 @@ export class Texture {
 	}
 
 	updateSize(size: GPUExtent3DStrict): void {
-		this.#descriptor.size = size;
+		this.descriptor.size = size;
 
-		const { width, height, depthOrArrayLayers } = this.getDimension(this.#descriptor.size);
+		const { width, height, depthOrArrayLayers } = this.getDimension(this.descriptor.size);
 		this.#width = width;
 		this.#height = height;
 		this.#depthOrArrayLayers = depthOrArrayLayers;
