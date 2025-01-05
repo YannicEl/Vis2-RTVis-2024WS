@@ -23,6 +23,7 @@ export function addCameraControls(camera: Camera) {
 		value: camera.near,
 		min: 0,
 		max: 100,
+		step: 0.1,
 	});
 	near.onChange((near) => (camera.near = near));
 

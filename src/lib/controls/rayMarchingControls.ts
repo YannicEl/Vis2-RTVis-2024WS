@@ -3,7 +3,7 @@ import { getControls } from './controls.svelte';
 
 export function addRayMarchingControls(material: RayMarchingMaterial) {
 	const controls = getControls();
-	const group = 'Ray marching';
+	const group = 'Ray Marching';
 
 	const clearColor = controls.addControl({
 		name: 'Clear color',

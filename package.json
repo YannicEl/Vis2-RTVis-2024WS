@@ -34,6 +34,7 @@
 	"dependencies": {
 		"@sveltejs/enhanced-img": "0.4.4",
 		"@unocss/reset": "0.65.3",
+		"bits-ui": "1.0.0-next.77",
 		"pdb-parser-js": "0.0.5",
 		"unocss": "0.65.3",
 		"wgpu-matrix": "3.3.0"

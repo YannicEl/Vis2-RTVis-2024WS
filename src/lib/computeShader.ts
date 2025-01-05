@@ -23,15 +23,15 @@ export async function compute3DTexture({
 }: Compute3DTextureParams): Promise<Texture> {
 	const { maxBufferSize } = device.limits;
 
-	while (true) {
-		scale += 0.1;
+	// while (true) {
+	// 	scale += 0.1;
 
-		const size = width * height * depth * Math.pow(scale, 3) * 4;
-		if (size > maxBufferSize * 0.3) {
-			scale -= 0.1;
-			break;
-		}
-	}
+	// 	const size = width * height * depth * Math.pow(scale, 3) * 4;
+	// 	if (size > maxBufferSize * 0.3) {
+	// 		scale -= 0.1;
+	// 		break;
+	// 	}
+	// }
 
 	console.log(scale);
 

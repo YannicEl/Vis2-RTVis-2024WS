@@ -18,7 +18,21 @@ export function addGeneralControls() {
 		],
 	});
 
+	const showMoleculeSurface = controls.addControl({
+		name: 'Show molecule surface',
+		type: 'checkbox',
+		value: true,
+	});
+
+	const showMoleculeStructure = controls.addControl({
+		name: 'Show molecule structure',
+		type: 'checkbox',
+		value: true,
+	});
+
 	return {
 		molecule,
+		showMoleculeSurface,
+		showMoleculeStructure,
 	};
 }

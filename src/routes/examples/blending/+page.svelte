@@ -7,7 +7,7 @@
 	import { Texture } from '$lib/webGPU/texture/Texture';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { globalState } from '$lib/globalState.svelte';
-	import { loadPDBLocal, LOCAL_PDB_FILES } from '$lib/mol/pdbLoader';
+	import { loadPDBLocal } from '$lib/mol/pdbLoader';
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
@@ -25,6 +25,8 @@
 	import type { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
 	import { addGeneralControls } from '$lib/controls/generalControls.ts';
 	import { addRayMarchingControls } from '$lib/controls/rayMarchingControls';
+	import { addCameraControls } from '$lib/controls/cameraControls';
+	import { addMiscControls } from '$lib/controls/miscControls.svelte';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -32,14 +34,6 @@
 	globalState.camera = camera;
 
 	const controls = getControls();
-	const fovControl = controls.addControl({
-		name: 'FOV',
-		type: 'range',
-		value: 60,
-		min: 0,
-		max: 180,
-	});
-	fovControl.onChange((value) => (camera.fov = value));
 
 	const generalControls = addGeneralControls();
 
@@ -57,22 +51,13 @@
 
 	addRayMarchingControls(rayMarchingMaterial);
 
+	addCameraControls(camera);
+	addMiscControls();
+
 	const showCubeControl = controls.addControl({
 		name: 'Show cube',
 		type: 'checkbox',
 		value: false,
-	});
-
-	const showSticksAndBallsControl = controls.addControl({
-		name: 'Show sticks and balls',
-		type: 'checkbox',
-		value: true,
-	});
-
-	const showMoleculeSurfaceControl = controls.addControl({
-		name: 'Show surface',
-		type: 'checkbox',
-		value: true,
 	});
 
 	let textureMolecules: Texture;
@@ -122,11 +107,11 @@
 			scenes = await getScenes();
 		});
 
-		showSticksAndBallsControl.onChange(async () => {
+		generalControls.showMoleculeStructure.onChange(async () => {
 			scenes = await getScenes();
 		});
 
-		showMoleculeSurfaceControl.onChange(async () => {
+		generalControls.showMoleculeSurface.onChange(async () => {
 			scenes = await getScenes();
 		});
 
@@ -200,7 +185,7 @@
 			}
 
 			const moleculesScene = getSceneMolecules(
-				showSticksAndBallsControl.value ? sticksAndBalls : []
+				generalControls.showMoleculeStructure.value ? sticksAndBalls : []
 			);
 
 			const geometry = new CubeGeometry(width, height, depth);
