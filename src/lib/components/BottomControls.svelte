@@ -15,13 +15,13 @@
 
 	function rotateLeft() {
 		if (globalState.contols) {
-			globalState.contols.input.x = -1;
+			globalState.contols.input.x = -5;
 		}
 	}
 
 	function rotateRight() {
 		if (globalState.contols) {
-			globalState.contols.input.x = 1;
+			globalState.contols.input.x = 5;
 		}
 	}
 

@@ -15,9 +15,12 @@ export type RayMarchingMaterialParams = {
 	minimumHitDistance: number;
 	maximumTraceDistance: number;
 	subsurfaceDepth: number;
+	maximumTransparencyDepth: number;
 	width?: number;
 	height?: number;
 	depth?: number;
+	subsurfaceScattering: number;
+	transparency: number;
 };
 
 export class RayMarchingMaterial extends Material {
@@ -41,9 +44,12 @@ export class RayMarchingMaterial extends Material {
 				minimumHitDistance: 'f32',
 				maximumTraceDistance: 'f32',
 				subsurfaceDepth: 'f32',
+				maximumTransparencyDepth: 'f32',
 				width: 'f32',
 				height: 'f32',
 				depth: 'f32',
+				subsurfaceScattering: 'i32',
+				transparency: 'i32',
 			},
 			'Ray Marching Material Buffer'
 		);

@@ -67,6 +67,19 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 	});
 	subsurfaceDepth.onChange((subsurfaceDepth) => material.updateBufferValues({ subsurfaceDepth }));
 
+	const maximumTransparencyDepth = controls.addControl({
+		name: 'Maximum transparency depth',
+		group,
+		type: 'range',
+		value: 0.3,
+		min: 0,
+		max: 1,
+		step: 0.01,
+	});
+	maximumTransparencyDepth.onChange((maximumTransparencyDepth) =>
+		material.updateBufferValues({ maximumTransparencyDepth })
+	);
+
 	return {
 		clearColor,
 		fragmentColor,

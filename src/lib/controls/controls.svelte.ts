@@ -74,6 +74,9 @@ export function getControls() {
 			get value() {
 				return value.value;
 			},
+			set value(newValue) {
+				value.value = newValue;
+			},
 			set params(params: ControlParams<T>) {
 				value = params;
 			},

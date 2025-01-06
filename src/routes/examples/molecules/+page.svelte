@@ -37,7 +37,8 @@
 
 	const camera = new Camera();
 	globalState.camera = camera;
-	addCameraControls(camera);
+	const cameraControls = addCameraControls(camera);
+  cameraControls.distance.value = 20
 
 	onMount(async () => {
 		if (!canvas) return;

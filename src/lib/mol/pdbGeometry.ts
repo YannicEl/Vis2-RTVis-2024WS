@@ -10,11 +10,11 @@ import { elementColors } from './pdbColors';
 
 export const createPdbGeometry = (pdb: Pdb) => {
 	const sphereGeometry = new SphereGeometry({
-		radius: 0.1,
+		radius: 0.15,
 	});
 	const cylinderGeometry = new CylinderGeometry({
-		radiusTop: 0.05,
-		radiusBottom: 0.05,
+		radiusTop: 0.15,
+		radiusBottom: 0.15,
 		height: 1,
 	});
 	const materials = materialCache();

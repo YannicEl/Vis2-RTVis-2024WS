@@ -1,43 +1,35 @@
 struct VertexInput {
-  @location(0) position : vec4f,
+  @location(0) position: vec4f,
 }
 
 struct VertexOutput {
-  @builtin(position) position : vec4f,
-  @location(0) texcoord : vec2f,
+  @builtin(position) position: vec4f,
+  @location(0) uv: vec2f,
 }
 
 @vertex
 fn vertex(
-input : VertexInput,
+input: VertexInput,
 ) -> VertexOutput {
-  var output : VertexOutput;
+  var output: VertexOutput;
 
   output.position = input.position;
-  output.texcoord = vec2f((input.position.x + 1) / 2, (input.position.y + 1) / 2);
-  output.texcoord = vec2f(output.texcoord.x, 1.0 - output.texcoord.y);
+  output.uv = vec2f((input.position.x + 1) / 2, (input.position.y + 1) / 2);
+  output.uv.y = 1.0 - output.uv.y;
 
   return output;
 }
 
 //-------------- //
 
-@group(0) @binding(2) var ourSampler : sampler;
-@group(0) @binding(3) var ourTexture1 : texture_2d<f32>;
-@group(0) @binding(4) var ourTexture2 : texture_2d<f32>;
+@group(0) @binding(2) var texture_sampler: sampler;
+@group(0) @binding(3) var texture: texture_2d<f32>;
 
 @fragment
 fn fragment(
-input : VertexOutput
+input: VertexOutput
 ) -> @location(0) vec4f {
-  let sample = textureSample(ourTexture1, ourSampler, input.texcoord);
-  let sample2 = textureSample(ourTexture2, ourSampler, input.texcoord);
+  let sample = textureSample(texture, texture_sampler, input.uv);
 
-  // background "removal"
-  // if (sample.r == 0.0 && sample.g == 0.0 && sample.b == 0.0) {
-  //   return vec4f(1.0, 0.0, 0.0, 1.0);
-  // }
-
-  return sample2;
-  // return mix(sample, sample2, 0.5);
+  return sample;
 }

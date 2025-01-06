@@ -10,15 +10,19 @@ struct Uniforms {
   minimumHitDistance: f32,
   maximumTraceDistance: f32,
   subsurfaceDepth: f32,
+  maximumTransparencyDepth: f32,
   width: f32,
   height: f32,
   depth: f32,
+  subsurfaceScattering: i32,
+  transparency: i32,
 }
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
 @group(0) @binding(2) var texture_sampler: sampler;
 @group(0) @binding(3) var sdf_texture: texture_3d<f32>;
-// @group(0) @binding(4) var depth_texture: texture_depth_2d;
+@group(0) @binding(4) var depth_texture: texture_depth_2d;
+@group(0) @binding(5) var molecule_texture: texture_2d<f32>;
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
@@ -37,6 +41,7 @@ fn vertex(
 
   output.position = input.position;
   output.uv = vec2f((input.position.x + 1) / 2, (input.position.y + 1) / 2);
+  
   return output;
 }
 
@@ -53,8 +58,26 @@ fn fragment(
   ray_direction = (uniforms.viewMatrixInverse * vec4f(ray_direction, 0)).xyz;
   ray_direction = normalize(ray_direction);
 
-  // let depth = textureSample(depth_texture, texture_sampler, input.uv);
-  return ray_march(ray_origin, ray_direction);
+  let ray_marching_sample = ray_march(ray_origin, ray_direction);
+
+  let pixel = vec2f(input.uv.x, 1 - input.uv.y);
+  let depth_sample = textureSample(depth_texture, texture_sampler, pixel);
+  let molecule_sample = textureSample(molecule_texture, texture_sampler, pixel);
+
+  var mix_factor = 0.0;
+  if(uniforms.transparency == 1) {
+  let depth_normalized = normalize_depth(depth_sample);
+  let ray_marching_normalized = normalize_lol(ray_marching_sample[3], 0, uniforms.maximumTraceDistance);
+
+  let distance_max = uniforms.maximumTransparencyDepth;
+  let sigma = (depth_normalized - ray_marching_normalized) / distance_max;
+
+  mix_factor = pow(2.71828182846, -5 * sigma);
+  }
+
+  // let value = sigma;
+  // return vec4f(value, value, value, 1);
+  return mix(ray_marching_sample, molecule_sample, mix_factor); 
 }
 
 // https://michaelwalczyk.com/blog-ray-marching.html
@@ -78,15 +101,16 @@ fn ray_march(
       // pre-multiply alpha to the color. https://stackoverflow.com/a/12290551
       // let alpha = 1.0 - total_distance_traveled / maximumTraceDistance;
 
-      let subsurface_position = ray_origin + (total_distance_traveled + uniforms.subsurfaceDepth) * ray_direction;
-      let distance_to_surface = atoms_SDF(subsurface_position);
-      let subsurface_scattering_factor = 1 - (uniforms.subsurfaceDepth - distance_to_surface) / (2 * uniforms.subsurfaceDepth);
-  
+      var subsurface_scattering_factor = 0.0;
+      if(uniforms.subsurfaceScattering == 1) {
+        let subsurface_position = ray_origin + (total_distance_traveled + uniforms.subsurfaceDepth) * ray_direction;
+        let distance_to_surface = atoms_SDF(subsurface_position);
+        subsurface_scattering_factor = 1 - (uniforms.subsurfaceDepth - distance_to_surface) / (2 * uniforms.subsurfaceDepth);
+      }
 
       // let alpha = 0.5;
-      var color = vec4f(uniforms.fragmentColor.rgb + subsurface_scattering_factor, 1);
+      var color = vec4f(uniforms.fragmentColor.rgb + subsurface_scattering_factor, total_distance_traveled);
       return color;
-      // return uniforms.fragmentColor;
     }
 
     // miss
@@ -98,11 +122,10 @@ fn ray_march(
     total_distance_traveled += distance_to_closest;
   }
 
-  return uniforms.clearColor;
+  return vec4f(uniforms.clearColor.rgb, total_distance_traveled);
 }
 
 fn atoms_SDF(position: vec3f) -> f32 {
-  // TODO: no hardcoded values
   let width = uniforms.width;
   let height = uniforms.height;
   let depth = uniforms.depth;
@@ -137,4 +160,10 @@ fn atoms_SDF(position: vec3f) -> f32 {
 
 fn normalize_lol(value: f32, min: f32, max: f32) -> f32 {
   return (value - min) / (max - min);
+}
+
+fn normalize_depth(value: f32) -> f32 {
+  let near = 0.1;
+  let far = 1000.0;
+  return (2.0 * near) / (far + near - value * (far - near));
 }

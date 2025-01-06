@@ -28,6 +28,7 @@
 	import { addRayMarchingControls } from '$lib/controls/rayMarchingControls';
 	import { addCameraControls } from '$lib/controls/cameraControls';
 	import { addMiscControls } from '$lib/controls/miscControls.svelte';
+	import { addEffectsControls } from '$lib/controls/effectsControls';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -48,8 +49,12 @@
 		minimumHitDistance: 0.4,
 		maximumTraceDistance: 1000,
 		subsurfaceDepth: 2,
+		maximumTransparencyDepth: 0.3,
+		subsurfaceScattering: 1,
+		transparency: 1,
 	});
 
+	addEffectsControls(rayMarchingMaterial);
 	addRayMarchingControls(rayMarchingMaterial);
 
 	addCameraControls(camera);
@@ -127,7 +132,7 @@
 		const scene = new Scene(quad, { depth: false });
 		await scene.load(device);
 
-		const sceneCopyPass = await getSceneCopyPass([textureMolecules, textureRaymarching]);
+		const sceneCopyPass = await getSceneCopyPass([textureRaymarching]);
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
@@ -149,10 +154,11 @@
 				depth: false,
 			});
 
-			// renderer.render(scenes.rayMarching, {
-			// 	view: textureRaymarching.createView(device),
-			// 	camera,
-			// });
+			renderer.render(scenes.rayMarching, {
+				view: textureRaymarching.createView(device),
+				camera,
+				depth: false,
+			});
 
 			renderer.render(sceneCopyPass, { camera });
 		});
@@ -229,7 +235,7 @@
 			};
 
 			const radius = 0.5;
-			const padding = 0;
+			const padding = 1;
 			for (const atom of atoms) {
 				const [x, y, z] = atom.position;
 
@@ -274,13 +280,8 @@
 				return (to - from) * ((value - min) / (max - min)) + from;
 			}
 
-			const top_left_back = new Object3D();
-			top_left_back.setPosition(vec3.create(0, height, depth));
-
-			atoms.push(top_left_back);
-
 			console.time('Compute SDF Texture');
-			const raymarchingTexture = await compute3DTexture({
+			const sdfTexture = await compute3DTexture({
 				device,
 				width,
 				height,
@@ -317,10 +318,11 @@
 
 			const geometry = new QuadGeometry();
 			const quad = new SceneObject(geometry, rayMarchingMaterial, [
-				raymarchingTexture,
-				// renderer.depthTexture,
+				sdfTexture,
+				renderer.depthTexture,
+				textureMolecules,
 			]);
-			const scene = new Scene(quad);
+			const scene = new Scene(quad, { depth: false });
 			await scene.load(device);
 
 			return { scene, width, height, depth, scale };

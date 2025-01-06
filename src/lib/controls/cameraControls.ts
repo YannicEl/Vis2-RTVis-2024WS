@@ -22,8 +22,8 @@ export function addCameraControls(camera: Camera) {
 		type: 'range',
 		value: camera.near,
 		min: 0,
-		max: 100,
-		step: 0.1,
+		max: 1,
+		step: 0.01,
 	});
 	near.onChange((near) => (camera.near = near));
 
@@ -69,5 +69,6 @@ export function addCameraControls(camera: Camera) {
 		near,
 		far,
 		frictionCoefficient,
+		distance,
 	};
 }
