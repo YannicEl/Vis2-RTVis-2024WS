@@ -20,7 +20,7 @@ export class Camera extends Object3D {
 	public up = vec3.create(0, 1, 0);
 	public right = vec3.create();
 
-	constructor({ fov = 60, aspect = 1, near = 0.1, far = 2000 }: CameraParams = {}) {
+	constructor({ fov = 60, aspect = 1, near = 1, far = 100 }: CameraParams = {}) {
 		super();
 
 		this.fov = fov;

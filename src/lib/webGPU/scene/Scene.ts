@@ -3,9 +3,14 @@ import type { BaseSceneObject } from './BaseSceneObject';
 
 export class Scene {
 	children: BaseSceneObject[] = [];
+	#depth: boolean;
 
-	constructor(children: BaseSceneObject | BaseSceneObject[] = []) {
+	constructor(
+		children: BaseSceneObject | BaseSceneObject[] = [],
+		{ depth = true }: { depth?: boolean } = {}
+	) {
 		this.add(children);
+		this.#depth = depth;
 	}
 
 	add(children: BaseSceneObject | BaseSceneObject[]): void {
@@ -21,7 +26,7 @@ export class Scene {
 	async load(device: GPUDevice): Promise<void> {
 		const promises: Promise<void>[] = [];
 		for (const child of this.children) {
-			promises.push(child.load(device));
+			promises.push(child.load(device, { depth: this.#depth }));
 		}
 
 		await Promise.all(promises);

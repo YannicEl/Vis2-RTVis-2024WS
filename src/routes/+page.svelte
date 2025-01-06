@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<main class="mx-auto max-w-screen-md">
+<main class="mx-auto max-w-screen-md px-4">
 	<enhanced:img src="$lib/assets/images/title_image.jpg" alt="An alt text" />
 
 	<h1>Rendering molecules for fun and profit</h1>

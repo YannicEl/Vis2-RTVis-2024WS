@@ -14,17 +14,11 @@
 	import { onMount } from 'svelte';
 	import { Scene } from '$lib/webGPU/scene/Scene';
 	import { addGeneralControls } from '$lib/controls/generalControls.ts';
+	import { addCameraControls } from '$lib/controls/cameraControls';
 
 	let canvas = $state<HTMLCanvasElement>();
 
 	const controls = getControls();
-	const fovControl = controls.addControl({
-		name: 'FOV',
-		type: 'range',
-		value: 60,
-		min: 0,
-		max: 180,
-	});
 
 	const generalControls = addGeneralControls();
 
@@ -43,7 +37,7 @@
 
 	const camera = new Camera();
 	globalState.camera = camera;
-	fovControl.onChange((value) => (camera.fov = value));
+	addCameraControls(camera);
 
 	onMount(async () => {
 		if (!canvas) return;

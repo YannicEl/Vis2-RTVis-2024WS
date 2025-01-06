@@ -33,6 +33,8 @@ export async function compute3DTexture({
 		}
 	}
 
+	scale = 1;
+
 	console.log(scale);
 
 	width = Math.ceil(width * scale);

@@ -38,5 +38,6 @@ input : VertexOutput
   //   return vec4f(1.0, 0.0, 0.0, 1.0);
   // }
 
-  return mix(sample, sample2, 0.5);
+  return sample2;
+  // return mix(sample, sample2, 0.5);
 }

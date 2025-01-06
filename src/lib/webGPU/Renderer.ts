@@ -57,7 +57,11 @@ export class Renderer {
 
 	render(
 		scene: Scene,
-		{ camera, view }: Partial<{ camera: Camera; view: GPUTextureView }> = {}
+		{
+			camera,
+			view,
+			depth = true,
+		}: Partial<{ camera: Camera; view: GPUTextureView; depth: boolean }> = {}
 	): void {
 		scene.update(this.#device, camera);
 
@@ -71,13 +75,16 @@ export class Renderer {
 					storeOp: 'store',
 				},
 			],
-			depthStencilAttachment: {
+		};
+
+		if (depth) {
+			renderPassDescriptor.depthStencilAttachment = {
 				view: this.depthTexture.createView(this.#device),
 				depthClearValue: 1.0,
 				depthLoadOp: 'clear',
 				depthStoreOp: 'store',
-			},
-		};
+			};
+		}
 
 		const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 

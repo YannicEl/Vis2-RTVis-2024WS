@@ -3,6 +3,7 @@
 	import { ShaderMaterial } from '$lib/webGPU/material/ShaderMaterial';
 	import { onMount } from 'svelte';
 	import shader_2 from './copyPass.wgsl?raw';
+	import shader from './blend_1.wgsl?raw';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { Texture } from '$lib/webGPU/texture/Texture';
 	import { Renderer } from '$lib/webGPU/Renderer';
@@ -120,6 +121,12 @@
 			scenes = await getScenes();
 		});
 
+		const geometry = new QuadGeometry();
+		const material = new ShaderMaterial(shader, { requiresModelUniforms: false });
+		const quad = new SceneObject(geometry, material, [renderer.depthTexture]);
+		const scene = new Scene(quad, { depth: false });
+		await scene.load(device);
+
 		const sceneCopyPass = await getSceneCopyPass([textureMolecules, textureRaymarching]);
 
 		draw((deltaTime) => {
@@ -137,10 +144,15 @@
 				camera,
 			});
 
-			renderer.render(scenes.rayMarching, {
+			renderer.render(scene, {
 				view: textureRaymarching.createView(device),
-				camera,
+				depth: false,
 			});
+
+			// renderer.render(scenes.rayMarching, {
+			// 	view: textureRaymarching.createView(device),
+			// 	camera,
+			// });
 
 			renderer.render(sceneCopyPass, { camera });
 		});
@@ -148,15 +160,16 @@
 		autoResizeCanvas({
 			canvas,
 			device,
-			onResize: (canvas) => {
+			onResize: async (canvas) => {
 				camera.aspect = canvas.clientWidth / canvas.clientHeight;
 				renderer.onCanvasResized(canvas.width, canvas.height);
 
 				const { width, height } = canvas;
 				textureMolecules.updateSize({ width, height });
 				textureRaymarching.updateSize({ width, height });
+				await quad.load(device);
 
-				sceneCopyPass.load(device);
+				await sceneCopyPass.load(device);
 			},
 		});
 

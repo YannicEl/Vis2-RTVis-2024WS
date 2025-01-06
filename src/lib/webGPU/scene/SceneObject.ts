@@ -34,13 +34,13 @@ export class SceneObject extends Object3D implements BaseSceneObject {
 		}
 	}
 
-	async load(device: GPUDevice): Promise<void> {
+	async load(device: GPUDevice, { depth }: { depth?: boolean } = {}): Promise<void> {
 		const { shaderModule, uniformBuffer } = this.#material.load(device);
 		this.#geometry.load(device);
 
 		this.#modelUniformBuffer?.load(device);
 
-		this.#pipeline = await device.createRenderPipelineAsync({
+		const pipelineDescriptor: GPURenderPipelineDescriptor = {
 			label: 'SceneObject Render Pipeline',
 			layout: 'auto',
 			vertex: {
@@ -71,12 +71,17 @@ export class SceneObject extends Object3D implements BaseSceneObject {
 				topology: 'triangle-list',
 				cullMode: 'back',
 			},
-			depthStencil: {
+		};
+
+		if (depth) {
+			pipelineDescriptor.depthStencil = {
 				depthWriteEnabled: true,
 				depthCompare: 'less',
 				format: 'depth24plus',
-			},
-		});
+			};
+		}
+
+		this.#pipeline = await device.createRenderPipelineAsync(pipelineDescriptor);
 
 		const entries: GPUBindGroupEntry[] = [];
 
