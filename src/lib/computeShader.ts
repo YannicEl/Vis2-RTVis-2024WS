@@ -31,9 +31,17 @@ export async function compute3DTexture({
 			scale -= 0.1;
 			break;
 		}
-	}
 
-	scale = 1;
+		const maxResolution = 500;
+		if (
+			width * scale > maxResolution ||
+			height * scale > maxResolution ||
+			depth * scale > maxResolution
+		) {
+			scale -= 0.1;
+			break;
+		}
+	}
 
 	console.log(scale);
 

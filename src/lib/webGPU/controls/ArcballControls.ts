@@ -27,6 +27,8 @@ export class ArcballControls {
 		y: 0,
 	};
 
+	position = vec3.create(0, 0, 0);
+
 	distance: number;
 	#rotationSpeed: number;
 	#zoomSpeed: number;
@@ -50,12 +52,24 @@ export class ArcballControls {
 		this.#zoomSpeed = zoomSpeed;
 		this.frictionCoefficient = frictionCoefficient;
 
+		eventSource.oncontextmenu = () => {
+			return false;
+		};
+
 		eventSource.onpointermove = (event) => {
 			// Nicht mein code simon. Nicht böse sein bitte
-			this.input.touching = event.pointerType == 'mouse' ? (event.buttons & 1) !== 0 : true;
-			if (this.input.touching) {
+			const isRightClick = event.buttons === 2;
+			const isLeftClick = event.buttons === 1;
+
+			if (isLeftClick) {
 				this.input.x += event.movementX;
 				this.input.y += event.movementY;
+			} else if (isRightClick) {
+				const sensitivity = 0.25;
+				this.position = vec3.add(
+					this.position,
+					vec3.create(-event.movementX * sensitivity, event.movementY * sensitivity, 0)
+				);
 			}
 		};
 
@@ -111,6 +125,7 @@ export class ArcballControls {
 		}
 
 		this.#camera.position = vec3.scale(this.#camera.front, -this.distance);
+		this.#camera.translate(this.position);
 
 		this.input.x = 0;
 		this.input.y = 0;

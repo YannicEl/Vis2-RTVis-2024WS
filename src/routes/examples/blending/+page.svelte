@@ -86,10 +86,10 @@
 
 		let scenes = await getScenes();
 
-		// generalControls.molecule.onChange(async () => {
-		// 	PDB = await loadPDBLocal(generalControls.molecule.value);
-		// 	scenes = await getScenes();
-		// });
+		generalControls.molecule.onChange(async () => {
+			PDB = await loadPDBLocal(generalControls.molecule.value);
+			scenes = await getScenes();
+		});
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;

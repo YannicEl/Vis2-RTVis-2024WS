@@ -60,10 +60,10 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 		name: 'Subsurface depth',
 		group,
 		type: 'range',
-		value: 2,
-		step: 0.01,
+		value: 4,
+		step: 0.1,
 		min: 0,
-		max: 5,
+		max: 10,
 	});
 	subsurfaceDepth.onChange((subsurfaceDepth) => material.updateBufferValues({ subsurfaceDepth }));
 

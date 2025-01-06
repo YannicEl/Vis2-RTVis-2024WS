@@ -108,7 +108,54 @@ fn ray_march(
         subsurface_scattering_factor = 1 - (uniforms.subsurfaceDepth - distance_to_surface) / (2 * uniforms.subsurfaceDepth);
       }
 
-      // let alpha = 0.5;
+      let normal = calculate_normal(current_position);
+      let reflect_direction = reflect(ray_direction, normal); 
+      let reflection = ray_march_reflection(current_position + normal * 0.4, reflect_direction);
+
+      var color = uniforms.fragmentColor.rgb;
+      color += subsurface_scattering_factor;
+      color += reflection.rgb * 0.15;
+
+
+      return vec4f(color, total_distance_traveled);
+    }
+
+    // miss
+    if (total_distance_traveled > uniforms.maximumTraceDistance) {
+      break;
+    }
+
+    // accumulate the distance traveled thus far
+    total_distance_traveled += distance_to_closest;
+  }
+
+  return vec4f(uniforms.clearColor.rgb, total_distance_traveled);
+}
+
+fn ray_march_reflection(
+  ray_origin: vec3f, 
+  ray_direction: vec3f,
+) -> vec4f {
+  var total_distance_traveled = 0.0;
+
+  for (var i = 0; i < uniforms.numberOfSteps; i++) {
+    // Calculate our current position along the ray
+    let current_position = ray_origin + total_distance_traveled * ray_direction;
+
+    // We wrote this function earlier in the tutorial -
+    // assume that the sphere is centered at the origin
+    // and has unit radius
+    let distance_to_closest: f32 = atoms_SDF(current_position);
+
+    // hit
+    if (distance_to_closest < uniforms.minimumHitDistance) {
+      var subsurface_scattering_factor = 0.0;
+      if(uniforms.subsurfaceScattering == 1) {
+        let subsurface_position = ray_origin + (total_distance_traveled + uniforms.subsurfaceDepth) * ray_direction;
+        let distance_to_surface = atoms_SDF(subsurface_position);
+        subsurface_scattering_factor = 1 - (uniforms.subsurfaceDepth - distance_to_surface) / (2 * uniforms.subsurfaceDepth);
+      }
+
       var color = vec4f(uniforms.fragmentColor.rgb + subsurface_scattering_factor, total_distance_traveled);
       return color;
     }
@@ -122,7 +169,7 @@ fn ray_march(
     total_distance_traveled += distance_to_closest;
   }
 
-  return vec4f(uniforms.clearColor.rgb, total_distance_traveled);
+  return uniforms.clearColor;
 }
 
 fn atoms_SDF(position: vec3f) -> f32 {
@@ -166,4 +213,16 @@ fn normalize_depth(value: f32) -> f32 {
   let near = 0.1;
   let far = 1000.0;
   return (2.0 * near) / (far + near - value * (far - near));
+}
+
+fn calculate_normal(point: vec3f) -> vec3f {
+    let small_step = vec3f(1, 0, 0);
+
+    let gradient_x = atoms_SDF(point + small_step.xyy) - atoms_SDF(point - small_step.xyy);
+    let gradient_y = atoms_SDF(point + small_step.yxy) - atoms_SDF(point - small_step.yxy);
+    let gradient_z = atoms_SDF(point + small_step.yyx) - atoms_SDF(point - small_step.yyx);
+
+    let normal = vec3f(gradient_x, gradient_y, gradient_z);
+
+    return normalize(normal);
 }
