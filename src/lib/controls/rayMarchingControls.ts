@@ -80,6 +80,19 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 		material.updateBufferValues({ maximumTransparencyDepth })
 	);
 
+	const reflectionFactor = controls.addControl({
+		name: 'Reflection factor',
+		group,
+		type: 'range',
+		value: 0.05,
+		min: 0,
+		max: 1,
+		step: 0.01,
+	});
+	reflectionFactor.onChange((reflectionFactor) =>
+		material.updateBufferValues({ reflectionFactor })
+	);
+
 	return {
 		clearColor,
 		fragmentColor,

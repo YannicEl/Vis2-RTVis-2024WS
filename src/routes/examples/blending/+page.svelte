@@ -42,6 +42,7 @@
 		maximumTraceDistance: 1000,
 		subsurfaceDepth: 2,
 		maximumTransparencyDepth: 0.3,
+		reflectionFactor: 0.05,
 		subsurfaceScattering: 1,
 		transparency: 1,
 	});

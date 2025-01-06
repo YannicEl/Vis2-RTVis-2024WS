@@ -11,6 +11,7 @@ struct Uniforms {
   maximumTraceDistance: f32,
   subsurfaceDepth: f32,
   maximumTransparencyDepth: f32,
+  reflectionFactor: f32,
   width: f32,
   height: f32,
   depth: f32,
@@ -114,7 +115,7 @@ fn ray_march(
 
       var color = uniforms.fragmentColor.rgb;
       color += subsurface_scattering_factor;
-      color += reflection.rgb * 0.15;
+      color += reflection.rgb * uniforms.reflectionFactor;
 
 
       return vec4f(color, total_distance_traveled);

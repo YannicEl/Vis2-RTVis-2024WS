@@ -16,6 +16,7 @@ export type RayMarchingMaterialParams = {
 	maximumTraceDistance: number;
 	subsurfaceDepth: number;
 	maximumTransparencyDepth: number;
+	reflectionFactor: number;
 	width?: number;
 	height?: number;
 	depth?: number;
@@ -45,6 +46,7 @@ export class RayMarchingMaterial extends Material {
 				maximumTraceDistance: 'f32',
 				subsurfaceDepth: 'f32',
 				maximumTransparencyDepth: 'f32',
+				reflectionFactor: 'f32',
 				width: 'f32',
 				height: 'f32',
 				depth: 'f32',
