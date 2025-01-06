@@ -24,4 +24,9 @@ export function addEffectsControls(material: RayMarchingMaterial) {
 	transparency.onChange((transparency) =>
 		material.updateBufferValues({ transparency: transparency ? 1 : 0 })
 	);
+
+	return {
+		subsurfaceScattering,
+		transparency,
+	};
 }

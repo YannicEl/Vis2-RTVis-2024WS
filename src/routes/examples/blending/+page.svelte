@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
-	import { ShaderMaterial } from '$lib/webGPU/material/ShaderMaterial';
 	import { onMount } from 'svelte';
-	import shader_2 from './copyPass.wgsl?raw';
-	import shader from './blend_1.wgsl?raw';
 	import { QuadGeometry } from '$lib/webGPU/geometry/QuadGeometry';
 	import { Texture } from '$lib/webGPU/texture/Texture';
 	import { Renderer } from '$lib/webGPU/Renderer';
@@ -12,7 +9,6 @@
 	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
-	import { getControls } from '$lib/controls/controls.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
 	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
@@ -20,8 +16,6 @@
 	import type { Pdb } from 'pdb-parser-js/dist/pdb';
 	import { Scene } from '$lib/webGPU/scene/Scene';
 	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
-	import { CubeGeometry } from '$lib/webGPU/geometry/CubeGeometry';
-	import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 	import { Object3D } from '$lib/webGPU/Object3D';
 	import type { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
 	import { addGeneralControls } from '$lib/controls/generalControls.ts';
@@ -34,8 +28,6 @@
 
 	const camera = new Camera();
 	globalState.camera = camera;
-
-	const controls = getControls();
 
 	const generalControls = addGeneralControls();
 
@@ -54,17 +46,11 @@
 		transparency: 1,
 	});
 
-	addEffectsControls(rayMarchingMaterial);
+	const effectControls = addEffectsControls(rayMarchingMaterial);
 	addRayMarchingControls(rayMarchingMaterial);
 
 	addCameraControls(camera);
 	addMiscControls();
-
-	const showCubeControl = controls.addControl({
-		name: 'Show cube',
-		type: 'checkbox',
-		value: false,
-	});
 
 	let PDB: Pdb;
 
@@ -98,41 +84,12 @@
 				GPUTextureUsage.RENDER_ATTACHMENT,
 		});
 
-		const textureRaymarching = new Texture({
-			format: 'bgra8unorm',
-			size: [canvas.width, canvas.height],
-			usage:
-				GPUTextureUsage.TEXTURE_BINDING |
-				GPUTextureUsage.COPY_DST |
-				GPUTextureUsage.RENDER_ATTACHMENT,
-		});
-
 		let scenes = await getScenes();
 
-		showCubeControl.onChange(async () => {
-			scenes = await getScenes();
-		});
-
-		generalControls.showMoleculeStructure.onChange(async () => {
-			scenes = await getScenes();
-		});
-
-		generalControls.showMoleculeSurface.onChange(async () => {
-			scenes = await getScenes();
-		});
-
-		generalControls.molecule.onChange(async () => {
-			PDB = await loadPDBLocal(generalControls.molecule.value);
-			scenes = await getScenes();
-		});
-
-		const geometry = new QuadGeometry();
-		const material = new ShaderMaterial(shader, { requiresModelUniforms: false });
-		const quad = new SceneObject(geometry, material, [renderer.depthTexture]);
-		const scene = new Scene(quad, { depth: false });
-		await scene.load(device);
-
-		const sceneCopyPass = await getSceneCopyPass([textureRaymarching]);
+		// generalControls.molecule.onChange(async () => {
+		// 	PDB = await loadPDBLocal(generalControls.molecule.value);
+		// 	scenes = await getScenes();
+		// });
 
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
@@ -144,23 +101,21 @@
 				viewMatrixInverse: camera.viewMatrixInverse,
 			});
 
-			renderer.render(scenes.molecules, {
-				view: textureMolecules.createView(device),
-				camera,
-			});
+			if (effectControls.transparency.value) {
+				renderer.render(scenes.molecules, {
+					view: generalControls.showMoleculeSurface.value
+						? textureMolecules.createView(device)
+						: undefined,
+					camera,
+				});
+			}
 
-			renderer.render(scene, {
-				view: textureRaymarching.createView(device),
-				depth: false,
-			});
-
-			renderer.render(scenes.rayMarching, {
-				view: textureRaymarching.createView(device),
-				camera,
-				depth: false,
-			});
-
-			renderer.render(sceneCopyPass, { camera });
+			if (generalControls.showMoleculeSurface.value) {
+				renderer.render(scenes.rayMarching, {
+					camera,
+					depth: false,
+				});
+			}
 		});
 
 		autoResizeCanvas({
@@ -169,13 +124,9 @@
 			onResize: async (canvas) => {
 				camera.aspect = canvas.clientWidth / canvas.clientHeight;
 				renderer.onCanvasResized(canvas.width, canvas.height);
-
 				const { width, height } = canvas;
 				textureMolecules.updateSize({ width, height });
-				textureRaymarching.updateSize({ width, height });
-				await quad.load(device);
-
-				await sceneCopyPass.load(device);
+				await scenes.rayMarching.load(device);
 			},
 		});
 
@@ -204,13 +155,6 @@
 				generalControls.showMoleculeStructure.value ? sticksAndBalls : []
 			);
 
-			const geometry = new CubeGeometry(width, height, depth);
-			const material = new ColorMaterial('green');
-			const cube = new SceneObject(geometry, material);
-
-			await cube.load(device);
-
-			if (showCubeControl.value) moleculesScene.add(cube);
 			renderer.load(moleculesScene);
 
 			return {
@@ -280,6 +224,8 @@
 				return (to - from) * ((value - min) / (max - min)) + from;
 			}
 
+			console.log({ width, height, depth });
+
 			console.time('Compute SDF Texture');
 			const sdfTexture = await compute3DTexture({
 				device,
@@ -287,7 +233,7 @@
 				height,
 				depth,
 				radius,
-				scale: 10,
+				scale: 1,
 				atoms: atoms_2,
 			});
 			console.timeEnd('Compute SDF Texture');
@@ -302,13 +248,9 @@
 				}
 			}
 
-			console.log(scale);
-
 			width *= scale;
 			height *= scale;
 			depth *= scale;
-
-			console.log({ width, height, depth });
 
 			rayMarchingMaterial.updateBufferValues({
 				width: width,
@@ -326,16 +268,6 @@
 			await scene.load(device);
 
 			return { scene, width, height, depth, scale };
-		}
-
-		async function getSceneCopyPass(textures: Texture[]): Promise<Scene> {
-			const geometry = new QuadGeometry();
-			const material = new ShaderMaterial(shader_2, { requiresModelUniforms: false });
-			const quad = new SceneObject(geometry, material, textures);
-			const scene = new Scene([quad]);
-			await scene.load(device);
-
-			return scene;
 		}
 	});
 </script>

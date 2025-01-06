@@ -1,10 +1,10 @@
 <script lang="ts">
 </script>
 
-<main class="mx-auto max-w-screen-md px-4">
+<main class="mx-auto mt-8 max-w-screen-md p-4">
 	<enhanced:img src="$lib/assets/images/title_image.jpg" alt="An alt text" />
 
-	<h1>Rendering molecules for fun and profit</h1>
+	<h1 class="mt-4">Rendering molecules for fun and profit</h1>
 
 	<p>
 		Ray marching is a powerful technique used in computer graphics and computational geometry for
