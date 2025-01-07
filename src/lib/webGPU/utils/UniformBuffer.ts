@@ -59,6 +59,7 @@ export class UniformBuffer<T extends string = any> {
 			const value = values[key];
 			if (value) {
 				const { type, byteOffset, length } = this.offsets[key];
+				// @ts-ignore
 				const view = new type(this.value, byteOffset, length);
 				view.set(value);
 			}
