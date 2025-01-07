@@ -1,5 +1,7 @@
 import { Geometry } from './Geometry';
 
+// https://github.com/mrdoob/three.js/blob/master/src/geometries/CylinderGeometry.js
+
 export type CylinderGeometryParams = {
 	radiusTop?: number;
 	radiusBottom?: number;

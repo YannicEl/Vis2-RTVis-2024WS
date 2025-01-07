@@ -89,7 +89,9 @@
 		let scenes = await getScenes();
 
 		generalControls.molecule.onChange(async () => {
-			PDB = await loadPDBLocal(generalControls.molecule.value);
+			const deineMame = await loadPDBLocal(generalControls.molecule.value);
+			if (!deineMame) return;
+			PDB = deineMame;
 			scenes = await getScenes();
 		});
 

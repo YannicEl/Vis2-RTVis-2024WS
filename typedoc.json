@@ -2,5 +2,6 @@
 	"entryPoints": ["src"],
 	"entryPointStrategy": "expand",
 	"exclude": ["src/app.d.ts", "src/routes/**"],
-	"favicon": "static/favicon.png"
+	"favicon": "static/favicon.png",
+	"out": "static/docs"
 }
