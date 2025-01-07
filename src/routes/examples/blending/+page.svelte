@@ -5,9 +5,9 @@
 	import { Texture } from '$lib/webGPU/texture/Texture';
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { globalState } from '$lib/globalState.svelte';
-	import { loadPDBLocal } from '$lib/mol/pdbLoader';
-	import { createMoleculeSceneObjects, parsePdb } from '$lib/mol/pdbGeometry';
-	import type { AtomData } from '$lib/mol/pdbGeometry';
+	import { loadPDBLocal } from '$lib/proteins/pdb/pdbLoader';
+	import { createMoleculeSceneObjects, parsePdb } from '$lib/proteins/pdb/pdbGeometry';
+	import type { AtomData } from '$lib/proteins/pdb/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
