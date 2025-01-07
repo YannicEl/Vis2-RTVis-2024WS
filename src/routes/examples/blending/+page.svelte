@@ -24,11 +24,14 @@
 	import { addCameraControls } from '$lib/controls/cameraControls';
 	import { addMiscControls } from '$lib/controls/miscControls.svelte';
 	import { addEffectsControls } from '$lib/controls/effectsControls';
+	import { getControls } from '$lib/controls/controls.svelte';
 
 	let canvas = $state<HTMLCanvasElement>();
 
 	const camera = new Camera();
 	globalState.camera = camera;
+
+	const controls = getControls();
 
 	const generalControls = addGeneralControls();
 
@@ -53,6 +56,27 @@
 
 	addCameraControls(camera);
 	addMiscControls();
+
+	const gridSizeControl = controls.addControl({
+		name: 'Grid size',
+		type: 'number',
+		value: 128,
+	});
+
+	const radiusControl = controls.addControl({
+		name: 'Radius',
+		type: 'number',
+		value: 5,
+	});
+
+	const sizeControl = controls.addControl({
+		name: 'Size',
+		type: 'range',
+		value: 1,
+		min: 0,
+		max: 10,
+		step: 0.5,
+	});
 
 	let PDB: Pdb;
 
@@ -92,6 +116,14 @@
 			const deineMame = await loadPDBLocal(generalControls.molecule.value);
 			if (!deineMame) return;
 			PDB = deineMame;
+			scenes = await getScenes();
+		});
+
+		gridSizeControl.onChange(async () => {
+			scenes = await getScenes();
+		});
+
+		sizeControl.onChange(async () => {
 			scenes = await getScenes();
 		});
 
@@ -136,8 +168,6 @@
 
 		async function getScenes() {
 			const moleculeData = parsePdb(PDB);
-			const { atoms, bonds } = createMoleculeSceneObjects(moleculeData);
-			const sticksAndBalls = [...atoms, bonds];
 
 			const {
 				scene: rayMarchingScene,
@@ -147,21 +177,21 @@
 				scale,
 			} = await getSceneRaymarching(moleculeData.atoms);
 
-			for (const sceneObject of sticksAndBalls) {
-				for (let i = 0; i < sceneObject.count; i++) {
-					const instance = sceneObject.getInstance(i);
-					const [x, y, z] = instance.position;
+			console.log(scale);
 
-					instance.scaleAll(vec3.create(scale, scale, scale));
-					instance.setPosition(vec3.create(x * scale, y * scale, z * scale));
-				}
+			for (const atom of moleculeData.atoms) {
+				const [x, y, z] = atom.position;
+
+				// instance.scaleAll(vec3.create(scale, scale, scale));
+				atom.position = vec3.create(x * scale, y * scale, z * scale);
 			}
+
+			const { atoms, bonds } = createMoleculeSceneObjects(moleculeData, scale * 0.1);
+			const sticksAndBalls = [...atoms, bonds];
 
 			const moleculesScene = await getSceneMolecules(
 				generalControls.showMoleculeStructure.value ? sticksAndBalls : []
 			);
-
-			renderer.load(moleculesScene);
 
 			return {
 				molecules: moleculesScene,
@@ -184,8 +214,8 @@
 				depth: { min: 0, max: 0 },
 			};
 
-			let radius = 5;
-			const padding = 1;
+			const radius = radiusControl.value;
+			const padding = 0;
 			for (const atom of atoms) {
 				const [x, y, z] = atom.position;
 
@@ -199,13 +229,14 @@
 				dimensions.depth.max = Math.max(dimensions.depth.max, z + radius + padding);
 			}
 
-			let width = dimensions.width.max - dimensions.width.min;
-			let height = dimensions.height.max - dimensions.height.min;
-			let depth = dimensions.depth.max - dimensions.depth.min;
+			const dimensionScale = 1;
+			let width = (dimensions.width.max - dimensions.width.min) * dimensionScale;
+			let height = (dimensions.height.max - dimensions.height.min) * dimensionScale;
+			let depth = (dimensions.depth.max - dimensions.depth.min) * dimensionScale;
 
-			const maxDimension = 256;
+			const gridSize = gridSizeControl.value;
 			let scaleStep = 0.1;
-			if (Math.max(width, height, depth) > maxDimension) {
+			if (Math.max(width, height, depth) > gridSize) {
 				scaleStep = -0.1;
 			}
 
@@ -214,33 +245,20 @@
 				scale += scaleStep;
 
 				if (scaleStep > 0) {
-					if (
-						width * scale > maxDimension ||
-						height * scale > maxDimension ||
-						depth * scale > maxDimension
-					) {
+					if (width * scale > gridSize || height * scale > gridSize || depth * scale > gridSize) {
 						scale -= 0.1;
 						break;
 					}
 				} else {
-					if (
-						width * scale < maxDimension &&
-						height * scale < maxDimension &&
-						depth * scale < maxDimension
-					) {
+					if (width * scale < gridSize && height * scale < gridSize && depth * scale < gridSize) {
 						break;
 					}
 				}
 			}
 
-			console.log({ width, height, depth, scale });
-
 			width *= scale;
 			height *= scale;
 			depth *= scale;
-			// radius *= scale * 0.5;
-
-			console.log({ width, height, depth, scale });
 
 			const atoms_2: Object3D[] = [];
 			for (const atom of atoms) {
@@ -281,10 +299,11 @@
 			});
 			console.timeEnd('Compute SDF Texture');
 
+			const dimensionsScale = sizeControl.value;
 			rayMarchingMaterial.updateBufferValues({
-				width: width,
-				height: height,
-				depth: depth,
+				width: width * dimensionsScale,
+				height: height * dimensionsScale,
+				depth: depth * dimensionsScale,
 			});
 
 			const geometry = new QuadGeometry();

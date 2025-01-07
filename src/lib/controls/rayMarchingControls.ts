@@ -63,7 +63,7 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 		value: 4,
 		step: 0.1,
 		min: 0,
-		max: 10,
+		max: 50,
 	});
 	subsurfaceDepth.onChange((subsurfaceDepth) => material.updateBufferValues({ subsurfaceDepth }));
 

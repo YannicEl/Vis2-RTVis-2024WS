@@ -79,13 +79,13 @@ export function parsePdb(pdb: Pdb): MoleculeData {
 	return { atoms, bonds };
 }
 
-export function createMoleculeSceneObjects(data: MoleculeData) {
+export function createMoleculeSceneObjects(data: MoleculeData, thickness = 0.15) {
 	const sphereGeometry = new SphereGeometry({
-		radius: 0.15,
+		radius: thickness,
 	});
 	const cylinderGeometry = new CylinderGeometry({
-		radiusTop: 0.15,
-		radiusBottom: 0.15,
+		radiusTop: thickness,
+		radiusBottom: thickness,
 		height: 1,
 	});
 	const materials = materialCache();

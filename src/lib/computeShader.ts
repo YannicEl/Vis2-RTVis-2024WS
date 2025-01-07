@@ -12,6 +12,9 @@ export type Compute3DTextureParams = {
 	atoms: Object3D[];
 };
 
+/**
+ * Compute a 3D texture with the signed distance field of the atoms.
+ */
 export async function compute3DTexture({
 	device,
 	width,
@@ -78,7 +81,7 @@ export async function compute3DTexture({
 
 	// In the shader the buffer has the type array<vec3f>.
 	// Each vec3f is 3 bytes long + 1 byte of padding.
-	const atomsBufferData = new Float32Array(atoms.length * 4);
+	const atomsBufferData = new Float32Array(atoms.length * 4 - 1);
 	for (let i = 0; i < atoms.length; i++) {
 		atomsBufferData.set(atoms[i].position, i * 4);
 	}
