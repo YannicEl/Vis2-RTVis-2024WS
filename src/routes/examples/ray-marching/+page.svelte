@@ -11,13 +11,13 @@
 	import { vec3 } from 'wgpu-matrix';
 	import { compute3DTexture } from '$lib/computeShader';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
-	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
 	import { SceneObject } from '$lib/webGPU/scene/SceneObject';
 	import { Scene } from '$lib/webGPU/scene/Scene';
 	import { addRayMarchingControls } from '$lib/controls/rayMarchingControls';
 	import { addGeneralControls } from '$lib/controls/generalControls.ts';
 	import { addCameraControls } from '$lib/controls/cameraControls';
 	import { addMiscControls } from '$lib/controls/miscControls.svelte';
+	import { createMoleculeSceneObjects, parsePdb } from '$lib/mol/pdbGeometry';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -63,7 +63,8 @@
 			async function updateScene(): Promise<Scene> {
 				const PDB = await loadPDBLocal(generalControls.molecule.value);
 				if (!PDB) throw new Error('PDB Not found');
-				const { atoms } = createPdbGeometry(PDB);
+				const moleculeData = parsePdb(PDB);
+				const { atoms } = createMoleculeSceneObjects(moleculeData);
 
 				let dimensions = {
 					width: { min: 0, max: 0 },
