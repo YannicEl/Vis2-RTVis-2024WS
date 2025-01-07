@@ -9,3 +9,31 @@
 # Hosted version
 
 [https://vis2-rtvis-2024ws.yannic.workers.dev/](https://vis2-rtvis-2024ws.yannic.workers.dev/)
+
+## Camera
+
+## Geometry
+
+## Material
+
+## SceneObject
+
+### Instancing
+
+## Scene
+
+## Renderer
+
+## PDB Parser
+
+## Uniform Buffer
+
+## WebGPU init
+
+### custom mini framework
+
+## SDF Texture for Ray Marching
+
+## Ray Marching Shader
+
+## Blending Example - page.svelte
