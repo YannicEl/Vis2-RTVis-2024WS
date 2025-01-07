@@ -14,7 +14,7 @@ export type PdbFile = (typeof LOCAL_PDB_FILES)[number] | (string & {});
 
 export const loadPDBLocal = async (fileName: PdbFile) => {
 	try {
-		const fileContent = await import(`../mol-files/${fileName.toLowerCase()}.pdb?raw`);
+		const fileContent = await import(`../../assets/pdb/${fileName.toLowerCase()}.pdb?raw`);
 
 		const parser = new PdbParser();
 		parser.collect(fileContent.default.split('\n'));

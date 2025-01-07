@@ -1,4 +1,4 @@
-import { LOCAL_PDB_FILES } from '$lib/mol/pdbLoader';
+import { LOCAL_PDB_FILES } from '$lib/proteins/pdb/pdbLoader';
 import { getControls } from './controls.svelte';
 
 export function addGeneralControls() {
