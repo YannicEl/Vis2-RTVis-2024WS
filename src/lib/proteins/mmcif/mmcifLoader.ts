@@ -1,4 +1,4 @@
-import type { mmcifAtom, mmcifBond } from './mmcifTypes';
+import type { mmcifAtom, mmcifBond } from '$lib/proteins/mmcif/mmcifTypes';
 
 export const loadMmcifLocal = async (fileName: string) => {
 	try {

@@ -1,10 +1,10 @@
+import { elementColors } from '$lib/proteins/pdb/pdbColors';
 import { CylinderGeometry } from '$lib/webGPU/geometry/CylinderGeometry';
 import { SphereGeometry } from '$lib/webGPU/geometry/SphereGeometry';
 import { ColorMaterial } from '$lib/webGPU/material/ColorMaterial';
 import { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
 import type { Pdb } from 'pdb-parser-js/dist/pdb';
 import { vec3, type Vec3 } from 'wgpu-matrix';
-import { elementColors } from './pdbColors';
 
 export type AtomData = {
 	color: string;

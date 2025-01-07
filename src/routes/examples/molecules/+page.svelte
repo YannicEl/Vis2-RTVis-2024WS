@@ -2,11 +2,9 @@
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { draw, initWebGPU } from '$lib/webGPU/helpers/webGpu';
 	import { Renderer } from '$lib/webGPU/Renderer';
-	import { loadPDBLocal } from '$lib/mol/pdbLoader';
-	import type { PdbFile } from '$lib/mol/pdbLoader';
-	import { createMoleculeSceneObjects, parsePdb } from '$lib/mol/pdbGeometry';
-	import { loadMmcifLocal } from '$lib/mol/mmcifLoader';
-	import { createMmcifGeometry } from '$lib/mol/mmcifGeometry';
+	import { loadPDBLocal } from '$lib/proteins/pdb/pdbLoader';
+	import type { PdbFile } from '$lib/proteins/pdb/pdbLoader';
+	import { createMoleculeSceneObjects, parsePdb } from '$lib/proteins/pdb/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { globalState } from '$lib/globalState.svelte';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
@@ -15,7 +13,6 @@
 	import { Scene } from '$lib/webGPU/scene/Scene';
 	import { addGeneralControls } from '$lib/controls/generalControls.ts';
 	import { addCameraControls } from '$lib/controls/cameraControls';
-	import type { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -87,26 +84,16 @@
 				renderer.render(scene, { camera });
 			});
 
-			async function updateScene(fileName: PdbFile, cif: boolean = false): Promise<Scene> {
-				let ballsAndSticks: InstancedSceneObject[];
-				if (!cif) {
-					const PDB = await loadPDBLocal(fileName);
-					if (!PDB)
-						throw new Error(
-							`PDB ${fileName} not found. It may not exist or is too large to load as PDB.`
-						);
-					const moleuleData = parsePdb(PDB);
-					const { atoms, bonds } = createMoleculeSceneObjects(moleuleData);
+			async function updateScene(fileName: PdbFile): Promise<Scene> {
+				const PDB = await loadPDBLocal(fileName);
+				if (!PDB)
+					throw new Error(
+						`PDB ${fileName} not found. It may not exist or is too large to load as PDB.`
+					);
+				const moleuleData = parsePdb(PDB);
+				const { atoms, bonds } = createMoleculeSceneObjects(moleuleData);
 
-					ballsAndSticks = [...atoms, bonds];
-				} else {
-					const CIF = await loadMmcifLocal(fileName);
-					if (!CIF)
-						throw new Error(
-							`CIF ${fileName} not found. It may not exist or is too large to load as CIF.`
-						);
-					ballsAndSticks = createMmcifGeometry(CIF.atoms, CIF.bonds);
-				}
+				const ballsAndSticks = [...atoms, bonds];
 
 				const scene = new Scene(ballsAndSticks);
 
