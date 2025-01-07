@@ -6,7 +6,8 @@
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { globalState } from '$lib/globalState.svelte';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
-	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
+	import { createMoleculeSceneObjects, parsePdb } from '$lib/mol/pdbGeometry';
+	import type { AtomData } from '$lib/mol/pdbGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
 	import { autoResizeCanvas } from '$lib/resizeableCanvas';
 	import { ArcballControls } from '$lib/webGPU/controls/ArcballControls';
@@ -132,7 +133,9 @@
 		});
 
 		async function getScenes() {
-			const { atomsAndBonds: sticksAndBalls, atoms } = createPdbGeometry(PDB);
+			const moleculeData = parsePdb(PDB);
+			const { atoms, bonds } = createMoleculeSceneObjects(moleculeData);
+			const sticksAndBalls = [...atoms, bonds];
 
 			const {
 				scene: rayMarchingScene,
@@ -140,7 +143,7 @@
 				height,
 				depth,
 				scale,
-			} = await getSceneRaymarching(atoms);
+			} = await getSceneRaymarching(moleculeData.atoms);
 
 			for (const sceneObject of sticksAndBalls) {
 				for (let i = 0; i < sceneObject.count; i++) {
@@ -172,7 +175,7 @@
 			return scene;
 		}
 
-		async function getSceneRaymarching(atoms: Object3D[]) {
+		async function getSceneRaymarching(atoms: AtomData[]) {
 			let dimensions = {
 				width: { min: 0, max: 0 },
 				height: { min: 0, max: 0 },

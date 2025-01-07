@@ -67,13 +67,13 @@ fn fragment(
 
   var mix_factor = 0.0;
   if(uniforms.transparency == 1) {
-  let depth_normalized = normalize_depth(depth_sample);
-  let ray_marching_normalized = normalize_lol(ray_marching_sample[3], 0, uniforms.maximumTraceDistance);
+    let depth_normalized = normalize_depth(depth_sample);
+    let ray_marching_normalized = normalize_lol(ray_marching_sample[3], 0, uniforms.maximumTraceDistance);
 
-  let distance_max = uniforms.maximumTransparencyDepth;
-  let sigma = (depth_normalized - ray_marching_normalized) / distance_max;
+    let distance_max = uniforms.maximumTransparencyDepth;
+    let sigma = (depth_normalized - ray_marching_normalized) / distance_max;
 
-  mix_factor = pow(2.71828182846, -5 * sigma);
+    mix_factor = pow(2.71828182846, -5 * sigma);
   }
 
   // let value = sigma;
@@ -115,7 +115,10 @@ fn ray_march(
 
       var color = uniforms.fragmentColor.rgb;
       color += subsurface_scattering_factor;
-      color += reflection.rgb * uniforms.reflectionFactor;
+
+      // if(reflection.r != 1) {
+        color += reflection.rgb * uniforms.reflectionFactor;
+      // }
 
 
       return vec4f(color, total_distance_traveled);
@@ -139,7 +142,7 @@ fn ray_march_reflection(
 ) -> vec4f {
   var total_distance_traveled = 0.0;
 
-  for (var i = 0; i < uniforms.numberOfSteps / 2; i++) {
+  for (var i = 0; i < uniforms.numberOfSteps / 8; i++) {
     // Calculate our current position along the ray
     let current_position = ray_origin + total_distance_traveled * ray_direction;
 
@@ -162,7 +165,7 @@ fn ray_march_reflection(
     }
 
     // miss
-    if (total_distance_traveled > uniforms.maximumTraceDistance / 2) {
+    if (total_distance_traveled > uniforms.maximumTraceDistance / 8) {
       break;
     }
 

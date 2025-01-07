@@ -4,7 +4,7 @@
 	import { Renderer } from '$lib/webGPU/Renderer';
 	import { loadPDBLocal } from '$lib/mol/pdbLoader';
 	import type { PdbFile } from '$lib/mol/pdbLoader';
-	import { createPdbGeometry } from '$lib/mol/pdbGeometry';
+	import { createMoleculeSceneObjects, parsePdb } from '$lib/mol/pdbGeometry';
 	import { loadMmcifLocal } from '$lib/mol/mmcifLoader';
 	import { createMmcifGeometry } from '$lib/mol/mmcifGeometry';
 	import { Camera } from '$lib/webGPU/Camera';
@@ -15,6 +15,7 @@
 	import { Scene } from '$lib/webGPU/scene/Scene';
 	import { addGeneralControls } from '$lib/controls/generalControls.ts';
 	import { addCameraControls } from '$lib/controls/cameraControls';
+	import type { InstancedSceneObject } from '$lib/webGPU/scene/InstancedSceneObject';
 
 	let canvas = $state<HTMLCanvasElement>();
 
@@ -38,7 +39,7 @@
 	const camera = new Camera();
 	globalState.camera = camera;
 	const cameraControls = addCameraControls(camera);
-  cameraControls.distance.value = 20
+	cameraControls.distance.value = 20;
 
 	onMount(async () => {
 		if (!canvas) return;
@@ -87,14 +88,17 @@
 			});
 
 			async function updateScene(fileName: PdbFile, cif: boolean = false): Promise<Scene> {
-				let ballsAndSticks;
+				let ballsAndSticks: InstancedSceneObject[];
 				if (!cif) {
 					const PDB = await loadPDBLocal(fileName);
 					if (!PDB)
 						throw new Error(
 							`PDB ${fileName} not found. It may not exist or is too large to load as PDB.`
 						);
-					ballsAndSticks = createPdbGeometry(PDB).atomsAndBonds;
+					const moleuleData = parsePdb(PDB);
+					const { atoms, bonds } = createMoleculeSceneObjects(moleuleData);
+
+					ballsAndSticks = [...atoms, bonds];
 				} else {
 					const CIF = await loadMmcifLocal(fileName);
 					if (!CIF)
