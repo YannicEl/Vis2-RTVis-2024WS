@@ -1,3 +1,18 @@
+<br>
+<br>
+<div align="center"><img src="static/favicon.png"/></div>
+<br>
+<div align="center"><strong>Rendering molecules for fun and profit</strong></div>
+<div align="center">Yannic Ellhotka & Simon Wesp</div>
+<br>
+<br>
+
+# Prequesites
+
+- [Node 22](https://nodejs.org/en/download)
+- A browser with [WebGPU support](https://caniuse.com/webgpu)
+- Optional but recommended [pnpm](https://pnpm.io/installation#using-corepack)
+
 # How to run
 
 1. `npm install`
