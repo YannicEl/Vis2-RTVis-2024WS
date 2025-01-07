@@ -139,7 +139,7 @@ fn ray_march_reflection(
 ) -> vec4f {
   var total_distance_traveled = 0.0;
 
-  for (var i = 0; i < uniforms.numberOfSteps; i++) {
+  for (var i = 0; i < uniforms.numberOfSteps / 2; i++) {
     // Calculate our current position along the ray
     let current_position = ray_origin + total_distance_traveled * ray_direction;
 
@@ -162,7 +162,7 @@ fn ray_march_reflection(
     }
 
     // miss
-    if (total_distance_traveled > uniforms.maximumTraceDistance) {
+    if (total_distance_traveled > uniforms.maximumTraceDistance / 2) {
       break;
     }
 

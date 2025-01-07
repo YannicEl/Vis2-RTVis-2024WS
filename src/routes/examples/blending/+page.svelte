@@ -179,7 +179,7 @@
 				depth: { min: 0, max: 0 },
 			};
 
-			const radius = 0.5;
+			let radius = 5;
 			const padding = 1;
 			for (const atom of atoms) {
 				const [x, y, z] = atom.position;
@@ -197,6 +197,45 @@
 			let width = dimensions.width.max - dimensions.width.min;
 			let height = dimensions.height.max - dimensions.height.min;
 			let depth = dimensions.depth.max - dimensions.depth.min;
+
+			const maxDimension = 256;
+			let scaleStep = 0.1;
+			if (Math.max(width, height, depth) > maxDimension) {
+				scaleStep = -0.1;
+			}
+
+			let scale = 1;
+			while (true) {
+				scale += scaleStep;
+
+				if (scaleStep > 0) {
+					if (
+						width * scale > maxDimension ||
+						height * scale > maxDimension ||
+						depth * scale > maxDimension
+					) {
+						scale -= 0.1;
+						break;
+					}
+				} else {
+					if (
+						width * scale < maxDimension &&
+						height * scale < maxDimension &&
+						depth * scale < maxDimension
+					) {
+						break;
+					}
+				}
+			}
+
+			console.log({ width, height, depth, scale });
+
+			width *= scale;
+			height *= scale;
+			depth *= scale;
+			// radius *= scale * 0.5;
+
+			console.log({ width, height, depth, scale });
 
 			const atoms_2: Object3D[] = [];
 			for (const atom of atoms) {
@@ -225,8 +264,6 @@
 				return (to - from) * ((value - min) / (max - min)) + from;
 			}
 
-			console.log({ width, height, depth });
-
 			console.time('Compute SDF Texture');
 			const sdfTexture = await compute3DTexture({
 				device,
@@ -238,20 +275,6 @@
 				atoms: atoms_2,
 			});
 			console.timeEnd('Compute SDF Texture');
-
-			let scale = 1;
-			while (true) {
-				scale += 0.1;
-
-				if (width * scale > 200 || height * scale > 200 || depth * scale > 200) {
-					scale -= 0.1;
-					break;
-				}
-			}
-
-			width *= scale;
-			height *= scale;
-			depth *= scale;
 
 			rayMarchingMaterial.updateBufferValues({
 				width: width,
