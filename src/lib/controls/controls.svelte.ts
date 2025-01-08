@@ -61,8 +61,10 @@ export function getControls() {
 
 		let prevValue = value.value;
 		$effect(() => {
-			if (prevValue === value.value) return;
-			onChange?.(value.value);
+			if (prevValue !== value.value) {
+				onChange?.(value.value);
+			}
+			prevValue = value.value;
 		});
 
 		function remove() {
