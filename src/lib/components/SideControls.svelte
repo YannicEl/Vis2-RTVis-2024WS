@@ -60,7 +60,7 @@
 
 <div {...props} class={[className, 'max-h-full w-[300px] overflow-auto']}>
 	{#if showControls}
-		<div class="border-gray-2 flex flex-col gap-4 border-b border-l bg-white p-2">
+		<div class="border-gray-2 flex flex-col gap-2 border-b border-l bg-white p-2">
 			<div class="flex items-center justify-between">
 				<h2>Controls</h2>
 
@@ -74,7 +74,7 @@
 			</div>
 
 			{#each controlsGrouped as group (group.name)}
-				<hr class="-m-2" />
+				<hr class="-mx-2" />
 
 				<button
 					class="flex items-center justify-between"
@@ -160,7 +160,7 @@
 				{/if}
 			{/each}
 
-			<hr class="-m-2" />
+			<hr class="-mx-2" />
 			<BottomControls class="w-full" />
 		</div>
 	{:else}

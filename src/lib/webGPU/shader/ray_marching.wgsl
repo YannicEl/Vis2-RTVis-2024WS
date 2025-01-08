@@ -17,6 +17,10 @@ struct Uniforms {
   depth: f32,
   subsurfaceScattering: i32,
   transparency: i32,
+  reflections: i32,
+  molecularStructure: i32,
+  near: f32,
+  far:f32,
 }
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
@@ -60,13 +64,17 @@ fn fragment(
   ray_direction = normalize(ray_direction);
 
   let ray_marching_sample = ray_march(ray_origin, ray_direction);
+  if(ray_marching_sample[3] > uniforms.maximumTraceDistance) {
+    return ray_marching_sample;
+  }
 
   let pixel = vec2f(input.uv.x, 1 - input.uv.y);
-  let depth_sample = textureSample(depth_texture, texture_sampler, pixel);
+
   let molecule_sample = textureSample(molecule_texture, texture_sampler, pixel);
 
   var mix_factor = 0.0;
-  if(uniforms.transparency == 1) {
+  if(uniforms.transparency == 1 && uniforms.molecularStructure == 1) {
+    let depth_sample = textureSample(depth_texture, texture_sampler, pixel);
     let depth_normalized = normalize_depth(depth_sample);
     let ray_marching_normalized = normalize_lol(ray_marching_sample[3], 0, uniforms.maximumTraceDistance);
 
@@ -109,17 +117,15 @@ fn ray_march(
         subsurface_scattering_factor = 1 - (uniforms.subsurfaceDepth - distance_to_surface) / (2 * uniforms.subsurfaceDepth);
       }
 
-      let normal = calculate_normal(current_position);
-      let reflect_direction = reflect(ray_direction, normal); 
-      let reflection = ray_march_reflection(current_position + normal * 0.4, reflect_direction);
-
       var color = uniforms.fragmentColor.rgb;
       color += subsurface_scattering_factor;
 
-      // if(reflection.r != 1) {
+      if(uniforms.reflections == 1) {
+        let normal = calculate_normal(current_position);
+        let reflect_direction = reflect(ray_direction, normal); 
+        let reflection = ray_march_reflection(current_position + normal * 0.4, reflect_direction);
         color += reflection.rgb * uniforms.reflectionFactor;
-      // }
-
+      }
 
       return vec4f(color, total_distance_traveled);
     }
@@ -129,7 +135,7 @@ fn ray_march(
       break;
     }
 
-    // accumulate the distance traveled thus far
+    // accumulate the distance traveled thus uniforms.far
     total_distance_traveled += distance_to_closest;
   }
 
@@ -169,7 +175,7 @@ fn ray_march_reflection(
       break;
     }
 
-    // accumulate the distance traveled thus far
+    // accumulate the distance traveled thus uniforms.far
     total_distance_traveled += distance_to_closest;
   }
 
@@ -214,9 +220,7 @@ fn normalize_lol(value: f32, min: f32, max: f32) -> f32 {
 }
 
 fn normalize_depth(value: f32) -> f32 {
-  let near = 0.1;
-  let far = 1000.0;
-  return (2.0 * near) / (far + near - value * (far - near));
+  return (2.0 * uniforms.near) / (uniforms.far + uniforms.near - value * (uniforms.far - uniforms.near));
 }
 
 fn calculate_normal(point: vec3f) -> vec3f {

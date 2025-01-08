@@ -33,8 +33,6 @@
 
 	const controls = getControls();
 
-	const generalControls = addGeneralControls();
-
 	const rayMarchingMaterial = new RayMarchingMaterial({
 		clearColor: 'white',
 		fragmentColor: 'blue',
@@ -49,12 +47,17 @@
 		reflectionFactor: 0.05,
 		subsurfaceScattering: 1,
 		transparency: 1,
+		reflections: 1,
+		molecularStructure: 1,
+		near: camera.near,
+		far: camera.far,
 	});
 
+	const generalControls = addGeneralControls(rayMarchingMaterial);
 	const effectControls = addEffectsControls(rayMarchingMaterial);
 	addRayMarchingControls(rayMarchingMaterial);
 
-	addCameraControls(camera);
+	addCameraControls(camera, rayMarchingMaterial);
 	addMiscControls();
 
 	const gridSizeControl = controls.addControl({
@@ -137,7 +140,7 @@
 				viewMatrixInverse: camera.viewMatrixInverse,
 			});
 
-			if (effectControls.transparency.value) {
+			if (generalControls.showMoleculeStructure.value && effectControls.transparency.value) {
 				renderer.render(scenes.molecules, {
 					view: generalControls.showMoleculeSurface.value
 						? textureMolecules.createView(device)

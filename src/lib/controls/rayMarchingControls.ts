@@ -56,49 +56,11 @@ export function addRayMarchingControls(material: RayMarchingMaterial) {
 		material.updateBufferValues({ maximumTraceDistance })
 	);
 
-	const subsurfaceDepth = controls.addControl({
-		name: 'Subsurface depth',
-		group,
-		type: 'range',
-		value: 4,
-		step: 0.1,
-		min: 0,
-		max: 50,
-	});
-	subsurfaceDepth.onChange((subsurfaceDepth) => material.updateBufferValues({ subsurfaceDepth }));
-
-	const maximumTransparencyDepth = controls.addControl({
-		name: 'Maximum transparency depth',
-		group,
-		type: 'range',
-		value: 0.3,
-		min: 0,
-		max: 1,
-		step: 0.01,
-	});
-	maximumTransparencyDepth.onChange((maximumTransparencyDepth) =>
-		material.updateBufferValues({ maximumTransparencyDepth })
-	);
-
-	const reflectionFactor = controls.addControl({
-		name: 'Reflection factor',
-		group,
-		type: 'range',
-		value: 0.05,
-		min: 0,
-		max: 1,
-		step: 0.01,
-	});
-	reflectionFactor.onChange((reflectionFactor) =>
-		material.updateBufferValues({ reflectionFactor })
-	);
-
 	return {
 		clearColor,
 		fragmentColor,
 		numberOfSteps,
 		minimumHitDistance,
 		maximumTraceDistance,
-		subsurfaceDepth,
 	};
 }

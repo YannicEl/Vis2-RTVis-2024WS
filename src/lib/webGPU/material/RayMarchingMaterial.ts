@@ -22,6 +22,10 @@ export type RayMarchingMaterialParams = {
 	depth?: number;
 	subsurfaceScattering: number;
 	transparency: number;
+	reflections: number;
+	molecularStructure: number;
+	near: number;
+	far: number;
 };
 
 export class RayMarchingMaterial extends Material {
@@ -52,6 +56,10 @@ export class RayMarchingMaterial extends Material {
 				depth: 'f32',
 				subsurfaceScattering: 'i32',
 				transparency: 'i32',
+				reflections: 'i32',
+				molecularStructure: 'i32',
+				near: 'f32',
+				far: 'f32',
 			},
 			'Ray Marching Material Buffer'
 		);
