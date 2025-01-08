@@ -64,6 +64,7 @@
 		name: 'Grid size',
 		type: 'number',
 		value: 128,
+		max: 1024,
 	});
 
 	const radiusControl = controls.addControl({
@@ -122,8 +123,13 @@
 			scenes = await getScenes();
 		});
 
-		gridSizeControl.onChange(async () => {
-			scenes = await getScenes();
+		gridSizeControl.onChange(async (gridSize) => {
+			const maxGridSize = Math.min(1024, device.limits.maxTextureDimension3D);
+			if (gridSize > maxGridSize) {
+				gridSizeControl.value = maxGridSize;
+			} else {
+				scenes = await getScenes();
+			}
 		});
 
 		sizeControl.onChange(async () => {

@@ -42,6 +42,8 @@ export async function getWebGPUDevice(
 	const device = await adapter.requestDevice(deviceOptions);
 	device.lost.then((info) => {
 		console.error(`WebGPU device was lost: ${info.message}`);
+		alert('A WebGPU error has been encountered. Reloading the page might fix the error.');
+		window.location.reload();
 	});
 
 	return device;

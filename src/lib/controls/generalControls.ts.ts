@@ -2,7 +2,7 @@ import { LOCAL_PDB_FILES } from '$lib/proteins/pdb/pdbLoader';
 import type { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
 import { getControls } from './controls.svelte';
 
-export function addGeneralControls(material: RayMarchingMaterial) {
+export function addGeneralControls(material?: RayMarchingMaterial) {
 	const controls = getControls();
 
 	const molecule = controls.addControl({
@@ -31,7 +31,7 @@ export function addGeneralControls(material: RayMarchingMaterial) {
 		value: true,
 	});
 	showMoleculeStructure.onChange((showMoleculeStructure) =>
-		material.updateBufferValues({ molecularStructure: showMoleculeStructure ? 1 : 0 })
+		material?.updateBufferValues({ molecularStructure: showMoleculeStructure ? 1 : 0 })
 	);
 
 	return {

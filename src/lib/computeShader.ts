@@ -61,8 +61,7 @@ export async function compute3DTexture({
 		format: 'rgba8snorm',
 		size: [width, height, depth],
 		dimension: '3d',
-		usage:
-			GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_DST,
+		usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.STORAGE_BINDING,
 	});
 
 	const dispatchCount = [width, height, depth].map((value) => Math.ceil(value / 4));

@@ -3,7 +3,7 @@ import type { Camera } from '$lib/webGPU/Camera';
 import type { RayMarchingMaterial } from '$lib/webGPU/material/RayMarchingMaterial';
 import { getControls } from './controls.svelte';
 
-export function addCameraControls(camera: Camera, material: RayMarchingMaterial) {
+export function addCameraControls(camera: Camera, material?: RayMarchingMaterial) {
 	const controls = getControls();
 	const group = 'Camera';
 
@@ -28,7 +28,7 @@ export function addCameraControls(camera: Camera, material: RayMarchingMaterial)
 	});
 	near.onChange((near) => {
 		camera.near = near;
-		material.updateBufferValues({ near });
+		material?.updateBufferValues({ near });
 	});
 
 	const far = controls.addControl({
@@ -41,7 +41,7 @@ export function addCameraControls(camera: Camera, material: RayMarchingMaterial)
 	});
 	far.onChange((far) => {
 		camera.far = far;
-		material.updateBufferValues({ far });
+		material?.updateBufferValues({ far });
 	});
 
 	const frictionCoefficient = controls.addControl({

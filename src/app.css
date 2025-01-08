@@ -25,7 +25,7 @@ p {
 select,
 input[type='text'],
 input[type='number'] {
-	--apply: border border-gray-2 p-1;
+	--apply: border border-gray-2 p-1 rounded-none;
 }
 
 input[type='checkbox'] {
