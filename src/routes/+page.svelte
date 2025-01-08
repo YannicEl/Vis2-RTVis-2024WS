@@ -27,29 +27,32 @@
 		>
 	</p>
 
+	<p class="mt-4">
+		Make sure to use a recent browser with <a
+			href="https://caniuse.com/webgpu"
+			target="_blank"
+			class="underline">WebGU support</a
+		>
+	</p>
+
 	<a href="/examples" class="mt-2 underline">
 		<button type="button" class="border-1 mt-4 border border-black px-4 py-2">
 			See examples →
 		</button>
 	</a>
 
-	<h2 class="mt-8">Gallery</h2>
-	<enhanced:img src="$lib/assets/images/title_image.jpg" alt="4V4L molecule visualization" />
-	<enhanced:img src="$lib/assets/images/title_image.jpg" alt="4V4L molecule visualization" />
-	<enhanced:img src="$lib/assets/images/title_image.jpg" alt="4V4L molecule visualization" />
-	<enhanced:img src="$lib/assets/images/title_image.jpg" alt="4V4L molecule visualization" />
+	<a href="/docs/index.html" class="mt-2 underline">
+		<button type="button" class="border-1 mt-4 border border-black px-4 py-2"> Docs → </button>
+	</a>
 
-	<p class="mt-8">
-		Ray marching is a powerful technique used in computer graphics and computational geometry for
-		rendering complex scenes, particularly in the context of 3D volumetric rendering. It works by
-		tracing rays through a scene and stepping through the environment at discrete intervals to
-		accumulate color, lighting, and texture data. Unlike traditional ray tracing, which relies on
-		calculating intersections with geometric surfaces, ray marching is often used for rendering
-		objects like fog, clouds, and other volumetric phenomena, where surfaces are not well-defined.
-		This technique involves marching along a ray, incrementally calculating the distance to the
-		nearest surface or density field, and stopping when a specific threshold is reached or when the
-		ray exits the scene. The resulting images often exhibit stunning effects, such as soft shadows
-		and intricate light scattering, which can be computationally expensive but provide a high level
-		of realism in scenes with complex lighting and materials.
-	</p>
+	<h2 class="mt-8">Gallery</h2>
+	<div class="-mx-4 lg:-mx-16">
+		<video src="$lib/assets/video.mp4" class="mt-4" controls loop></video>
+		<enhanced:img src="$lib/assets/images/gallery_1.png" class="mt-4" />
+		<enhanced:img src="$lib/assets/images/gallery_2.png" class="mt-4" />
+		<enhanced:img src="$lib/assets/images/gallery_3.png" class="mt-4" />
+		<enhanced:img src="$lib/assets/images/gallery_4.png" class="mt-4" />
+		<enhanced:img src="$lib/assets/images/gallery_5.png" class="mt-4" />
+		<enhanced:img src="$lib/assets/images/gallery_6.png" class="mt-4" />
+	</div>
 </main>
