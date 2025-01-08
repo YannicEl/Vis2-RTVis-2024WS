@@ -4,6 +4,7 @@
 <br>
 <div align="center"><strong>Rendering molecules for fun and profit</strong></div>
 <div align="center">Yannic Ellhotka & Simon Wesp</div>
+<div align="center"><a href="https://github.com/YannicEl/Vis2-RTVis-2024WS" target="_blank">GitHub</a></div>
 <br>
 <br>
 

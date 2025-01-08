@@ -44,7 +44,11 @@
 	</a>
 
 	<a href="/docs/index.html" target="_blank" class="underline">
-		<button type="button" class="border-1 mt-2 border border-black px-4 py-2"> Docs → </button>
+		<button type="button" class="border-1 mt-2 border border-black px-4 py-2">Docs → </button>
+	</a>
+
+	<a href="https://github.com/YannicEl/Vis2-RTVis-2024WS" target="_blank" class="underline">
+		<button type="button" class="border-1 mt-2 border border-black px-4 py-2">Github → </button>
 	</a>
 
 	<p class="mt-4">
