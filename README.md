@@ -90,18 +90,18 @@ mmCIF is meant to be the more modern replacement for pdb files. We recommend to 
 
 ## Uniform Buffer
 
-Utility for writing buffers to the GPU. Automatically applies required padding.
+Utility for writing buffers to the GPU. Automatically applies required padding and alignment.
 
 ## WebGPU init
 
-### custom mini framework
+### Custom mini framework
 
-The custom mini framework provides a lightweight structure for building and managing the application's components. It offers utilities and abstractions to streamline tasks such as resource management, event handling, and component interaction.
+Our custom mini framework makes working with WebGPU easier. It wraps around the WebGPU api and provides a more user-friendly interface for creating geomerty and shaders and loading data on the GPU.
 
 ## SDF Texture for Ray Marching
 
-This component utilizes Signed Distance Fields (SDF) to represent 3D shapes for ray marching algorithms. It enables efficient rendering of complex surfaces by encoding distance information into textures.
+Takes the positions of the atoms and calculates a signed distance field texture. To speed up the process considerably, the calculations are performed in a compute shader. This texture is used in the ray-marching shader to render the surface of the molecule.
 
 ## Ray Marching Shader
 
-## Blending Example - page.svelte
+Primarily renders the moleucle surface with raymarchign and a 3D Sigend distanced field. Also applies the different effects like subsurface scattering, transaprency or reflections.
