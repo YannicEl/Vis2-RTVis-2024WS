@@ -37,13 +37,13 @@
 		representation, supported by expert feedback and user studies.
 	</p>
 
-	<a href="/examples" class=" underline">
+	<a href="/examples" target="_blank" class=" underline">
 		<button type="button" class="border-1 mt-2 border border-black px-4 py-2">
 			See examples →
 		</button>
 	</a>
 
-	<a href="/docs/index.html" class="underline">
+	<a href="/docs/index.html" target="_blank" class="underline">
 		<button type="button" class="border-1 mt-2 border border-black px-4 py-2"> Docs → </button>
 	</a>
 
