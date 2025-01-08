@@ -41,7 +41,7 @@ export function addEffectsControls(material: RayMarchingMaterial) {
 		name: 'Maximum transparency depth',
 		group,
 		type: 'range',
-		value: 0.3,
+		value: 0.2,
 		min: 0,
 		max: 1,
 		step: 0.01,

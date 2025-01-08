@@ -43,7 +43,7 @@
 		minimumHitDistance: 0.4,
 		maximumTraceDistance: 1000,
 		subsurfaceDepth: 4,
-		maximumTransparencyDepth: 0.3,
+		maximumTransparencyDepth: 0.2,
 		reflectionFactor: 0.05,
 		subsurfaceScattering: 1,
 		transparency: 1,
@@ -63,7 +63,7 @@
 	const gridSizeControl = controls.addControl({
 		name: 'Grid size',
 		type: 'number',
-		value: 128,
+		value: 256,
 		max: 1024,
 	});
 
@@ -136,6 +136,10 @@
 			scenes = await getScenes();
 		});
 
+		radiusControl.onChange(async () => {
+			scenes = await getScenes();
+		});
+
 		draw((deltaTime) => {
 			globalState.fps = 1000 / deltaTime;
 			controls.update(deltaTime);
@@ -186,12 +190,9 @@
 				scale,
 			} = await getSceneRaymarching(moleculeData.atoms);
 
-			console.log(scale);
-
 			for (const atom of moleculeData.atoms) {
 				const [x, y, z] = atom.position;
 
-				// instance.scaleAll(vec3.create(scale, scale, scale));
 				atom.position = vec3.create(x * scale, y * scale, z * scale);
 			}
 
@@ -224,7 +225,7 @@
 			};
 
 			const radius = radiusControl.value;
-			const padding = 0;
+			const padding = 1;
 			for (const atom of atoms) {
 				const [x, y, z] = atom.position;
 
@@ -244,9 +245,9 @@
 			let depth = (dimensions.depth.max - dimensions.depth.min) * dimensionScale;
 
 			const gridSize = gridSizeControl.value;
-			let scaleStep = 0.1;
+			let scaleStep = 0.001;
 			if (Math.max(width, height, depth) > gridSize) {
-				scaleStep = -0.1;
+				scaleStep = -0.001;
 			}
 
 			let scale = 1;
@@ -286,16 +287,6 @@
 				atoms_2.push(newAtom);
 			}
 
-			function normalize(
-				value: number,
-				min: number,
-				max: number,
-				from: number,
-				to: number
-			): number {
-				return (to - from) * ((value - min) / (max - min)) + from;
-			}
-
 			console.time('Compute SDF Texture');
 			const sdfTexture = await compute3DTexture({
 				device,
@@ -327,6 +318,10 @@
 			return { scene, width, height, depth, scale };
 		}
 	});
+
+	function normalize(value: number, min: number, max: number, from: number, to: number): number {
+		return (to - from) * ((value - min) / (max - min)) + from;
+	}
 </script>
 
 <canvas

@@ -23,7 +23,7 @@
 
 # Hosted version
 
-[https://vis2-rtvis-2024ws.yannic.workers.dev/](https://vis2-rtvis-2024ws.yannic.workers.dev/)
+[https://vis2-rtvis-2024ws.yannic.at/](https://vis2-rtvis-2024ws.yannic.at/)
 
 # How to prepare molecule files
 
