@@ -59,7 +59,9 @@ export function getControls() {
 
 		controls.push(value);
 
+		let prevValue = value.value;
 		$effect(() => {
+			if (prevValue === value.value) return;
 			onChange?.(value.value);
 		});
 

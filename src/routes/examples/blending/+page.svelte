@@ -42,7 +42,7 @@
 		numberOfSteps: 500,
 		minimumHitDistance: 0.4,
 		maximumTraceDistance: 1000,
-		subsurfaceDepth: 2,
+		subsurfaceDepth: 4,
 		maximumTransparencyDepth: 0.3,
 		reflectionFactor: 0.05,
 		subsurfaceScattering: 1,
