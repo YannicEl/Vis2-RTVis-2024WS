@@ -61,7 +61,7 @@
 
 	<h2 class="mt-8">Gallery</h2>
 	<div class="-mx-4 lg:-mx-16">
-		<video src={video} class="mt-4" loop muted autoplay></video>
+		<video src={video} width="864" height="748" class="mt-4" loop muted autoplay></video>
 		<enhanced:img src="$lib/assets/images/gallery_1.png" class="mt-4" />
 		<enhanced:img src="$lib/assets/images/gallery_2.png" class="mt-4" />
 		<enhanced:img src="$lib/assets/images/gallery_3.png" class="mt-4" />
