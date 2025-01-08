@@ -1,10 +1,11 @@
 <script lang="ts">
+	import video from '$lib/assets/images/video.mp4';
 </script>
 
 <main class="mx-auto mt-8 max-w-screen-md p-4">
-	<enhanced:img src="$lib/assets/images/title_image.jpg" alt="4V4L molecule visualization" />
+	<enhanced:img src="$lib/assets/images/title_image.png" alt="4V4L molecule visualization" />
 
-	<h1 class="mt-4">Rendering molecules for fun and profit</h1>
+	<h1 class="mt-10">Rendering molecules for fun and profit</h1>
 
 	<p class="mt-2">
 		Welcome to our project, an in-depth exploration of visualizing molecules led by Yannic Ellhotka
@@ -47,7 +48,7 @@
 
 	<h2 class="mt-8">Gallery</h2>
 	<div class="-mx-4 lg:-mx-16">
-		<video src="$lib/assets/video.mp4" class="mt-4" controls loop></video>
+		<video src={video} class="mt-4" loop muted autoplay></video>
 		<enhanced:img src="$lib/assets/images/gallery_1.png" class="mt-4" />
 		<enhanced:img src="$lib/assets/images/gallery_2.png" class="mt-4" />
 		<enhanced:img src="$lib/assets/images/gallery_3.png" class="mt-4" />

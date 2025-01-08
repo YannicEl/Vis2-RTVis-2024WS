@@ -16,18 +16,6 @@
 
 	const controls = getControls();
 
-	const exampleControl = controls.addControl({
-		name: 'Example',
-		type: 'select',
-		value: page.route.id?.split('/')?.at(-1) ?? '/',
-		options: [
-			{ label: 'Molecules', value: 'molecules' },
-			{ label: 'Ray marching', value: 'ray-marching' },
-			{ label: 'Rotation', value: 'rotation' },
-			{ label: 'Blending', value: 'blending' },
-		],
-	});
-
 	let showControls = $state(true);
 	let controlsGrouped = $state<GroupdControls>([]);
 
@@ -54,8 +42,6 @@
 
 		return groups;
 	}
-
-	exampleControl.onChange((example) => goto(example));
 </script>
 
 <div {...props} class={[className, 'max-h-full w-[300px] overflow-auto']}>
