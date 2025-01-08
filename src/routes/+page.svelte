@@ -13,12 +13,10 @@
 		web application aims to provide an interactive platform for rendering and exploring molecular
 		structures using cutting-edge graphics technologies. Our project leverages the power of WebGPU,
 		a new web standard for low-level graphics and compute API, to create stunning visualizations of
-		complex molecular structures in real-time. By combining the latest web technologies with
-		advanced rendering techniques, we hope to inspire and educate users about the fascinating world
-		of molecular biology and chemistry.
+		complex molecular structures in real-time.
 	</p>
 
-	<p class="mt-4">
+	<p class="mt-8">
 		This work is based on the research paper <a
 			href="https://doi.org/10.2312/VCBM.20181244"
 			target="_blank"
@@ -28,6 +26,27 @@
 		>
 	</p>
 
+	<p class="mb-4">
+		This paper deals with the problem of improving the way molecular surface visualizations are
+		perceived, which are very important for analyzing molecular structures. Often, these
+		visualizations make it difficult to see fine details and internal structures due to occlusion
+		and simplification. The authors propose techniques inspired by the properties of translucent
+		materials, such as subsurface scattering for better thickness perception, transparency for
+		viewing underlying structures, and reflections and refractions to make the curvature easier to
+		recognize. These methods aim to reduce visual clutter and give experts a clearer and more useful
+		representation, supported by expert feedback and user studies.
+	</p>
+
+	<a href="/examples" class=" underline">
+		<button type="button" class="border-1 mt-2 border border-black px-4 py-2">
+			See examples →
+		</button>
+	</a>
+
+	<a href="/docs/index.html" class="underline">
+		<button type="button" class="border-1 mt-2 border border-black px-4 py-2"> Docs → </button>
+	</a>
+
 	<p class="mt-4">
 		Make sure to use a recent browser with <a
 			href="https://caniuse.com/webgpu"
@@ -35,16 +54,6 @@
 			class="underline">WebGU support</a
 		>
 	</p>
-
-	<a href="/examples" class="mt-2 underline">
-		<button type="button" class="border-1 mt-4 border border-black px-4 py-2">
-			See examples →
-		</button>
-	</a>
-
-	<a href="/docs/index.html" class="mt-2 underline">
-		<button type="button" class="border-1 mt-4 border border-black px-4 py-2"> Docs → </button>
-	</a>
 
 	<h2 class="mt-8">Gallery</h2>
 	<div class="-mx-4 lg:-mx-16">

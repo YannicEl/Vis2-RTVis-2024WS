@@ -20,6 +20,7 @@ h3 {
 
 p {
 	--apply: text-base;
+	text-wrap: balance;
 }
 
 select,
