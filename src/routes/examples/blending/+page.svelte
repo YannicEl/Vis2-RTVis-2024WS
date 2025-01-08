@@ -79,15 +79,6 @@
 		value: 5,
 	});
 
-	const sizeControl = controls.addControl({
-		name: 'Size',
-		type: 'range',
-		value: 1,
-		min: 0,
-		max: 10,
-		step: 0.5,
-	});
-
 	let PDB: Pdb;
 
 	onMount(async () => {
@@ -138,10 +129,6 @@
 			}
 		});
 
-		sizeControl.onChange(async () => {
-			scenes = await getScenes();
-		});
-
 		radiusControl.onChange(async () => {
 			scenes = await getScenes();
 		});
@@ -188,13 +175,7 @@
 		async function getScenes() {
 			const moleculeData = parsePdb(PDB);
 
-			const {
-				scene: rayMarchingScene,
-				width,
-				height,
-				depth,
-				scale,
-			} = await getSceneRaymarching(moleculeData.atoms);
+			const { scene: rayMarchingScene, scale } = await getSceneRaymarching(moleculeData.atoms);
 
 			for (const atom of moleculeData.atoms) {
 				const [x, y, z] = atom.position;
@@ -305,11 +286,10 @@
 			});
 			console.timeEnd('Compute SDF Texture');
 
-			const dimensionsScale = sizeControl.value;
 			rayMarchingMaterial.updateBufferValues({
-				width: width * dimensionsScale,
-				height: height * dimensionsScale,
-				depth: depth * dimensionsScale,
+				width: width,
+				height: height,
+				depth: depth,
 			});
 
 			const geometry = new QuadGeometry();
