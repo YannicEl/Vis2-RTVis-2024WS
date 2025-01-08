@@ -25,6 +25,12 @@
 	import { addMiscControls } from '$lib/controls/miscControls.svelte';
 	import { addEffectsControls } from '$lib/controls/effectsControls';
 	import { getControls } from '$lib/controls/controls.svelte';
+	import { goto } from '$app/navigation';
+
+	if (!navigator.gpu) {
+		alert("Your browser doesn't support WebGPU. Please use Chrome/Edge 113 or newer.");
+		goto('/');
+	}
 
 	let canvas = $state<HTMLCanvasElement>();
 

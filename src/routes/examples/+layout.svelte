@@ -1,5 +1,4 @@
 <script lang="ts">
-	import BottomControls from '$lib/components/BottomControls.svelte';
 	import FpsCounter from '$lib/components/FpsCounter.svelte';
 	import SideControls from '$lib/components/SideControls.svelte';
 	import { globalState } from '$lib/globalState.svelte';
