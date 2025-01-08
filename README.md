@@ -48,6 +48,8 @@ Alternatively, try generating a topology file with the `create-topology.sh` bash
 
 ## Camera
 
+The Camera component manages the viewpoint and perspective within the 3D scene. It handles parameters such as position, orientation, field of view, and projection matrices, enabling users to navigate and visualize the scene from different angles.
+
 ## Geometry
 
 Holds all vertices and indices belonging to a piece of geometry. Has helper functions for writing vertex and index buffers to the GPU.
@@ -90,11 +92,17 @@ mmCIF is meant to be the more modern replacement for pdb files. We recommend to 
 
 ## Uniform Buffer
 
+Utility for writing buffers to the GPU. Automatically applies required padding.
+
 ## WebGPU init
 
 ### custom mini framework
 
+The custom mini framework provides a lightweight structure for building and managing the application's components. It offers utilities and abstractions to streamline tasks such as resource management, event handling, and component interaction.
+
 ## SDF Texture for Ray Marching
+
+This component utilizes Signed Distance Fields (SDF) to represent 3D shapes for ray marching algorithms. It enables efficient rendering of complex surfaces by encoding distance information into textures.
 
 ## Ray Marching Shader
 
