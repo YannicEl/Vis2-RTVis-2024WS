@@ -1,0 +1,1 @@
+import{R as o}from"../chunks/control.CYgJF_JY.js";function n(e,t){throw new o(e,t.toString())}new TextEncoder;const r=async()=>{n(302,"/examples/blending")},c=Object.freeze(Object.defineProperty({__proto__:null,load:r},Symbol.toStringTag,{value:"Module"}));export{c as universal};
