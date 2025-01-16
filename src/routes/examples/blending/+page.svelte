@@ -69,7 +69,7 @@
 	const gridSizeControl = controls.addControl({
 		name: 'Grid size',
 		type: 'number',
-		value: 256,
+		value: 128,
 		max: 1024,
 	});
 
@@ -88,6 +88,9 @@
 		if (!context) return;
 
 		const { device } = await initWebGPU({
+			adapterOptions: {
+				powerPreference: 'high-performance',
+			},
 			deviceOptions: (adapter) => ({
 				requiredLimits: { maxBufferSize: adapter.limits.maxBufferSize },
 			}),
