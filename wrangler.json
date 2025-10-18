@@ -2,10 +2,11 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "vis2-rtvis-2024ws",
 	"main": "./.cloudflare/worker.js",
-	"site": {
-		"bucket": "./.cloudflare/public"
+	"assets": {
+		"directory": ".cloudflare/public",
+		"binding": "ASSETS"
 	},
-	"compatibility_date": "2025-01-04",
+	"compatibility_date": "2025-05-06",
 
 	"observability": { "enabled": true },
 

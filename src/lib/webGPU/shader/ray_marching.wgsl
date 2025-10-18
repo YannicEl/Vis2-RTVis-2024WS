@@ -74,7 +74,9 @@ fn fragment(
 
   var mix_factor = 0.0;
   if(uniforms.transparency == 1 && uniforms.molecularStructure == 1) {
-    let depth_sample = textureSample(depth_texture, texture_sampler, pixel);
+    let depth_dimensions = textureDimensions(depth_texture);
+    let texel_coords = vec2u(pixel * vec2f(depth_dimensions));
+    let depth_sample = textureLoad(depth_texture, texel_coords, 0);
     let depth_normalized = normalize_depth(depth_sample);
     let ray_marching_normalized = normalize_lol(ray_marching_sample[3], 0, uniforms.maximumTraceDistance);
 
