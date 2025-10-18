@@ -12,7 +12,8 @@
 		"lint": "prettier --check .",
 		"format": "prettier --write .",
 		"deploy": "pnpm build & wrangler deploy",
-		"documentation": "typedoc"
+		"documentation": "typedoc",
+		"prepare": "svelte-kit sync"
 	},
 	"devDependencies": {
 		"@iconify-json/gravity-ui": "1.2.10",
