@@ -12,10 +12,10 @@
 	bind:value
 	type="single"
 	{...restProps as any}
-	class="relative flex w-full touch-none select-none items-center"
+	class="relative flex w-full touch-none items-center select-none"
 >
 	{#snippet children({ thumbs })}
-		<span class="bg-gray-2 relative h-2 w-full grow cursor-pointer overflow-hidden">
+		<span class="relative h-2 w-full grow cursor-pointer overflow-hidden bg-gray-200">
 			<Slider.Range class="absolute h-full bg-black" />
 		</span>
 		{#each thumbs as index}

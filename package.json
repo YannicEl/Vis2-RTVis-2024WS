@@ -15,31 +15,30 @@
 		"documentation": "typedoc"
 	},
 	"devDependencies": {
-		"@iconify-json/gravity-ui": "1.2.4",
-		"@iconify-json/mdi": "1.2.2",
-		"@sveltejs/adapter-cloudflare": "7.0.2",
-		"@sveltejs/kit": "2.15.1",
-		"@sveltejs/vite-plugin-svelte": "5.0.3",
-		"@webgpu/types": "0.1.52",
-		"prettier": "3.4.2",
-		"prettier-plugin-organize-imports": "4.1.0",
-		"prettier-plugin-svelte": "3.3.2",
-		"prettier-plugin-tailwindcss": "0.6.9",
-		"svelte": "5.16.5",
-		"svelte-check": "4.1.1",
-		"typedoc": "^0.27.6",
-		"typescript": "5.7.2",
-		"unplugin-icons": "0.22.0",
-		"vite": "6.0.7",
-		"wrangler": "4.14.2"
+		"@iconify-json/gravity-ui": "1.2.10",
+		"@iconify-json/mdi": "1.2.3",
+		"@sveltejs/adapter-cloudflare": "7.2.4",
+		"@sveltejs/kit": "2.47.1",
+		"@sveltejs/vite-plugin-svelte": "6.2.1",
+		"@webgpu/types": "0.1.66",
+		"prettier": "3.6.2",
+		"prettier-plugin-organize-imports": "4.3.0",
+		"prettier-plugin-svelte": "3.4.0",
+		"prettier-plugin-tailwindcss": "0.7.1",
+		"svelte": "5.41.0",
+		"svelte-check": "4.3.3",
+		"typedoc": "0.28.14",
+		"typescript": "5.9.3",
+		"unplugin-icons": "22.4.2",
+		"vite": "7.1.10",
+		"wrangler": "4.43.0"
 	},
 	"dependencies": {
-		"@sveltejs/enhanced-img": "0.4.4",
-		"@unocss/reset": "0.65.3",
-		"bits-ui": "1.0.0-next.77",
+		"@sveltejs/enhanced-img": "0.8.4",
+		"bits-ui": "2.12.0",
 		"pdb-parser-js": "0.0.5",
-		"unocss": "0.65.3",
-		"wgpu-matrix": "3.3.0"
+		"unocss": "66.5.4",
+		"wgpu-matrix": "3.4.0"
 	},
 	"packageManager": "pnpm@9.15.1+sha512.1acb565e6193efbebda772702950469150cf12bcc764262e7587e71d19dc98a423dff9536e57ea44c49bdf790ff694e83c27be5faa23d67e0c033b583be4bfcf"
 }

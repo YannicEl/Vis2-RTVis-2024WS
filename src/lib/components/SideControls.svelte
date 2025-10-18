@@ -1,9 +1,7 @@
 <script lang="ts">
 	import type { SvelteHTMLElements } from 'svelte/elements';
-	import { page } from '$app/state';
 	import { getControls } from '$lib/controls/controls.svelte';
 	import type { ControlParams } from '$lib/controls/controls.svelte';
-	import { goto } from '$app/navigation';
 	import MdiChevronDown from '~icons/mdi/chevron-down';
 	import MdiChevronUp from '~icons/mdi/chevron-up';
 	import MdiChevronDoubleRight from '~icons/mdi/chevron-double-right';
@@ -46,7 +44,7 @@
 
 <div {...props} class={[className, 'max-h-full w-[300px] overflow-auto']}>
 	{#if showControls}
-		<div class="border-gray-2 flex flex-col gap-2 border-b border-l bg-white p-2">
+		<div class="flex flex-col gap-2 border-b border-l border-gray-200 bg-white p-2">
 			<div class="flex items-center justify-between">
 				<h2>Controls</h2>
 
@@ -60,7 +58,7 @@
 			</div>
 
 			{#each controlsGrouped as group (group.name)}
-				<hr class="-mx-2" />
+				<hr class="-mx-2 border-gray-200" />
 
 				<button
 					class="flex items-center justify-between"
@@ -119,7 +117,7 @@
 									type={control.type}
 									name={control.name}
 									onclick={control.onClick}
-									class="border-gray-2 hover:bg-gray-1 border bg-white px-2 py-1"
+									class="border border-gray-200 bg-white px-2 py-1 hover:bg-gray-100"
 								>
 									{control.label}
 								</button>
@@ -146,7 +144,7 @@
 				{/if}
 			{/each}
 
-			<hr class="-mx-2" />
+			<hr class="-mx-2 border-gray-200" />
 			<BottomControls class="w-full" />
 		</div>
 	{:else}

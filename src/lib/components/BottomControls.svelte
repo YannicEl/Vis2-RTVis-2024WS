@@ -69,7 +69,7 @@
 		--apply: size-9 flex items-center justify-center;
 
 		&:hover {
-			--apply: bg-gray-1;
+			--apply: bg-gray-100;
 		}
 	}
 </style>
